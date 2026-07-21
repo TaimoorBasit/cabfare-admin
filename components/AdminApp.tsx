@@ -2270,7 +2270,7 @@ export default function AdminApp() {
   const mapsLoaded = useGoogleMaps(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "");
   
   useEffect(() => {
-    fetch(API_BASE_URL + "/admin/config")
+    fetch(API_BASE_URL + "/api/admin/config")
       .then(r => r.json())
       .then(data => {
         if (data && data.vehicles) setDb(data);
