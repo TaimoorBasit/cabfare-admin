@@ -1308,14 +1308,14 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
   const tabMeta = {
     pricing: { label: "Custom Fares & Rules", desc: "Set exact prices from location A to B, or configure pricing rules." },
     fleet:   { label: "Pricing (Fixed & Variable)", desc: "Set fleet economics, overheads, and variable costs." },
-    bookings:{ label: "Searchings & Reports", desc: "Browse quote requests and export CSV reports." },
+    bookings:{ label: "Quotation", desc: "Browse quote requests and export CSV reports." },
     settings:{ label: "System Settings", desc: "Global calculator settings and surcharges." },
   };
 
   const navItems = [
     { k: "pricing", label: "Custom Route Prices",      icon: <SvgPricing size={17} color="currentColor" /> },
     { k: "fleet",   label: "Pricing",                  icon: <SvgBus size={17} color="currentColor" /> },
-    { k: "bookings",label: "Reports",                  icon: <SvgBookings size={17} color="currentColor" /> },
+    { k: "bookings",label: "Quotation",                  icon: <SvgBookings size={17} color="currentColor" /> },
     { k: "settings",label: "Settings",                 icon: <SvgSettings size={17} color="currentColor" /> },
   ];
 
@@ -1438,7 +1438,7 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
             <div className="adm-section">
               <div className="adm-section-head">
                 <div>
-                  <h2>Searchings & Reports</h2>
+                  <h2>Quotation</h2>
                   <p>Browse quote requests and export CSV reports.</p>
                 </div>
               </div>
