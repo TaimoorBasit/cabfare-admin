@@ -1764,50 +1764,51 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
 {/* ════════════════════════ FLEET & AVAILABILITY ════════════════════════ */}
           {tab === "fleet" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-              {/* SUBSECTION 2: VEHICLE WAGE & RUN RATES */}
+              
+              {/* SUBSECTION 2: GLOBAL PRICING VARIABLES */}
               <div className="adm-section">
                 <div className="adm-section-head">
                   <div>
-                    <h2>Operating Wage Rates & Profit Margins</h2>
-                    <p>Manage driver wages, holidays, and base margins.</p>
+                    <h2>Global Pricing Engine Variables</h2>
+                    <p>Manage driver wages, margins, and overnight costs.</p>
                   </div>
-                  <select 
-                    value={selectedWageVehicleId} 
-                    onChange={e => setSelectedWageVehicleId(e.target.value)}
-                    style={{ padding: "8px 12px", borderRadius: 8, border: `1px solid ${PX.gray200}`, fontWeight: 600, fontSize: 13, background: "#fff", cursor: "pointer", width: "100%", maxWidth: 220 }}
-                  >
-                    {vehicles.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
-                  </select>
                 </div>
-                {(() => {
-                  const sv = vehicles.find(v => v.id === selectedWageVehicleId) || vehicles[0];
-                  if (!sv) return null;
-                  return (
-                    <div className="adm-form-panel">
-                      <div className="adm-form-grid">
-                      <div>
-                        <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Fuel Price (£/Litre)</label>
-                        <input type="number" step="0.001" value={sv.fuelPricePerLitre ?? gv.fuelPricePerLitre ?? 1.52} onChange={e=>updateV(sv.id, "fuelPricePerLitre", Number(e.target.value))}/>
-                      </div>
-                      <div>
-                        <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Driver Wage (£/hr)</label>
-                        <input type="number" step="0.5" value={sv.driverHourlyWage ?? gv.driverHourlyWage ?? 17.5} onChange={e=>updateV(sv.id, "driverHourlyWage", Number(e.target.value))}/>
-                      </div>
-                      <div>
-                        <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Holiday Pay Addition (%)</label>
-                        <input type="number" step="0.1" value={sv.holidayPayPct ?? gv.holidayPayPct ?? 12.07} onChange={e=>updateV(sv.id, "holidayPayPct", Number(e.target.value))}/>
-                      </div>
-                      <div>
-                        <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Profit Margin (%)</label>
-                        <input type="number" value={sv.profitMarginPct ?? gv.profitMarginPct ?? 28} onChange={e=>updateV(sv.id, "profitMarginPct", Number(e.target.value))}/>
-                      </div>
-                      </div>
-                      </div>
-                  );
-                })()}
+                <div className="adm-form-panel">
+                  <div className="adm-form-grid">
+                    <div>
+                      <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Driver Wage Weekday (£/hr)</label>
+                      <input type="number" step="0.5" value={gv.driverWageWeekday ?? 15} onChange={e=>setGv(g=>({...g, driverWageWeekday: Number(e.target.value)}))}/>
+                    </div>
+                    <div>
+                      <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Driver Wage Weekend (£/hr)</label>
+                      <input type="number" step="0.5" value={gv.driverWageWeekend ?? 20} onChange={e=>setGv(g=>({...g, driverWageWeekend: Number(e.target.value)}))}/>
+                    </div>
+                    <div>
+                      <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Driver Wage Holiday (£/hr)</label>
+                      <input type="number" step="0.5" value={gv.driverWageHoliday ?? 22} onChange={e=>setGv(g=>({...g, driverWageHoliday: Number(e.target.value)}))}/>
+                    </div>
+                    <div>
+                      <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Overnight Cost/Driver (£)</label>
+                      <input type="number" step="10" value={gv.overnightCost ?? 200} onChange={e=>setGv(g=>({...g, overnightCost: Number(e.target.value)}))}/>
+                    </div>
+                    <div>
+                      <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Margin Weekday (%)</label>
+                      <input type="number" step="1" value={gv.marginWeekday ?? 20} onChange={e=>setGv(g=>({...g, marginWeekday: Number(e.target.value)}))}/>
+                    </div>
+                    <div>
+                      <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Margin Weekend (%)</label>
+                      <input type="number" step="1" value={gv.marginWeekend ?? 25} onChange={e=>setGv(g=>({...g, marginWeekend: Number(e.target.value)}))}/>
+                    </div>
+                    <div>
+                      <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Margin Holiday (%)</label>
+                      <input type="number" step="1" value={gv.marginHoliday ?? 30} onChange={e=>setGv(g=>({...g, marginHoliday: Number(e.target.value)}))}/>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* SUBSECTION 3: TOLL SURCHARGES */}
+
               <div className="adm-section">
                 <div className="adm-section-head">
                   <div>
@@ -1831,19 +1832,18 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
                 </div>
               </div>
 
+              
               {/* SUBSECTION 1: VEHICLE SPECIFICATIONS */}
               <div className="adm-section">
                 <div className="adm-section-head">
                   <div>
                     <h2>Fleet Vehicles Specifications & Costs</h2>
-                    <p>Edit standing rates, capacity constraints, insurance overheads, and run costs.</p>
+                    <p>Edit rates per km, standing rates, and commercial weights.</p>
                   </div>
                   <Btn variant="primary" size="sm" onClick={()=>{
                     const newId = "tier_"+Date.now();
                     setV(vs=>[...vs, {
-                      id: newId, name:"New Tier", emoji:"bus", desc:"Description", capacity:30, fleetCount:1, utilisationDays:220,
-                      annualCosts: [{ id:1, label:"Depreciation", cost:5000 }, { id:2, label:"Insurance", cost:2000 }],
-                      fuelKpl:8, maintenanceCostPerKm:0.12, tyreCostPerKm:0.05, extraLuggageProfitPct:0.2
+                      id: newId, name:"New Tier", emoji:"bus", desc:"Description", capacity:30, ratePerKm: 1.80, standingCostPerDay: 200, commercialWeight: 1.10
                     }]);
                     setActiveVehicleId(newId);
                   }}>＋ Add New Vehicle</Btn>
@@ -1851,20 +1851,13 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
 
                 <div style={{ padding: "20px 24px" }}>
                 {vehicles.filter(v => v.id === (vehicles.find(x => x.id === activeVehicleId) ? activeVehicleId : vehicles[0]?.id)).map(v => {
-                  const count = Number(v.fleetCount) || 1;
-                  const totalAnnualFixed = (v.annualCosts||[]).reduce((s,c)=>s+Number(c.cost),0);
-                  const annualFixed = totalAnnualFixed / count;
-                  const rs = Math.round(annualFixed / v.utilisationDays * 100) / 100;
-                  const utilRate = Math.round((v.utilisationDays/365)*100);
                   return (
                     <div key={v.id} style={{ border:`1.5px solid ${PX.gray200}`,borderRadius:12,padding:"1.25rem",marginBottom:"1rem",background: PX.gray50 }}>
                       <div style={{ display:"grid", gridTemplateColumns:"auto 1fr auto", gap:20, alignItems:"start", marginBottom:"1.25rem" }}>
-                        {/* Icon display box */}
                         <div style={{ width: 62, height: 62, borderRadius: 12, background: "#dbeafe", display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${PX.gray200}`, marginTop: 18 }}>
                           {v.emoji === "minibus" ? <SvgMinibus size={32} color={PX.navy800} /> : v.emoji === "coach" ? <SvgCoach size={32} color={PX.navy800} /> : <SvgBus size={32} color={PX.navy800} />}
                         </div>
                         
-                        {/* Middle section with selectors and inputs */}
                         <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(180px, 1fr))", gap:16 }}>
                           <div>
                             <label style={{ fontSize:10,fontWeight:700,color:PX.gray400,display:"block",marginBottom:4,textTransform:"uppercase" }}>Select Vehicle to Edit</label>
@@ -1905,15 +1898,8 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
                           </div>
                         </div>
 
-                        {/* Right action & state summary */}
                         <div style={{ display:"flex",flexDirection:"column",gap:8,alignItems:"flex-end" }}>
                           <button onClick={()=>{ if(vehicles.length<=1) return; if(window.confirm(`Delete ${v.name}?`)) setV(vs=>vs.filter(x=>x.id!==v.id)); }} style={{ padding:"8px 14px",background:PX.red100,color:PX.red700,border:"none",borderRadius:8,cursor:"pointer",fontSize:12,fontWeight:700, display:"flex", alignItems:"center", gap:4 }}><SvgTrash size={12} /> Remove</button>
-                          <div style={{ background:"#fff",borderRadius:8,padding:"8px 14px",border:`1.5px solid ${PX.gray200}`,textAlign:"right" }}>
-                            <span style={{ fontSize:10,fontWeight:700,color:PX.gray400,display:"block",textTransform:"uppercase" }}>Standing rate</span>
-                            <span style={{ fontSize:14,fontWeight:800,color:PX.navy800 }}>£{rs}/day</span>
-                            <span style={{ fontSize:10,fontWeight:700,color:PX.gray400,display:"block",textTransform:"uppercase",marginTop:8 }}>Annual Total</span>
-                            <span style={{ fontSize:14,fontWeight:800,color:PX.navy800 }}>£{totalAnnualFixed.toLocaleString()}</span>
-                          </div>
                         </div>
                       </div>
 
@@ -1923,64 +1909,26 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
                           <input type="number" value={v.capacity} onChange={e=>updateV(v.id,"capacity",Number(e.target.value))} />
                         </div>
                         <div>
-                          <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Fleet Count</label>
-                          <input type="number" value={v.fleetCount} onChange={e=>updateV(v.id,"fleetCount",Number(e.target.value))} />
+                          <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Rate per km (£)</label>
+                          <input type="number" step="0.1" value={v.ratePerKm ?? 1.80} onChange={e=>updateV(v.id,"ratePerKm",Number(e.target.value))} />
                         </div>
                         <div>
-                          <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Utilisation (days/yr)</label>
-                          <input type="number" value={v.utilisationDays} onChange={e=>updateV(v.id,"utilisationDays",Number(e.target.value))} />
+                          <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Standing Cost (£/day)</label>
+                          <input type="number" step="5" value={v.standingCostPerDay ?? 250} onChange={e=>updateV(v.id,"standingCostPerDay",Number(e.target.value))} />
                         </div>
                         <div>
-                          <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Utilisation Rate</label>
-                          <div style={{ padding:"12px 14px",background:"#fff",borderRadius:8,border:`1.5px solid ${PX.gray200}`,display:"flex",alignItems:"center",gap:8 }}>
-                            <ProgressBar pct={utilRate} color={utilRate>80?PX.teal700:PX.amber500} />
-                            <span style={{ fontSize:12,fontWeight:700,color:PX.navy800 }}>{utilRate}%</span>
-                          </div>
+                          <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Commercial Weight</label>
+                          <input type="number" step="0.01" value={v.commercialWeight ?? 1.10} onChange={e=>updateV(v.id,"commercialWeight",Number(e.target.value))} />
                         </div>
                       </div>
 
-                      <div style={{ background:"#fff9e6",border:`1.5px solid #ffe8cc`,borderRadius:8,padding:"12px 16px",marginBottom:"1rem" }}>
-                        <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8 }}>
-                          <span style={{ fontWeight:700,fontSize:13,color:"#b25e00" }}>Annual Fixed Costs Line Items</span>
-                          <button onClick={()=>updateV(v.id,"annualCosts",[...(v.annualCosts||[]),{id:Date.now(),label:"New cost item",cost:0}])} style={{ padding:"4px 10px",background:"#fff",border:`1px solid #ffe8cc`,borderRadius:6,fontSize:11,cursor:"pointer",fontWeight:600 }}>＋ Add Cost</button>
-                        </div>
-                        {(v.annualCosts||[]).map(c=>(
-                          <div key={c.id} style={{ display:"grid",gridTemplateColumns:"1fr 140px auto",gap:8,alignItems:"center",marginBottom:6 }}>
-                            <input type="text" value={c.label} onChange={e=>updateV(v.id,"annualCosts",v.annualCosts.map(x=>x.id===c.id?{...x,label:e.target.value}:x))} />
-                            <input type="number" value={c.cost} onChange={e=>updateV(v.id,"annualCosts",v.annualCosts.map(x=>x.id===c.id?{...x,cost:Number(e.target.value)}:x))} />
-                            <button onClick={()=>updateV(v.id,"annualCosts",v.annualCosts.filter(x=>x.id!==c.id))} style={{ color:PX.red700,background:"none",border:"none",fontWeight:800,cursor:"pointer",fontSize:18, display:"flex", alignItems:"center" }}><SvgClose size={16} /></button>
-                          </div>
-                        ))}
-                      </div>
-
-                      <details>
-                        <summary style={{ cursor:"pointer",fontSize:13,fontWeight:700,color:PX.navy800 }}>⚙ Variable Cost Parameters (Fuel, Tyres, Maintenance)</summary>
-                        <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:10,marginTop:10 }}>
-                          <div>
-                            <label style={{ fontSize:11,color:PX.gray600 }}>Fuel efficiency (kpl)</label>
-                            <input type="number" step="0.1" value={v.fuelKpl} onChange={e=>updateV(v.id,"fuelKpl",e.target.value)} />
-                          </div>
-                          <div>
-                            <label style={{ fontSize:11,color:PX.gray600 }}>Maintenance (£/{gv?.distanceUnit === "miles" ? "mi" : "km"})</label>
-                            <input type="number" step="0.01" value={v.maintenanceCostPerKm} onChange={e=>updateV(v.id,"maintenanceCostPerKm",e.target.value)} />
-                          </div>
-                          <div>
-                            <label style={{ fontSize:11,color:PX.gray600 }}>Tyre cost (£/{gv?.distanceUnit === "miles" ? "mi" : "km"})</label>
-                            <input type="number" step="0.01" value={v.tyreCostPerKm ?? 0.05} onChange={e=>updateV(v.id,"tyreCostPerKm",e.target.value)} />
-                          </div>
-                          <div>
-                            <label style={{ fontSize:11,color:PX.gray600 }}>Extra profit per bag {">"} 16 (%)</label>
-                            <input type="number" step="0.1" value={v.extraLuggageProfitPct ?? 0.2} onChange={e=>updateV(v.id,"extraLuggageProfitPct",e.target.value)} />
-                          </div>
-                          
-                        </div>
-                      </details>
                     </div>
                   );
                 })}
                 </div>
               </div>
               {/* SUBSECTION 2: COMPANY ANNUAL OVERHEADS */}
+
               <div className="adm-section">
                 <div className="adm-section-head">
                   <div>
