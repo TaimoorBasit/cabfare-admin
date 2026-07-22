@@ -1967,14 +1967,14 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
                             <div key={fc.id || idx} style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
                               <input type="text" value={fc.name} onChange={e => {
                                 const newFc = [...(v.annualFixedCosts||[])];
-                                newFc[idx].name = e.target.value;
+                                newFc[idx] = { ...newFc[idx], name: e.target.value };
                                 updateV(v.id, "annualFixedCosts", newFc);
                               }} style={{ flex: 1, background: "#fff" }} placeholder="e.g. Insurance" />
                               <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                                 <span style={{ fontSize: 13, fontWeight: 700, color: PX.gray500 }}>£</span>
                                 <input type="number" step="1" value={fc.amount} onChange={e => {
                                   const newFc = [...(v.annualFixedCosts||[])];
-                                  newFc[idx].amount = Number(e.target.value);
+                                  newFc[idx] = { ...newFc[idx], amount: Number(e.target.value) };
                                   const sum = newFc.reduce((s, x) => s + (Number(x.amount)||0), 0);
                                   const utilDays = v.utilisationDays || 225;
                                   const vs = vehicles.map(vx => vx.id === v.id ? { ...vx, annualFixedCosts: newFc, standingCostPerDay: sum / utilDays } : vx);
@@ -1990,13 +1990,6 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
                               }} style={{ background: "#fff", color: PX.red700, border: `1px solid ${PX.red100}`, borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontWeight: 700 }}>✕</button>
                             </div>
                           ))}
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8, paddingTop: 8, borderTop: "1px solid #fde68a" }}>
-                            <span style={{ fontSize: 11, fontWeight: 700, color: PX.gray500, textTransform: "uppercase" }}>Standing Rate (£/day)</span>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <span style={{ fontSize: 13, fontWeight: 700, color: PX.navy800 }}>£</span>
-                              <input type="number" step="1" value={v.standingCostPerDay ?? 0} onChange={e=>updateV(v.id,"standingCostPerDay",Number(e.target.value))} style={{ width: 100, background: "#fff" }} />
-                            </div>
-                          </div>
                         </div>
                       </div>
 
