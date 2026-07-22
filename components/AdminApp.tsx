@@ -2008,32 +2008,23 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
 
                       {/* Variable Costs */}
                       <details open style={{ background: "#fff", border: `1.5px solid ${PX.gray200}`, borderRadius: 8, padding: "12px 16px", marginBottom: "1rem" }}>
-                        <summary style={{ fontSize: 13, fontWeight: 700, color: PX.navy800, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
-                          ▶ Variable Cost Parameters (Fuel, Tyres, Maintenance)
-                        </summary>
-                        <div style={{ marginTop: "1rem", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "1rem" }}>
-                          {[
-                            { k: "fuelCost", l: "Fuel (£/km)" },
-                            { k: "tyreCost", l: "Tyres (£/km)" },
-                            { k: "maintenanceCost", l: "Maintenance (£/km)" },
-                            { k: "miscVariableCost", l: "Misc/Other (£/km)" }
-                          ].map(f => (
-                            <div key={f.k}>
-                              <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>{f.l}</label>
-                              <input type="number" step="0.01" value={v[f.k] ?? 0} onChange={e => {
-                                const val = Number(e.target.value);
-                                const newV = { ...v, [f.k]: val };
-                                const sum = (newV.fuelCost||0) + (newV.tyreCost||0) + (newV.maintenanceCost||0) + (newV.miscVariableCost||0);
-                                const vs = vehicles.map(vx => vx.id === v.id ? { ...newV, ratePerKm: sum } : vx);
-                                setV(vs);
-                              }} style={{ width: "100%", background: "#f9fafb" }} />
-                            </div>
-                          ))}
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginTop: 16, paddingTop: 12, borderTop: `1px solid ${PX.gray200}` }}>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: PX.gray500, textTransform: "uppercase", marginRight: 12 }}>Total Variable Cost (£/km)</span>
-                          <div style={{ fontSize: 15, fontWeight: 900, color: PX.navy800 }}>
-                            £{(v.ratePerKm || 0).toFixed(2)}
+                        <summary style={{ cursor:"pointer",fontSize:13,fontWeight:700,color:PX.navy800, display: "flex", alignItems: "center", gap: 8 }}>▶ Variable Cost Parameters (Fuel, Tyres, Maintenance)</summary>
+                        <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:10,marginTop:10 }}>
+                          <div>
+                            <label style={{ fontSize:11,color:PX.gray600,fontWeight:700 }}>Fuel efficiency (kpl)</label>
+                            <input type="number" step="0.1" value={v.fuelKpl ?? 5} onChange={e=>updateV(v.id,"fuelKpl",Number(e.target.value))} style={{ width: "100%", background: "#f9fafb", padding: "8px", border: `1px solid ${PX.gray200}`, borderRadius: 4 }} />
+                          </div>
+                          <div>
+                            <label style={{ fontSize:11,color:PX.gray600,fontWeight:700 }}>Maintenance (£/km)</label>
+                            <input type="number" step="0.01" value={v.maintenanceCostPerKm ?? 0.15} onChange={e=>updateV(v.id,"maintenanceCostPerKm",Number(e.target.value))} style={{ width: "100%", background: "#f9fafb", padding: "8px", border: `1px solid ${PX.gray200}`, borderRadius: 4 }} />
+                          </div>
+                          <div>
+                            <label style={{ fontSize:11,color:PX.gray600,fontWeight:700 }}>Tyre cost (£/km)</label>
+                            <input type="number" step="0.01" value={v.tyreCostPerKm ?? 0.05} onChange={e=>updateV(v.id,"tyreCostPerKm",Number(e.target.value))} style={{ width: "100%", background: "#f9fafb", padding: "8px", border: `1px solid ${PX.gray200}`, borderRadius: 4 }} />
+                          </div>
+                          <div>
+                            <label style={{ fontSize:11,color:PX.gray600,fontWeight:700 }}>Extra profit per bag {">"} 16 (%)</label>
+                            <input type="number" step="0.01" value={v.extraLuggageProfitPct ?? 0.2} onChange={e=>updateV(v.id,"extraLuggageProfitPct",Number(e.target.value))} style={{ width: "100%", background: "#f9fafb", padding: "8px", border: `1px solid ${PX.gray200}`, borderRadius: 4 }} />
                           </div>
                         </div>
                       </details>
