@@ -970,6 +970,19 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
         { id: '3', name: 'Annual Depreciation', amount: 7975 }
       ];
     }
+    
+    // Always sync standingCostPerDay and ratePerKm with the parameters
+    const fcSum = (newV.annualFixedCosts || []).reduce((s, x) => s + (Number(x.amount)||0), 0);
+    const utilDays = newV.utilisationDays || 225;
+    if (fcSum > 0) {
+      newV.standingCostPerDay = fcSum / utilDays;
+    }
+
+    const vcSum = (newV.fuelCost||0) + (newV.tyreCost||0) + (newV.maintenanceCost||0) + (newV.miscVariableCost||0);
+    if (vcSum > 0) {
+      newV.ratePerKm = vcSum;
+    }
+
     return newV;
   };
 
