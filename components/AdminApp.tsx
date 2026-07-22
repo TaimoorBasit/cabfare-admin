@@ -1900,6 +1900,14 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
 
                         <div style={{ display:"flex",flexDirection:"column",gap:8,alignItems:"flex-end" }}>
                           <button onClick={()=>{ if(vehicles.length<=1) return; if(window.confirm(`Delete ${v.name}?`)) setV(vs=>vs.filter(x=>x.id!==v.id)); }} style={{ padding:"8px 14px",background:PX.red100,color:PX.red700,border:"none",borderRadius:8,cursor:"pointer",fontSize:12,fontWeight:700, display:"flex", alignItems:"center", gap:4 }}><SvgTrash size={12} /> Remove</button>
+                          
+                          <div style={{ border: `1.5px solid ${PX.gray200}`, borderRadius: 8, padding: "12px", background: "#fff", textAlign: "center", minWidth: 130, marginTop: "auto" }}>
+                            <div style={{ fontSize: 10, fontWeight: 800, color: PX.gray500, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>Standing Rate</div>
+                            <div style={{ fontSize: 16, fontWeight: 900, color: PX.navy800 }}>£{((v.standingCostPerDay)||0).toFixed(2)}<span style={{ fontSize: 12, fontWeight: 700, color: PX.navy800 }}>/day</span></div>
+                            <div style={{ margin: "8px 0", height: 1, background: PX.gray200 }} />
+                            <div style={{ fontSize: 10, fontWeight: 800, color: PX.gray500, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>Annual Total</div>
+                            <div style={{ fontSize: 16, fontWeight: 900, color: PX.navy800 }}>£{((v.annualFixedCosts||[]).reduce((s,x)=>s+(Number(x.amount)||0),0)).toLocaleString()}</div>
+                          </div>
                         </div>
                       </div>
 
@@ -1981,47 +1989,33 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
                       </div>
 
                       {/* Variable Costs */}
-                      <details style={{ background: "#fff", border: `1.5px solid ${PX.gray200}`, borderRadius: 8, padding: "12px 16px", marginBottom: "1rem" }}>
+                      <details open style={{ background: "#fff", border: `1.5px solid ${PX.gray200}`, borderRadius: 8, padding: "12px 16px", marginBottom: "1rem" }}>
                         <summary style={{ fontSize: 13, fontWeight: 700, color: PX.navy800, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
                           ▶ Variable Cost Parameters (Fuel, Tyres, Maintenance)
                         </summary>
-                        <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: 8 }}>
-                          {(v.variableCosts || []).map((vc, idx) => (
-                            <div key={vc.id || idx} style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-                              <input type="text" value={vc.name} onChange={e => {
-                                const newVc = [...(v.variableCosts||[])];
-                                newVc[idx].name = e.target.value;
-                                updateV(v.id, "variableCosts", newVc);
-                              }} style={{ flex: 1 }} placeholder="e.g. Fuel" />
-                              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                                <span style={{ fontSize: 13, fontWeight: 700, color: PX.gray500 }}>£</span>
-                                <input type="number" step="0.01" value={vc.amount} onChange={e => {
-                                  const newVc = [...(v.variableCosts||[])];
-                                  newVc[idx].amount = Number(e.target.value);
-                                  const sum = newVc.reduce((s, x) => s + (Number(x.amount)||0), 0);
-                                  const vs = vehicles.map(vx => vx.id === v.id ? { ...vx, variableCosts: newVc, ratePerKm: sum } : vx);
-                                  setV(vs);
-                                }} style={{ width: 100 }} />
-                              </div>
-                              <button onClick={() => {
-                                const newVc = (v.variableCosts||[]).filter((_, i) => i !== idx);
-                                const sum = newVc.reduce((s, x) => s + (Number(x.amount)||0), 0);
-                                const vs = vehicles.map(vx => vx.id === v.id ? { ...vx, variableCosts: newVc, ratePerKm: sum } : vx);
+                        <div style={{ marginTop: "1rem", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "1rem" }}>
+                          {[
+                            { k: "fuelCost", l: "Fuel (£/km)" },
+                            { k: "tyreCost", l: "Tyres (£/km)" },
+                            { k: "maintenanceCost", l: "Maintenance (£/km)" },
+                            { k: "miscVariableCost", l: "Misc/Other (£/km)" }
+                          ].map(f => (
+                            <div key={f.k}>
+                              <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>{f.l}</label>
+                              <input type="number" step="0.01" value={v[f.k] ?? 0} onChange={e => {
+                                const val = Number(e.target.value);
+                                const newV = { ...v, [f.k]: val };
+                                const sum = (newV.fuelCost||0) + (newV.tyreCost||0) + (newV.maintenanceCost||0) + (newV.miscVariableCost||0);
+                                const vs = vehicles.map(vx => vx.id === v.id ? { ...newV, ratePerKm: sum } : vx);
                                 setV(vs);
-                              }} style={{ background: PX.red100, color: PX.red700, border: "none", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontWeight: 700 }}>✕</button>
+                              }} style={{ width: "100%", background: "#f9fafb" }} />
                             </div>
                           ))}
-                          <button onClick={() => {
-                            const newVc = [...(v.variableCosts||[]), { id: Date.now(), name: "", amount: 0 }];
-                            updateV(v.id, "variableCosts", newVc);
-                          }} style={{ alignSelf: "flex-start", background: PX.gray100, color: PX.navy800, border: "none", borderRadius: 6, padding: "6px 12px", cursor: "pointer", fontSize: 12, fontWeight: 700, marginTop: 4 }}>+ Add Cost</button>
-                          
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8, paddingTop: 8, borderTop: `1px solid ${PX.gray200}` }}>
-                            <span style={{ fontSize: 11, fontWeight: 700, color: PX.gray500, textTransform: "uppercase" }}>Variable Cost (£/km)</span>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <span style={{ fontSize: 13, fontWeight: 700, color: PX.navy800 }}>£</span>
-                              <input type="number" step="0.01" value={v.ratePerKm ?? 0} onChange={e=>updateV(v.id,"ratePerKm",Number(e.target.value))} style={{ width: 100 }} />
-                            </div>
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginTop: 16, paddingTop: 12, borderTop: `1px solid ${PX.gray200}` }}>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: PX.gray500, textTransform: "uppercase", marginRight: 12 }}>Total Variable Cost (£/km)</span>
+                          <div style={{ fontSize: 15, fontWeight: 900, color: PX.navy800 }}>
+                            £{(v.ratePerKm || 0).toFixed(2)}
                           </div>
                         </div>
                       </details>
