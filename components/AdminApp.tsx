@@ -1909,11 +1909,11 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
                           <input type="number" value={v.capacity} onChange={e=>updateV(v.id,"capacity",Number(e.target.value))} />
                         </div>
                         <div>
-                          <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Rate per km (£)</label>
+                          <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Variable Cost (£/km)</label>
                           <input type="number" step="0.1" value={v.ratePerKm ?? 1.80} onChange={e=>updateV(v.id,"ratePerKm",Number(e.target.value))} />
                         </div>
                         <div>
-                          <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Standing Cost (£/day)</label>
+                          <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Fixed Cost (£/day)</label>
                           <input type="number" step="5" value={v.standingCostPerDay ?? 250} onChange={e=>updateV(v.id,"standingCostPerDay",Number(e.target.value))} />
                         </div>
                         <div>
