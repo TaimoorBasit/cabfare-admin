@@ -961,8 +961,20 @@ function RouteMap({ result, journey, gv }) {
 // ── VehicleCard (Step 2 equivalent) ──────────────────────────────────────────
 // ── Admin Dashboard ────────────────────────────────────────────────────────────
 function AdminDashboard({ db, setDb, mapsLoaded }) {
+  const injectDefaults = (v) => {
+    const newV = { ...v };
+    if (!newV.annualFixedCosts || newV.annualFixedCosts.length === 0) {
+      newV.annualFixedCosts = [
+        { id: '1', name: 'Vehicle Excise Duty (VED)', amount: 600 },
+        { id: '2', name: 'Annual Insurance', amount: 3200 },
+        { id: '3', name: 'Annual Depreciation', amount: 7975 }
+      ];
+    }
+    return newV;
+  };
+
   const [tab, setTab]       = useState("pricing");
-  const [vehicles, setV]    = useState(db.vehicles.map(v=>({...v})));
+  const [vehicles, setV]    = useState(db.vehicles.map(injectDefaults));
   const [activeVehicleId, setActiveVehicleId] = useState(vehicles[0]?.id || "");
   const [selectedWageVehicleId, setSelectedWageVehicleId] = useState(vehicles[0]?.id || "");
   const [gv, setGv]         = useState({...db.globalVars});
@@ -986,7 +998,7 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
   useEffect(() => {
     if (db) {
       if (db.vehicles) {
-        setV(db.vehicles.map(v=>({...v})));
+        setV(db.vehicles.map(injectDefaults));
         setActiveVehicleId(activeId => {
           if (!activeId || !db.vehicles.some(v => v.id === activeId)) {
             return db.vehicles[0]?.id || "";
