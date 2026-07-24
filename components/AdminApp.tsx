@@ -964,18 +964,24 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
   const injectDefaults = (v) => {
     const newV = { ...v };
     if (!newV.annualFixedCosts || newV.annualFixedCosts.length === 0) {
-      newV.annualFixedCosts = [
-        { id: '1', name: 'Vehicle Excise Duty (VED)', amount: 600 },
-        { id: '2', name: 'Annual Insurance', amount: 3200 },
-        { id: '3', name: 'Annual Depreciation', amount: 7975 }
-      ];
+      newV.annualFixedCosts = Array.isArray(newV.annualCosts) && newV.annualCosts.length > 0
+        ? newV.annualCosts.map((cost, index) => ({
+            id: cost.id ?? index + 1,
+            name: cost.name ?? cost.label ?? "",
+            amount: Number(cost.amount ?? cost.cost ?? 0)
+          }))
+        : [
+            { id: '1', name: 'Vehicle Excise Duty (VED)', amount: 600 },
+            { id: '2', name: 'Annual Insurance', amount: 3200 },
+            { id: '3', name: 'Annual Depreciation', amount: 7975 }
+          ];
     }
     
     // Always sync standingCostPerDay and ratePerKm with the parameters
     const fcSum = (newV.annualFixedCosts || []).reduce((s, x) => s + (Number(x.amount)||0), 0);
     const utilDays = newV.utilisationDays || 225;
     if (fcSum > 0) {
-      newV.standingCostPerDay = fcSum / utilDays;
+      newV.standingCostPerDay = (fcSum / (Number(newV.fleetCount) || 1)) / utilDays;
     }
 
     const vcSum = (newV.fuelCost||0) + (newV.tyreCost||0) + (newV.maintenanceCost||0) + (newV.miscVariableCost||0);
@@ -995,8 +1001,15 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
   const [previewBooking, setPreviewBooking] = useState<any>(null);
   const [overheads, setOH]  = useState(db.annualOverheads.map(o=>({...o})));
   const [sr, setSr]         = useState({...db.surcharges});
+  const [operatorDetails, setOperatorDetails] = useState({
+    companyName: "Carolean Coaches Ltd",
+    operatorLicence: "PM0003456",
+    depotPostcode: "WS2 8TL",
+    notificationEmail: "bookings@caroleancoaches.co.uk",
+    ...(db.operatorDetails || {})
+  });
   const [blocks, setBl]     = useState([...db.blockedDates]);
-  const [newBlock, setNB]   = useState({id:'', vehicleId:db.vehicles[0]?.id || "",from:"",to:"",reason:"Contract booking"});
+  const [newBlock, setNB]   = useState({id:'', vehicleId:db.vehicles[0]?.id || "",from:"",to:"",reason:"Contract booking",units:1});
   
   const blankTemplate = {id:'', pickupArea:"", dropArea:"", vehicleId:db.vehicles[0]?.id, tripType:"one-way", price:0, radiusKm:15};
   const [newTemplate, setNT] = useState(blankTemplate);
@@ -1004,7 +1017,11 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
   const blankMatrix = {id:'', pickupArea:"", dropArea:"", tripType:"one-way", vehicleId:db.vehicles[0]?.id, baseFare:0, includedLiveMileage:0, includedDeadMileage:0, waitingChargePerHour:0, extraMileageRate:0, nightRateMultiplier:1, weekendRateMultiplier:1, status:'active'};
   const [newMatrix, setNM] = useState(blankMatrix);
 
-  const blankSeasonal = {id:'', name:"Holiday Surge", startDate:"", endDate:"", multiplier:1.2, status:'active'};
+  const blankSeasonal = {
+    id:'', name:"Holiday Surge", startDate:"", endDate:"", multiplier:1.2,
+    overrideFare:null, priority:1, enabled:true,
+    applicableVehicles:['Any'], applicableRoutes:['Any'], status:'active'
+  };
   const [newSeasonal, setNS] = useState(blankSeasonal);
   const [toast, setToast]   = useState("");
 
@@ -1025,6 +1042,7 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
       }
       if (db.annualOverheads) setOH(db.annualOverheads.map(o=>({...o})));
       if (db.surcharges) setSr({...db.surcharges});
+      if (db.operatorDetails) setOperatorDetails(current => ({...current, ...db.operatorDetails}));
       if (db.blockedDates) setBl([...db.blockedDates]);
       if (db.vehicles && db.vehicles[0]) setNB(nb => ({ ...nb, vehicleId: db.vehicles[0].id }));
     }
@@ -1128,7 +1146,7 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
     const headers = [
       "Booking ID", "Date", "Customer Name", "Email", "Phone", "Company",
       "Origin", "Destination", "Trip Type", "Vehicle Name", "Passengers",
-      "Luggage Type", "Luggage Count", "Distance Unit",
+      "Handbags", "Suitcases 23kg", "Distance Unit",
       `Live Mileage (${unit}s)`, `Dead Mileage (${unit}s)`, `Total Mileage (${unit}s)`,
       "Est. Driving Hours", "Waiting Time (mins)", "Total Shift Hours", "Dual Crew?", "Operation Days",
       "Base Standing Cost (£/day)", "Total Standing Cost (£)",
@@ -1161,8 +1179,12 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
       const fuelPrice = vehicle.fuelPricePerLitre ?? db.globalVars?.fuelPricePerLitre ?? 1.52;
       const fuelKpl = vehicle.fuelKpl || 5;
       const fuelPerKm = fuelPrice / fuelKpl;
-      const tyreCost = vehicle.tyreCostPerKm ?? 0.05;
-      const maintCost = vehicle.maintenanceCostPerKm || 0.15;
+      const calculatedTyreCost =
+        Number(vehicle.tyreSetCost) > 0 && Number(vehicle.expectedTyreLifeKm) > 0
+          ? Number(vehicle.tyreSetCost) / Number(vehicle.expectedTyreLifeKm)
+          : 0.05;
+      const tyreCost = vehicle.tyreCostPerKm ?? calculatedTyreCost;
+      const maintCost = vehicle.maintenanceCostPerKm ?? 0.15;
 
       const totalAnnualFixed = (vehicle.annualCosts||[]).reduce((s,c)=>s+Number(c.cost),0);
       const fleetCount = vehicle.fleetCount || 1;
@@ -1196,8 +1218,8 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
         b.journey?.journeyType,
         vehicle.name,
         b.journey?.passengers,
-        b.journey?.largeLuggage,
-        b.journey?.luggageCount,
+        b.journey?.handbagCount ?? 0,
+        b.journey?.suitcaseCount ?? 0,
         db.globalVars?.distanceUnit || 'km',
         Math.round(liveKm),
         Math.round(deadKm),
@@ -1262,21 +1284,36 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(isNew ? { ...item, id: undefined } : item)
       });
+      if (!res.ok) throw new Error(`Failed to save ${type}`);
       return await res.json();
     }
   };
 
   const save = async () => {
     const newGv = { ...gv, yardAddress: depotLoc.address, yardLat: depotLoc.lat, yardLng: depotLoc.lng };
+    const normalizedVehicles = vehicles.map(vehicle => ({
+      ...vehicle,
+      annualCosts: (vehicle.annualFixedCosts || []).map((cost, index) => ({
+        id: cost.id ?? index + 1,
+        label: cost.name ?? cost.label ?? "",
+        cost: Number(cost.amount ?? cost.cost ?? 0)
+      }))
+    }));
     const newDb = {...db,globalVars:newGv,annualOverheads:overheads,
-      surcharges:sr,vehicles,blockedDates:blocks};
+      surcharges:sr,vehicles:normalizedVehicles,blockedDates:blocks,operatorDetails};
     setDb(newDb);
     try {
-      await fetch(API_BASE_URL + '/api/admin/config', {
+      const configResponse = await fetch(API_BASE_URL + '/api/admin/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newDb)
       });
+      if (!configResponse.ok) throw new Error("Failed to save configuration");
+      await Promise.all([
+        ...matrixData.filter(item=>item.id).map(item=>saveApi('matrix', item)),
+        ...templatesData.filter(item=>item.id).map(item=>saveApi('templates', item)),
+        ...seasonalData.filter(item=>item.id).map(item=>saveApi('seasonal', item))
+      ]);
       setToast("All changes saved"); setTimeout(()=>setToast(""),2500);
     } catch(e) {
       setToast("Error saving changes"); setTimeout(()=>setToast(""),2500);
@@ -1532,7 +1569,10 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
                             <div style={{ fontSize: 11, color: PX.gray400 }}>→ {String(b.journey?.destination).split(',')[0]}</div>
                           </td>
                           <td style={{ color: PX.gray600 }}>
-                            {b.quote?.vehicle?.name} ({b.journey?.passengers} pax)
+                            <div>{b.quote?.vehicle?.name} ({b.journey?.passengers} pax)</div>
+                            <div style={{ fontSize: 11, color: PX.gray400, marginTop: 2 }}>
+                              {b.journey?.handbagCount ?? 0} handbags · {b.journey?.suitcaseCount ?? 0} suitcases (23kg)
+                            </div>
                           </td>
                           <td style={{ fontWeight: 800, color: PX.brandRed }}>
                             £{fmt(b.quote?.result?.finalPrice || b.quote?.result?.finalFare || 0)}
@@ -1674,6 +1714,33 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
                         <label className="field-label">Extra Mileage Rate (£)</label>
                         <input type="number" step="0.01" value={newMatrix.extraMileageRate||0} onChange={e=>setNM(x=>({...x,extraMileageRate:Number(e.target.value)}))} />
                       </div>
+                      <div>
+                        <label className="field-label">Included Live Mileage</label>
+                        <input type="number" step="0.1" min="0" value={newMatrix.includedLiveMileage??0} onChange={e=>setNM(x=>({...x,includedLiveMileage:Number(e.target.value)}))} />
+                      </div>
+                      <div>
+                        <label className="field-label">Included Dead Mileage</label>
+                        <input type="number" step="0.1" min="0" value={newMatrix.includedDeadMileage??0} onChange={e=>setNM(x=>({...x,includedDeadMileage:Number(e.target.value)}))} />
+                      </div>
+                      <div>
+                        <label className="field-label">Waiting Charge (£/hr)</label>
+                        <input type="number" step="0.5" min="0" value={newMatrix.waitingChargePerHour??0} onChange={e=>setNM(x=>({...x,waitingChargePerHour:Number(e.target.value)}))} />
+                      </div>
+                      <div>
+                        <label className="field-label">Night Multiplier</label>
+                        <input type="number" step="0.05" min="0" value={newMatrix.nightRateMultiplier??1} onChange={e=>setNM(x=>({...x,nightRateMultiplier:Number(e.target.value)}))} />
+                      </div>
+                      <div>
+                        <label className="field-label">Weekend Multiplier</label>
+                        <input type="number" step="0.05" min="0" value={newMatrix.weekendRateMultiplier??1} onChange={e=>setNM(x=>({...x,weekendRateMultiplier:Number(e.target.value)}))} />
+                      </div>
+                      <div>
+                        <label className="field-label">Rule Status</label>
+                        <select value={newMatrix.status||"active"} onChange={e=>setNM(x=>({...x,status:e.target.value}))}>
+                          <option value="active">Active</option>
+                          <option value="inactive">Inactive</option>
+                        </select>
+                      </div>
                     </div>
                     <div>
                       <Btn variant="primary" size="sm" full={false} onClick={async ()=>{
@@ -1742,6 +1809,28 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
                         <label className="field-label">Multiplier (e.g. 1.2)</label>
                         <input type="number" step="0.05" value={newSeasonal.multiplier||1} onChange={e=>setNS(x=>({...x,multiplier:Number(e.target.value)}))} />
                       </div>
+                      <div>
+                        <label className="field-label">Override Fare (£, optional)</label>
+                        <input type="number" min="0" value={newSeasonal.overrideFare??""} onChange={e=>setNS(x=>({...x,overrideFare:e.target.value===""?null:Number(e.target.value)}))} />
+                      </div>
+                      <div>
+                        <label className="field-label">Priority</label>
+                        <input type="number" min="0" value={newSeasonal.priority??1} onChange={e=>setNS(x=>({...x,priority:Number(e.target.value)}))} />
+                      </div>
+                      <div>
+                        <label className="field-label">Applicable Vehicle</label>
+                        <select value={newSeasonal.applicableVehicles?.[0]||"Any"} onChange={e=>setNS(x=>({...x,applicableVehicles:[e.target.value]}))}>
+                          <option value="Any">All Vehicles</option>
+                          {db.vehicles.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="field-label">Period Status</label>
+                        <select value={newSeasonal.enabled===false?"inactive":"active"} onChange={e=>setNS(x=>({...x,enabled:e.target.value==="active",status:e.target.value}))}>
+                          <option value="active">Active</option>
+                          <option value="inactive">Inactive</option>
+                        </select>
+                      </div>
                     </div>
                     <div>
                       <Btn variant="primary" size="sm" full={false} onClick={async ()=>{
@@ -1781,7 +1870,60 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
 
               </div>
 
-              {/* Blocked dates section removed as requested */}
+              <div className="adm-section">
+                <div className="adm-section-head">
+                  <div>
+                    <h2>Fleet Availability Blocks</h2>
+                    <p>Take one or more vehicle units out of quoting for a date range.</p>
+                  </div>
+                  <span className="adm-badge adm-badge-gray">{blocks.length} blocks</span>
+                </div>
+                <div className="adm-form-panel">
+                  <div className="adm-form-grid">
+                    <div>
+                      <label className="field-label">Vehicle</label>
+                      <select value={newBlock.vehicleId} onChange={e=>setNB(x=>({...x,vehicleId:e.target.value}))}>
+                        {vehicles.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="field-label">Unavailable Units</label>
+                      <input type="number" min="1" value={newBlock.units??1} onChange={e=>setNB(x=>({...x,units:Math.max(1,Number(e.target.value)||1)}))} />
+                    </div>
+                    <div>
+                      <label className="field-label">From</label>
+                      <input type="datetime-local" value={newBlock.from} onChange={e=>setNB(x=>({...x,from:e.target.value}))} />
+                    </div>
+                    <div>
+                      <label className="field-label">To</label>
+                      <input type="datetime-local" value={newBlock.to} onChange={e=>setNB(x=>({...x,to:e.target.value}))} />
+                    </div>
+                    <div className="span2">
+                      <label className="field-label">Reason</label>
+                      <input type="text" value={newBlock.reason} onChange={e=>setNB(x=>({...x,reason:e.target.value}))} />
+                    </div>
+                  </div>
+                  <Btn variant="primary" size="sm" onClick={()=>{
+                    if(!newBlock.vehicleId || !newBlock.from || !newBlock.to) return setToast("Vehicle and date range required.");
+                    if(new Date(newBlock.to) < new Date(newBlock.from)) return setToast("Block end must be after its start.");
+                    setBl(items=>[{...newBlock,id:newBlock.id||`block_${Date.now()}`},...items]);
+                    setNB({id:'',vehicleId:vehicles[0]?.id||"",from:"",to:"",reason:"Contract booking",units:1});
+                    setToast("Availability block added. Save changes to apply it.");
+                  }}>+ Add Availability Block</Btn>
+                </div>
+                <div className="adm-list">
+                  {blocks.length===0 && <div className="adm-empty">No fleet availability blocks configured.</div>}
+                  {blocks.map(block=>(
+                    <div className="adm-row" key={block.id}>
+                      <div>
+                        <div className="adm-row-title">{vehicles.find(v=>v.id===block.vehicleId)?.name||block.vehicleId}</div>
+                        <div className="adm-row-sub">{block.from?.replace('T',' ')} → {block.to?.replace('T',' ')} · {block.units||1} unit(s) · {block.reason}</div>
+                      </div>
+                      <button className="adm-btn-danger" onClick={()=>setBl(items=>items.filter(x=>x.id!==block.id))}><SvgClose size={13}/></button>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
             </div>
           )}
@@ -1866,10 +2008,14 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
                     <p>Edit rates per km, standing rates, and commercial weights.</p>
                   </div>
                   <Btn variant="primary" size="sm" onClick={()=>{
-                    const newId = "tier_"+Date.now();
-                    setV(vs=>[...vs, {
-                      id: newId, name:"New Tier", emoji:"bus", desc:"Description", capacity:30, ratePerKm: 1.80, standingCostPerDay: 200, commercialWeight: 1.10
-                    }]);
+                     const newId = "tier_"+Date.now();
+                     setV(vs=>[...vs, {
+                       id: newId, name:"New Tier", emoji:"bus", desc:"Description", capacity:30,
+                       fleetCount:1, utilisationDays:225, ratePerKm:1.80,
+                       standingCostPerDay:200, commercialWeight:1.00,
+                       annualFixedCosts:[], fuelKpl:5, maintenanceCostPerKm:0.15,
+                       tyreCostPerKm:0.05, extraLuggageProfitPct:0.2
+                     }]);
                     setActiveVehicleId(newId);
                   }}>＋ Add New Vehicle</Btn>
                 </div>
@@ -1943,14 +2089,18 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
                         </div>
                         <div>
                           <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Fleet Count</label>
-                          <input type="number" value={v.fleetCount ?? 1} onChange={e=>updateV(v.id,"fleetCount",Number(e.target.value))} />
+                          <input type="number" min="1" value={v.fleetCount ?? 1} onChange={e=>{
+                            const fleetCount=Math.max(1,Number(e.target.value)||1);
+                            const sum=(v.annualFixedCosts||[]).reduce((s,x)=>s+(Number(x.amount)||0),0);
+                            setV(vs=>vs.map(vx=>vx.id===v.id?{...vx,fleetCount,standingCostPerDay:(sum/fleetCount)/(v.utilisationDays||225)}:vx));
+                          }} />
                         </div>
                         <div>
                           <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Utilisation (days/yr)</label>
                           <input type="number" value={v.utilisationDays ?? 225} onChange={e=>{
                             const utilDays = Number(e.target.value) || 225;
                             const sum = (v.annualFixedCosts||[]).reduce((s, x) => s + (Number(x.amount)||0), 0);
-                            const vs = vehicles.map(vx => vx.id === v.id ? { ...vx, utilisationDays: utilDays, standingCostPerDay: sum > 0 ? (sum / utilDays) : vx.standingCostPerDay } : vx);
+                            const vs = vehicles.map(vx => vx.id === v.id ? { ...vx, utilisationDays: utilDays, standingCostPerDay: sum > 0 ? ((sum / (v.fleetCount||1)) / utilDays) : vx.standingCostPerDay } : vx);
                             setV(vs);
                           }} />
                         </div>
@@ -1961,8 +2111,8 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
                           </div>
                         </div>
                         <div>
-                          <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Commercial Weight</label>
-                          <input type="number" step="0.01" value={v.commercialWeight ?? 1.10} onChange={e=>updateV(v.id,"commercialWeight",Number(e.target.value))} />
+                          <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Commercial Fare Multiplier</label>
+                          <input type="number" min="0.1" step="0.01" value={v.commercialWeight ?? 1.00} onChange={e=>updateV(v.id,"commercialWeight",Number(e.target.value))} />
                         </div>
                       </div>
 
@@ -1990,7 +2140,7 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
                                   newFc[idx] = { ...newFc[idx], amount: Number(e.target.value) };
                                   const sum = newFc.reduce((s, x) => s + (Number(x.amount)||0), 0);
                                   const utilDays = v.utilisationDays || 225;
-                                  const vs = vehicles.map(vx => vx.id === v.id ? { ...vx, annualFixedCosts: newFc, standingCostPerDay: sum / utilDays } : vx);
+                                  const vs = vehicles.map(vx => vx.id === v.id ? { ...vx, annualFixedCosts: newFc, standingCostPerDay: (sum / (v.fleetCount||1)) / utilDays } : vx);
                                   setV(vs);
                                 }} style={{ width: 100, background: "#fff" }} />
                               </div>
@@ -1998,7 +2148,7 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
                                 const newFc = (v.annualFixedCosts||[]).filter((_, i) => i !== idx);
                                 const sum = newFc.reduce((s, x) => s + (Number(x.amount)||0), 0);
                                 const utilDays = v.utilisationDays || 225;
-                                const vs = vehicles.map(vx => vx.id === v.id ? { ...vx, annualFixedCosts: newFc, standingCostPerDay: sum / utilDays } : vx);
+                                const vs = vehicles.map(vx => vx.id === v.id ? { ...vx, annualFixedCosts: newFc, standingCostPerDay: (sum / (v.fleetCount||1)) / utilDays } : vx);
                                 setV(vs);
                               }} style={{ background: "#fff", color: PX.red700, border: `1px solid ${PX.red100}`, borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontWeight: 700 }}>✕</button>
                             </div>
@@ -2160,19 +2310,19 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
                   <div className="adm-form-grid">
                     <div>
                     <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Company Registered Name</label>
-                    <input type="text" defaultValue="Carolean Coaches Ltd" />
+                    <input type="text" value={operatorDetails.companyName} onChange={e=>setOperatorDetails(x=>({...x,companyName:e.target.value}))} />
                   </div>
                   <div>
                     <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>PSV Operator Licence No.</label>
-                    <input type="text" defaultValue="PM0003456" />
+                    <input type="text" value={operatorDetails.operatorLicence} onChange={e=>setOperatorDetails(x=>({...x,operatorLicence:e.target.value}))} />
                   </div>
                   <div>
                     <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Depot Yard Postcode</label>
-                    <input type="text" defaultValue="WS2 8TL" />
+                    <input type="text" value={operatorDetails.depotPostcode} onChange={e=>setOperatorDetails(x=>({...x,depotPostcode:e.target.value}))} />
                   </div>
                   <div>
                     <label style={{ fontSize:11,fontWeight:700,color:PX.gray600,display:"block",marginBottom:4 }}>Default Admin Notification Email</label>
-                    <input type="email" defaultValue="bookings@caroleancoaches.co.uk" />
+                    <input type="email" value={operatorDetails.notificationEmail} onChange={e=>setOperatorDetails(x=>({...x,notificationEmail:e.target.value}))} />
                   </div>
                   </div>
                 </div>
@@ -2209,6 +2359,14 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
                       <div style={{ fontSize: 11, fontWeight: 700, color: PX.gray500, textTransform: "uppercase" }}>Requirements</div>
                       <div style={{ fontSize: 13, fontWeight: 600, color: PX.navy800, marginTop: 4 }}>{previewBooking.journey?.passengers} Passengers</div>
                       <div style={{ fontSize: 13, color: PX.gray600 }}>Vehicle: {previewBooking.quote?.vehicle?.name}</div>
+                      <div style={{ fontSize: 13, color: PX.gray600, marginTop: 2 }}>
+                        Luggage: {previewBooking.journey?.handbagCount ?? 0} handbags · {previewBooking.journey?.suitcaseCount ?? 0} suitcases (23kg)
+                      </div>
+                      {previewBooking.journey?.specialRequests && (
+                        <div style={{ fontSize: 13, color: PX.gray600, marginTop: 8, padding: "8px 10px", background: PX.gray50, borderRadius: 8 }}>
+                          <strong>Special requests:</strong> {previewBooking.journey.specialRequests}
+                        </div>
+                      )}
                     </div>
                     <div>
                       <div style={{ fontSize: 11, fontWeight: 700, color: PX.gray500, textTransform: "uppercase" }}>Total Fare</div>

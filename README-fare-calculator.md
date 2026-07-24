@@ -23,10 +23,10 @@ If no template matches, it checks for an active Pricing Matrix rule:
 
 ### Priority 3: Fleet Economics Engine (Dynamic Variable Calculation)
 If no template or matrix rule applies, the system builds the price from the ground up based on real operational costs:
-*   **OpDays** = Total days of the trip (1 for same-day, else `ceil(returnDate - departureDate) + 1`)
+*   **OpDays** = Inclusive calendar days from departure through return (1 for same-day)
 *   **Shift Hours** = `(TotalKm / Speed) + (waitingMins / 60)` 
     *   *Speed Constant*: 48.5 mph or 78 km/h depending on global configuration unit.
-*   **Driver Wages** = `(driverHourlyWage * Shift Hours * OpDays)`
+*   **Driver Wages** = `(driverHourlyWage * Total Route Shift Hours)`
     *   *Holiday Pay* = `Driver Wages * (holidayPayPct / 100)`
     *   *Dual Crew Multiplier* = If Shift Hours > 9 hours, multiply total driver wage by 2.
 *   **Running Costs** = `(fuelPricePerLitre / fuelKpl) + tyreCostPerKm + maintenanceCostPerKm`
@@ -62,6 +62,6 @@ After the base subtotal is calculated, conditional surcharges are added:
 
 *   **UK Only Restriction**: The application enforces that all waypoints are within the UK. The map picker fails explicitly if a selected location is outside the UK.
 *   **Dual Driver Requirement**: Handled automatically. If the driving + waiting time exceeds 9 hours, the driver wage is multiplied by 2.
-*   **API Failure Fallbacks**: If the backend Google Maps API fails to load or no API key is present, `mileageEngine.ts` defaults to hardcoded dummy mileage (100km live, 40km S).
+*   **Routing Failure Handling**: If no Google Maps key is configured, local development can use fallback mileage. If a configured routing request fails, the quote is rejected instead of charging from dummy mileage.
 *   **Minimum Fare Enforcement**: When using the Fleet Economics fallback, prices will never drop below the calculated `minHirePerDay`, ensuring no journey operates at a loss.
 *   **Multi-day Trips**: Modifies the standing cost, driver wages, and automatically attaches nightly driver subsistence allowances.
