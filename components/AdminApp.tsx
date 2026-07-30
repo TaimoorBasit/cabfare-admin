@@ -1075,6 +1075,7 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
   const [searchRoute, setSearchRoute] = useState("");
   const [apisLoaded, setApisLoaded] = useState(false);
   const [isBookingsLoading, setIsBookingsLoading] = useState(true);
+  const [bookingsDisplayCount, setBookingsDisplayCount] = useState(100);
 
   useEffect(() => {
     if (!apisLoaded) {
@@ -1588,7 +1589,7 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredBookingsData.map((b: any) => (
+                      {filteredBookingsData.slice(0, bookingsDisplayCount || 100).map((b: any) => (
                         <tr key={b.id} onClick={() => setPreviewBooking(b)} style={{ cursor: "pointer", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#f8fafc"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
                           <td style={{ fontWeight: 700, color: PX.navy800 }}>{b.id}</td>
                           <td style={{ color: PX.gray600 }}>
@@ -1617,6 +1618,13 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
                       ))}
                     </tbody>
                   </table>
+                  {filteredBookingsData.length > (bookingsDisplayCount || 100) && (
+                    <div style={{ display: "flex", justifyContent: "center", padding: "16px 0" }}>
+                      <Btn variant="secondary" size="md" onClick={() => setBookingsDisplayCount((c: number) => (c || 100) + 100)}>
+                        Load More Bookings
+                      </Btn>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
