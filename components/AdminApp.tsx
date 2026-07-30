@@ -1077,7 +1077,7 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
   const [isBookingsLoading, setIsBookingsLoading] = useState(true);
 
   useEffect(() => {
-    if (!apisLoaded && (tab === "pricing" || tab === "fleet" || tab === "bookings")) {
+    if (!apisLoaded) {
       setApisLoaded(true);
       
       fetch(API_BASE_URL + '/api/admin/pricing-matrix').then(r=>r.json()).then(m => setMatrixData(Array.isArray(m) ? m : [])).catch(()=>{});
@@ -1092,7 +1092,21 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
         setIsBookingsLoading(false);
       });
     }
-  }, [tab, apisLoaded]);
+  }, [apisLoaded]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetch(API_BASE_URL + '/api/bookings')
+        .then(r => r.json())
+        .then(b => {
+          if (b.bookings && Array.isArray(b.bookings)) {
+            setBookingsData(b.bookings);
+          }
+        })
+        .catch(() => {});
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   const filteredBookingsData = useMemo(() => {
     let list = bookingsData;
