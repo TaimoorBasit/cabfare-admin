@@ -499,7 +499,7 @@ function GlobalStyle() {
 
       @media (max-width: 768px) {
         .adm-sidebar { display: none !important; }
-        .adm-main-content { margin-left: 0 !important; width: 100% !important; }
+        .adm-main-content { margin-left: 0 !important; width: 100% !important; min-width: 0 !important; overflow-x: hidden !important; }
         .adm-search-bar { flex-direction: column; align-items: stretch; }
         .adm-search-bar input { width: 100% !important; max-width: none !important; }
         .admin-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
