@@ -1074,20 +1074,22 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
   const [searchFareTo, setSearchFareTo] = useState("");
   const [searchRoute, setSearchRoute] = useState("");
   const [apisLoaded, setApisLoaded] = useState(false);
+  const [isBookingsLoading, setIsBookingsLoading] = useState(true);
 
   useEffect(() => {
     if (!apisLoaded && (tab === "pricing" || tab === "fleet" || tab === "bookings")) {
-      Promise.all([
-        fetch(API_BASE_URL + '/api/admin/pricing-matrix').then(r=>r.json()).catch(()=>[]),
-        fetch(API_BASE_URL + '/api/admin/route-templates').then(r=>r.json()).catch(()=>[]),
-        fetch(API_BASE_URL + '/api/admin/seasonal').then(r=>r.json()).catch(()=>[]),
-        fetch(API_BASE_URL + '/api/bookings').then(r=>r.json()).catch(()=>({bookings:[]}))
-      ]).then(([m, t, s, b]) => {
-        setMatrixData(Array.isArray(m) ? m : []);
-        setTemplatesData(Array.isArray(t) ? t : []);
-        setSeasonalData(Array.isArray(s) ? s : []);
+      setApisLoaded(true);
+      
+      fetch(API_BASE_URL + '/api/admin/pricing-matrix').then(r=>r.json()).then(m => setMatrixData(Array.isArray(m) ? m : [])).catch(()=>{});
+      fetch(API_BASE_URL + '/api/admin/route-templates').then(r=>r.json()).then(t => setTemplatesData(Array.isArray(t) ? t : [])).catch(()=>{});
+      fetch(API_BASE_URL + '/api/admin/seasonal').then(r=>r.json()).then(s => setSeasonalData(Array.isArray(s) ? s : [])).catch(()=>{});
+      
+      fetch(API_BASE_URL + '/api/bookings').then(r=>r.json()).then(b => {
         setBookingsData(b.bookings && Array.isArray(b.bookings) ? b.bookings : []);
-        setApisLoaded(true);
+        setIsBookingsLoading(false);
+      }).catch(()=>{
+        setBookingsData([]);
+        setIsBookingsLoading(false);
       });
     }
   }, [tab, apisLoaded]);
@@ -1549,7 +1551,12 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
                 <Btn variant="primary" size="sm" onClick={exportBookingsToCSV}>↓ Export CSV</Btn>
               </div>
               
-              {filteredBookingsData.length === 0 ? (
+              {isBookingsLoading ? (
+                <div className="adm-empty" style={{ margin: "2rem 0", display: "flex", flexDirection: "column", gap: 12 }}>
+                  <span className="spinning" style={{ fontSize: 24, color: PX.brandRed }}>⟳</span>
+                  <span style={{ fontSize: 13, color: "#667085" }}>Loading quotation data...</span>
+                </div>
+              ) : filteredBookingsData.length === 0 ? (
                 <div className="adm-empty" style={{ margin: "2rem 0" }}>
                   No bookings found matching your search/date filters.
                 </div>
