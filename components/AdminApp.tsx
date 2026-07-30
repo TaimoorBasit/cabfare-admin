@@ -496,6 +496,16 @@ function GlobalStyle() {
       }
       .admin-table tbody tr:hover { background: #f8fafc; }
       .admin-table tbody tr:last-child td { border-bottom: none; }
+
+      @media (max-width: 768px) {
+        .adm-sidebar { display: none !important; }
+        .adm-main-content { margin-left: 0 !important; width: 100% !important; }
+        .adm-search-bar { flex-direction: column; align-items: stretch; }
+        .adm-search-bar input { width: 100% !important; max-width: none !important; }
+        .admin-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .adm-form-grid { grid-template-columns: 1fr !important; }
+        .adm-modal { width: 95% !important; margin: 0 auto; max-height: 95vh !important; }
+      }
     `;
     document.head.appendChild(el);
     return () => {
@@ -1424,7 +1434,7 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
       )}
 
       {/* ── White Sidebar ─────────────────────────────── */}
-      <aside style={{
+      <aside className="adm-sidebar" style={{
         width: 220,
         minWidth: 220,
         background: "#ffffff",
@@ -1509,7 +1519,7 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
       </aside>
 
       {/* ── Main area ────────────────────────────────── */}
-      <div style={{ flex: 1, marginLeft: 220, display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <div className="adm-main-content" style={{ flex: 1, marginLeft: 220, display: "flex", flexDirection: "column", minHeight: "100vh" }}>
         {/* Top header */}
         <div style={{ background: "#ffffff", borderBottom: "1px solid #eaecf0", padding: "0 2rem", height: 60, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 40 }}>
           <div>
