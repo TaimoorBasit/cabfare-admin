@@ -993,6 +993,21 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
   };
 
   const [tab, setTab]       = useState("pricing");
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedTab = localStorage.getItem("adminTab");
+      if (savedTab) setTab(savedTab);
+    }
+    setIsReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (isReady && typeof window !== "undefined") {
+      localStorage.setItem("adminTab", tab);
+    }
+  }, [tab, isReady]);
   const [vehicles, setV]    = useState(db.vehicles.map(injectDefaults));
   const [activeVehicleId, setActiveVehicleId] = useState(vehicles[0]?.id || "");
   const [selectedWageVehicleId, setSelectedWageVehicleId] = useState(vehicles[0]?.id || "");
@@ -1382,7 +1397,7 @@ function AdminDashboard({ db, setDb, mapsLoaded }) {
   ];
 
   return (
-    <div className="adm-root">
+    <div className="adm-root" style={{ opacity: isReady ? 1 : 0, transition: "opacity 0.2s ease-out" }}>
       {toast && (
         <div style={{ position:"fixed",top:20,right:20,background:"#101828",color:"#fff",
           padding:"12px 20px",borderRadius:10,fontSize:13,fontWeight:600,zIndex:9999,
