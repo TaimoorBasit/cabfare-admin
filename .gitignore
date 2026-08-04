@@ -9,6 +9,7 @@ yarn-debug.log*
 yarn-error.log*
 .data
 *.log
+*.tsbuildinfo
 
 .env
 .env.local
