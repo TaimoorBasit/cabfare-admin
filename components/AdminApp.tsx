@@ -14,6 +14,7 @@ const RECOVERY_CONFIGURATION = {
   vehicles: {
     minibus: {
       capacity: 16, fleetCount: 2, utilisationDays: 225, fuelKpl: 9.5,
+      ratePerKm: 1.2, commercialWeight: 1, standingCostPerDay: 150,
       maintenanceCostPerKm: 0.08, tyreSetCost: 1200, expectedTyreLifeKm: 60000,
       annualCosts: [
         { id: 1, label: 'Vehicle Excise Duty (VED)', cost: 600 },
@@ -23,6 +24,7 @@ const RECOVERY_CONFIGURATION = {
     },
     bus: {
       capacity: 33, fleetCount: 2, utilisationDays: 225, fuelKpl: 7.2,
+      ratePerKm: 1.65, commercialWeight: 1.08, standingCostPerDay: 200,
       maintenanceCostPerKm: 0.12, tyreSetCost: 2800, expectedTyreLifeKm: 80000,
       annualCosts: [
         { id: 1, label: 'Vehicle Excise Duty (VED)', cost: 850 },
@@ -34,6 +36,7 @@ const RECOVERY_CONFIGURATION = {
       capacity: 49, fleetCount: 1, utilisationDays: 260, fuelKpl: 3.6,
       maintenanceCostPerKm: 0.28, tyreCostPerKm: 0.09, tyreSetCost: 2400,
       expectedTyreLifeKm: 80000, profitMarginPct: 30, fuelPricePerLitre: 1.52,
+      ratePerKm: 2.6, commercialWeight: 1.12, standingCostPerDay: 260,
       annualCosts: [
         { id: 1, label: 'Vehicle Excise Duty (VED)', cost: 1650 },
         { id: 2, label: 'Annual Insurance', cost: 7800 },
@@ -43,9 +46,11 @@ const RECOVERY_CONFIGURATION = {
   },
   globalVars: {
     fuelPricePerLitre: 1.52, driverHourlyWage: 18, holidayPayPct: 12.07,
-    profitMarginPct: 30, driverWageWeekday: 18, driverWageWeekend: 22,
-    driverWageHoliday: 25, marginWeekday: 30, marginWeekend: 30,
-    marginHoliday: 30, overnightCost: 220, waitingChargePerHour: 35,
+    profitMarginPct: 20, driverWageWeekday: 15, driverWageWeekend: 20,
+    driverWageHoliday: 22, marginWeekday: 20, marginWeekend: 25,
+    marginHoliday: 30, overnightCost: 200, waitingChargePerHour: 35,
+    emptyLegThresholdKm: 20, dualDriverThresholdHours: 13,
+    waitingWageFactor: 0.75, customerRangePct: 12,
     distanceUnit: 'miles',
     yardAddress: 'Unit 1, Carolean Coaches, Bentley Lane, Walsall WS2 8TL, UK',
     yardLat: 52.5916536, yardLng: -2.0071041
@@ -78,7 +83,7 @@ function restoreMissingConfiguration(source) {
     const repaired = { ...vehicle };
     for (const [field, value] of Object.entries(baseline)) {
       if (field === 'annualCosts') continue;
-      const requiresPositive = ['capacity', 'fleetCount', 'utilisationDays', 'fuelKpl', 'expectedTyreLifeKm'].includes(field);
+      const requiresPositive = ['capacity', 'fleetCount', 'utilisationDays', 'fuelKpl', 'expectedTyreLifeKm', 'ratePerKm', 'commercialWeight'].includes(field);
       if ((requiresPositive ? missingPositive(repaired[field]) : missingNonNegative(repaired[field]))) {
         repaired[field] = value;
         changed = true;
@@ -3083,7 +3088,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
               {/* Vehicle Selector row */}
               <div className="fleet-tier-row flex gap-3 overflow-x-auto pb-1 items-stretch">
                 {vehicles.map((v, i) => {
-                  const margin = Number(v.profitMarginPct ?? gv.profitMarginPct ?? 28);
+                  const margin = Number(gv.marginWeekday ?? gv.profitMarginPct ?? 20);
                   return (
                     <div key={v.id} onClick={() => setActiveVehicleId(v.id)} className={`fleet-tier-card shrink-0 w-56 p-3 rounded-xl border-[1.5px] cursor-pointer transition-all duration-150 ${activeVehicleId === v.id ? "border-primary bg-primary/5 dark:bg-blue-900/20 dark:border-blue-400" : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"}`}>
                       <div className="flex gap-2.5 items-center mb-3">
@@ -3138,11 +3143,13 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 const activeV = vehicles.find(v => v.id === (vehicles.find(x => x.id === activeVehicleId) ? activeVehicleId : vehicles[0]?.id)) || vehicles[0];
                 const ecoV = eco.vehicleBreakdown.find(v => v.id === activeV?.id);
                 if (!activeV) return null;
-                const marginPct = Number(activeV.profitMarginPct ?? gv.profitMarginPct ?? 28);
-                const dailyRevenueTarget = (ecoV?.minHirePerDay || 0) * (1 + marginPct / 100);
+                const marginPct = Number(gv.marginWeekday ?? gv.profitMarginPct ?? 20);
+                const dailyCostTarget = ecoV?.minHirePerDay || 0;
+                const dailyRevenueTarget = dailyCostTarget * (1 + marginPct / 100);
                 const annualRevenueTarget = dailyRevenueTarget * (activeV.utilisationDays || 225);
-                const annualProfitTarget = annualRevenueTarget * marginPct / 100;
-                const annualCostTarget = annualRevenueTarget - annualProfitTarget;
+                const annualCostTarget = dailyCostTarget * (activeV.utilisationDays || 225);
+                const annualProfitTarget = annualRevenueTarget - annualCostTarget;
+                const annualCostShare = annualRevenueTarget > 0 ? Math.min(100, annualCostTarget / annualRevenueTarget * 100) : 0;
                 return (
                   <div className="fleet-economics-workspace grid grid-cols-[300px_1fr] gap-4">
                     
@@ -3203,14 +3210,18 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                     }} className="w-full h-1 accent-primary" />
                                 </div>
                                 
-                                <div className="grid grid-cols-2 gap-3 mt-1">
+                                <div className="grid grid-cols-3 gap-3 mt-1">
                                   <div className="fleet-compact-field">
                                     <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">Seats</label>
                                     <input className="hide-spinners w-8 bg-transparent border-none text-slate-900 dark:text-slate-100 text-[11px] font-extrabold outline-none text-right p-0" type="number" value={activeV.capacity} onChange={e=>updateV(activeV.id,"capacity",Number(e.target.value))} />
                                   </div>
                                   <div className="fleet-compact-field">
-                                    <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">Wt.</label>
+                                    <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">Weight</label>
                                     <input className="hide-spinners w-9 bg-transparent border-none text-slate-900 dark:text-slate-100 text-[11px] font-extrabold outline-none text-right p-0" type="number" step="0.1" value={activeV.commercialWeight ?? 1} onChange={e=>updateV(activeV.id,"commercialWeight",Number(e.target.value))} />
+                                  </div>
+                                  <div className="fleet-compact-field">
+                                    <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">£/km</label>
+                                    <input aria-label="Commercial vehicle rate per kilometre" className="hide-spinners w-12 bg-transparent border-none text-slate-900 dark:text-slate-100 text-[11px] font-extrabold outline-none text-right p-0" type="number" min="0.01" step="0.05" value={activeV.ratePerKm ?? 0} onChange={e=>updateV(activeV.id,"ratePerKm",Number(e.target.value))} />
                                   </div>
                                 </div>
                             </div>
@@ -3367,13 +3378,12 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       <div className="fleet-profitability bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-dashed border-slate-300 dark:border-slate-600 p-5 flex justify-between items-center shadow-sm">
                           <div className="fleet-profitability-copy">
                              <div className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wide mb-1">Fleet Profitability & Revenue</div>
-                             <div className="text-[11px] text-slate-500 dark:text-slate-400">Calculations assume {activeV.utilisationDays} operating days at {(activeV.profitMarginPct ?? gv.profitMarginPct ?? 28)}% margin</div>
+                             <div className="text-[11px] text-slate-500 dark:text-slate-400">Calculations assume {activeV.utilisationDays} operating days at {(gv.marginWeekday ?? gv.profitMarginPct ?? 20)}% weekday margin</div>
                           </div>
                           <div className="text-right">
                              <div className="text-[9px] font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide mb-0.5">Target Daily Revenue</div>
-                             <div className="text-2xl font-black text-slate-900 dark:text-slate-100">£{(ecoV?.minHirePerDay * (1 + (activeV.profitMarginPct ?? gv.profitMarginPct ?? 28)/100)).toFixed(2) || "0.00"}</div>
+                             <div className="text-2xl font-black text-slate-900 dark:text-slate-100">£{(ecoV?.minHirePerDay * (1 + (gv.marginWeekday ?? gv.profitMarginPct ?? 20)/100)).toFixed(2) || "0.00"}</div>
                           </div>
-                          <button type="button" aria-label="Remove blocked date" title="Remove blocked date" className="admin-icon-action admin-icon-delete" onClick={()=>setBl(xs=>xs.filter(x=>x.id!==block.id))}><SvgTrash size={12}/></button>
                           <div className="fleet-profit-kpis">
                             <div><span>Daily revenue target</span><strong>£{dailyRevenueTarget.toFixed(2)}</strong></div>
                             <div><span>Gross margin</span><strong>{marginPct.toFixed(1)}%</strong></div>
@@ -3388,7 +3398,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           <div className="fleet-revenue-chart">
                             <div className="fleet-revenue-chart-title">Revenue vs costs (annual)</div>
                             <div className="fleet-revenue-chart-body">
-                              <div className="fleet-profit-donut" style={{ background: `conic-gradient(#2F6F67 0 ${Math.max(0, 100-marginPct)}%, #A73746 ${Math.max(0, 100-marginPct)}% 100%)` }}><div><strong>£{Math.round(annualRevenueTarget).toLocaleString()}</strong><span>Revenue</span></div></div>
+                              <div className="fleet-profit-donut" style={{ background: `conic-gradient(#A73746 0 ${annualCostShare}%, #2F6F67 ${annualCostShare}% 100%)` }}><div><strong>£{Math.round(annualRevenueTarget).toLocaleString()}</strong><span>Revenue</span></div></div>
                               <dl>
                                 <div><dt><i className="revenue-dot" />Revenue</dt><dd>£{Math.round(annualRevenueTarget).toLocaleString()}</dd></div>
                                 <div><dt><i className="cost-dot" />Costs</dt><dd>£{Math.round(annualCostTarget).toLocaleString()}</dd></div>
@@ -3397,8 +3407,6 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                             </div>
                           </div>
                       </div>
-
-                      <div className="fleet-auto-notice">ⓘ All values update automatically. Changes here impact pricing, quotations, and fleet profitability.</div>
 
                     </div>
                 </div>
@@ -3538,22 +3546,17 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       <label className="flex justify-between text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2"><span>Target Margin (Holiday)</span><span>{gv.marginHoliday ?? 30}%</span></label>
                       <input type="range" min="0" max="100" value={gv.marginHoliday ?? 30} onChange={e=>setGv(g=>({...g, marginHoliday: Number(e.target.value)}))} className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary" />
                     </div>
-                    <div className="pt-3 border-t border-outline-variant dark:border-[#1F2937] flex justify-between items-center">
-                      <span className="text-xs font-bold text-slate-900 dark:text-slate-100">Overnight Accommodation</span>
-                      <div className="flex items-center gap-1">
-                        <span className="text-slate-500 dark:text-slate-400">£</span>
-                        <input type="number" step="10" className="w-12 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv.overnightCost ?? 220} onChange={e=>setGv(g=>({...g, overnightCost: Number(e.target.value)}))} />
-                      </div>
-                    </div>
-                    <div className="pt-3 border-t border-outline-variant dark:border-[#1F2937] flex justify-between items-center">
-                      <span className="text-xs font-bold text-slate-900 dark:text-slate-100">Driver Overnight Subsistence</span>
-                      <div className="flex items-center gap-1"><span className="text-slate-500 dark:text-slate-400">£</span><input type="number" step="5" className="w-12 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={roadCharges.find(row=>row.key==='driverOvernightSubsistence')?.amount ?? 60} onChange={e=>setRoadCharges(rows=>rows.some(row=>row.key==='driverOvernightSubsistence')?rows.map(row=>row.key==='driverOvernightSubsistence'?{...row,amount:Number(e.target.value)}:row):[...rows,{key:'driverOvernightSubsistence',label:'Driver overnight subsistence',color:'#64748B',amount:Number(e.target.value),locked:true}])}/></div>
-                    </div>
                     {[
                       ['driverWageWeekday','Driver wage - weekday',18],
                       ['driverWageWeekend','Driver wage - weekend',22],
                       ['driverWageHoliday','Driver wage - holiday',25]
                     ].map(([key,label,fallback]) => <div key={key} className="flex justify-between items-center pt-3 border-t border-outline-variant dark:border-[#1F2937]"><span className="text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span><div className="flex items-center gap-1"><span className="text-slate-500 dark:text-slate-400">£</span><input type="number" step="0.5" className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))}/><span className="text-[10px] text-slate-500 dark:text-slate-400">/hr</span></div></div>)}
+                    {[
+                      ['emptyLegThresholdKm','Empty-leg threshold',20,'km'],
+                      ['dualDriverThresholdHours','Two-driver threshold',13,'hr'],
+                      ['waitingWageFactor','Waiting wage factor',0.75,'×'],
+                      ['customerRangePct','Customer range uplift',12,'%']
+                    ].map(([key,label,fallback,suffix]) => <div key={key} className="flex justify-between items-center pt-3 border-t border-outline-variant dark:border-[#1F2937]"><span className="text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span><div className="flex items-center gap-1"><input type="number" min="0" step={key==='waitingWageFactor'?0.05:1} className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))}/><span className="text-[10px] text-slate-500 dark:text-slate-400">{suffix}</span></div></div>)}
                   </div>
                 </div>
 
