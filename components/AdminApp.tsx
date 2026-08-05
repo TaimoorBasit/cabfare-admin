@@ -9,6 +9,121 @@ import { Search, Sun, Moon, TrendingUp, Plus, Edit3, MoreVertical, Pause, Histor
 
 const ADMIN_TOKEN_KEY = 'caroleanAdminToken';
 const ADMIN_USER_KEY = 'caroleanAdminUser';
+
+const RECOVERY_CONFIGURATION = {
+  vehicles: {
+    minibus: {
+      capacity: 16, fleetCount: 2, utilisationDays: 225, fuelKpl: 9.5,
+      maintenanceCostPerKm: 0.08, tyreSetCost: 1200, expectedTyreLifeKm: 60000,
+      annualCosts: [
+        { id: 1, label: 'Vehicle Excise Duty (VED)', cost: 600 },
+        { id: 2, label: 'Annual Insurance', cost: 3200 },
+        { id: 3, label: 'Annual Depreciation', cost: 7975 }
+      ]
+    },
+    bus: {
+      capacity: 33, fleetCount: 2, utilisationDays: 225, fuelKpl: 7.2,
+      maintenanceCostPerKm: 0.12, tyreSetCost: 2800, expectedTyreLifeKm: 80000,
+      annualCosts: [
+        { id: 1, label: 'Vehicle Excise Duty (VED)', cost: 850 },
+        { id: 2, label: 'Annual Insurance', cost: 5800 },
+        { id: 3, label: 'Annual Depreciation', cost: 13220 }
+      ]
+    },
+    coach: {
+      capacity: 49, fleetCount: 1, utilisationDays: 260, fuelKpl: 3.6,
+      maintenanceCostPerKm: 0.28, tyreCostPerKm: 0.09, tyreSetCost: 2400,
+      expectedTyreLifeKm: 80000, profitMarginPct: 30, fuelPricePerLitre: 1.52,
+      annualCosts: [
+        { id: 1, label: 'Vehicle Excise Duty (VED)', cost: 1650 },
+        { id: 2, label: 'Annual Insurance', cost: 7800 },
+        { id: 3, label: 'Annual Depreciation', cost: 16500 }
+      ]
+    }
+  },
+  globalVars: {
+    fuelPricePerLitre: 1.52, driverHourlyWage: 18, holidayPayPct: 12.07,
+    profitMarginPct: 30, driverWageWeekday: 18, driverWageWeekend: 22,
+    driverWageHoliday: 25, marginWeekday: 30, marginWeekend: 30,
+    marginHoliday: 30, overnightCost: 220, waitingChargePerHour: 35,
+    distanceUnit: 'miles',
+    yardAddress: 'Unit 1, Carolean Coaches, Bentley Lane, Walsall WS2 8TL, UK',
+    yardLat: 52.5916536, yardLng: -2.0071041
+  },
+  surcharges: { m6Toll: 9.5, dartford: 2.5, ulez: 12.5, birminghamCaz: 8, driverOvernightSubsistence: 60 },
+  annualOverheads: [
+    { id: 1, label: 'Office & Premises', cost: 18000 },
+    { id: 2, label: 'Administration & Staffing', cost: 14400 },
+    { id: 3, label: 'Accountancy & Legal', cost: 5200 },
+    { id: 4, label: 'IT & Communication', cost: 2400 },
+    { id: 5, label: 'Marketing', cost: 3600 },
+    { id: 6, label: 'Fleet Operator Licence', cost: 1800 },
+    { id: 7, label: 'Miscellaneous', cost: 4600 }
+  ],
+  operatorDetails: {
+    companyName: 'Carolean Coaches Ltd', operatorLicence: 'PM0003456',
+    depotPostcode: 'WS2 8TL', notificationEmail: 'bookings@caroleancoaches.co.uk'
+  }
+};
+
+function restoreMissingConfiguration(source) {
+  const data = structuredClone(source || {});
+  let changed = false;
+  const missingPositive = value => !Number.isFinite(Number(value)) || Number(value) <= 0;
+  const missingNonNegative = value => !Number.isFinite(Number(value)) || Number(value) < 0;
+
+  data.vehicles = Array.isArray(data.vehicles) ? data.vehicles.map(vehicle => {
+    const baseline = RECOVERY_CONFIGURATION.vehicles[vehicle.id];
+    if (!baseline) return vehicle;
+    const repaired = { ...vehicle };
+    for (const [field, value] of Object.entries(baseline)) {
+      if (field === 'annualCosts') continue;
+      const requiresPositive = ['capacity', 'fleetCount', 'utilisationDays', 'fuelKpl', 'expectedTyreLifeKm'].includes(field);
+      if ((requiresPositive ? missingPositive(repaired[field]) : missingNonNegative(repaired[field]))) {
+        repaired[field] = value;
+        changed = true;
+      }
+    }
+    const currentCosts = Array.isArray(repaired.annualFixedCosts) && repaired.annualFixedCosts.length
+      ? repaired.annualFixedCosts : repaired.annualCosts;
+    const costsAreMissing = !Array.isArray(currentCosts) || currentCosts.length === 0 ||
+      currentCosts.every(cost => !String(cost?.label || cost?.name || '').trim() || Number(cost?.cost ?? cost?.amount ?? 0) === 0);
+    if (costsAreMissing) {
+      repaired.annualCosts = structuredClone(baseline.annualCosts);
+      repaired.annualFixedCosts = baseline.annualCosts.map(cost => ({ ...cost, name: cost.label, amount: cost.cost }));
+      changed = true;
+    }
+    return repaired;
+  }) : [];
+
+  data.globalVars = { ...(data.globalVars || {}) };
+  for (const [field, value] of Object.entries(RECOVERY_CONFIGURATION.globalVars)) {
+    const current = data.globalVars[field];
+    const isMissing = typeof value === 'number' ? !Number.isFinite(Number(current)) : !String(current || '').trim();
+    if (isMissing) { data.globalVars[field] = value; changed = true; }
+  }
+  if (!String(data.globalVars.yardAddress || '').toLowerCase().includes('bentley lane')) {
+    data.globalVars.yardAddress = RECOVERY_CONFIGURATION.globalVars.yardAddress;
+    data.globalVars.yardLat = RECOVERY_CONFIGURATION.globalVars.yardLat;
+    data.globalVars.yardLng = RECOVERY_CONFIGURATION.globalVars.yardLng;
+    changed = true;
+  }
+
+  data.surcharges = { ...(data.surcharges || {}) };
+  for (const [field, value] of Object.entries(RECOVERY_CONFIGURATION.surcharges)) {
+    if (missingNonNegative(data.surcharges[field])) { data.surcharges[field] = value; changed = true; }
+  }
+  if (!Array.isArray(data.annualOverheads) || data.annualOverheads.length === 0 ||
+      data.annualOverheads.every(item => !String(item?.label || '').trim() || Number(item?.cost || 0) === 0)) {
+    data.annualOverheads = structuredClone(RECOVERY_CONFIGURATION.annualOverheads);
+    changed = true;
+  }
+  data.operatorDetails = { ...(data.operatorDetails || {}) };
+  for (const [field, value] of Object.entries(RECOVERY_CONFIGURATION.operatorDetails)) {
+    if (!String(data.operatorDetails[field] || '').trim()) { data.operatorDetails[field] = value; changed = true; }
+  }
+  return { data, changed };
+}
 const authenticatedFetch = (input, init = {}) => {
   const headers = new Headers(init.headers || {});
   if (typeof window !== 'undefined') {
@@ -25,10 +140,29 @@ function AdminAuthGate({ onAuthenticated }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const errorTimerRef = useRef(null);
+
+  useEffect(() => () => {
+    if (errorTimerRef.current) window.clearTimeout(errorTimerRef.current);
+  }, []);
+
+  const clearAuthError = () => {
+    if (errorTimerRef.current) window.clearTimeout(errorTimerRef.current);
+    errorTimerRef.current = null;
+    setError('');
+  };
+
+  const showConfirmedAuthError = message => {
+    clearAuthError();
+    errorTimerRef.current = window.setTimeout(() => {
+      setError(message || 'Authentication failed');
+      errorTimerRef.current = null;
+    }, 400);
+  };
 
   const submit = async event => {
     event.preventDefault();
-    setBusy(true); setError('');
+    setBusy(true); clearAuthError();
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/${mode}`, {
         method: 'POST',
@@ -42,12 +176,13 @@ function AdminAuthGate({ onAuthenticated }) {
         setPassword('');
         setError('Administrator created. Sign in to continue.');
       } else {
+        clearAuthError();
         window.localStorage.setItem(ADMIN_TOKEN_KEY, payload.token);
         if (payload.user) window.localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(payload.user));
         onAuthenticated(payload.user || null);
       }
     } catch (authError) {
-      setError(authError.message || 'Authentication failed');
+      showConfirmedAuthError(authError.message || 'Authentication failed');
     } finally {
       setBusy(false);
     }
@@ -203,14 +338,6 @@ function SvgPricing({ size = 16, color = "currentColor" }) {
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle" }}>
       <line x1="12" y1="1" x2="12" y2="23" />
       <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-    </svg>
-  );
-}
-
-function SvgCheck({ size = 16, color = "currentColor" }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle" }}>
-      <polyline points="20 6 9 17 4 12" />
     </svg>
   );
 }
@@ -995,7 +1122,7 @@ function JourneyRouteDetails({ journey, darkMode=false }) {
 // ── Navbar ────────────────────────────────────────────────────────────────────
 // ── VehicleCard (Step 2 equivalent) ──────────────────────────────────────────
 // ── Admin Dashboard ────────────────────────────────────────────────────────────
-function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminUser }) {
+function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) {
   const fetch = authenticatedFetch;
   const injectDefaults = (v) => {
     const newV = { ...v };
@@ -1020,7 +1147,15 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
       newV.standingCostPerDay = (fcSum / (Number(newV.fleetCount) || 1)) / utilDays;
     }
 
-    const vcSum = (newV.fuelCost||0) + (newV.tyreCost||0) + (newV.maintenanceCost||0) + (newV.miscVariableCost||0);
+    const fuelPrice = newV.fuelPricePerLitre ?? db?.globalVars?.fuelPricePerLitre ?? 1.52;
+    const fuelKpl = newV.fuelKpl || 5;
+    const fuelPerKm = fuelPrice / fuelKpl;
+    const directTyreCost = Number(newV.tyreCostPerKm);
+    const tyreSetCost = Number(newV.tyreSetCost);
+    const tyreLife = Number(newV.expectedTyreLifeKm);
+    const tyrePerKm = directTyreCost > 0 ? directTyreCost : (tyreSetCost > 0 && tyreLife > 0 ? tyreSetCost / tyreLife : 0.05);
+    const maintCost = Number(newV.maintenanceCostPerKm) || 0.15;
+    const vcSum = fuelPerKm + tyrePerKm + maintCost;
     if (vcSum > 0) {
       newV.ratePerKm = vcSum;
     }
@@ -1202,7 +1337,7 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [dashboardLoadError, setDashboardLoadError] = useState("");
   const [reportDate, setReportDate] = useState("");
-  const [activityPeriod, setActivityPeriod] = useState("daily");
+  const [activityPeriod, setActivityPeriod] = useState("monthly");
   const [searchNameRef, setSearchNameRef] = useState("");
   const [searchVehicle, setSearchVehicle] = useState("");
   const [searchFareFrom, setSearchFareFrom] = useState("");
@@ -1210,6 +1345,7 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
   const [searchRoute, setSearchRoute] = useState("");
   const [apisLoaded, setApisLoaded] = useState(false);
   const [isBookingsLoading, setIsBookingsLoading] = useState(true);
+  const [bookingsLoadError, setBookingsLoadError] = useState("");
   const [bookingsDisplayCount, setBookingsDisplayCount] = useState(100);
   const [showBookingFilters, setShowBookingFilters] = useState(true);
   const [bookingLast30Days, setBookingLast30Days] = useState(false);
@@ -1321,9 +1457,12 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
       
       authenticatedFetch(API_BASE_URL + '/api/bookings').then(r=>{if(!r.ok)throw new Error('Unable to load bookings');return r.json();}).then(b => {
         setBookingsData(b.bookings && Array.isArray(b.bookings) ? b.bookings : []);
+        setBookingsLoadError("");
         setIsBookingsLoading(false);
-      }).catch(()=>{
-        setBookingsData([]);
+      }).catch((error)=>{
+        // Keep the last successful result on transient failures. Replacing it
+        // with [] made the dashboard look as though backend data was deleted.
+        setBookingsLoadError(error.message || "Unable to load quotations");
         setIsBookingsLoading(false);
       });
     }
@@ -1343,9 +1482,10 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
         .then(b => {
           if (b.bookings && Array.isArray(b.bookings)) {
             setBookingsData(b.bookings);
+            setBookingsLoadError("");
           }
         })
-        .catch(() => {});
+        .catch((error) => setBookingsLoadError(error.message || "Unable to refresh quotations"));
     }, 10000);
     return () => clearInterval(interval);
   }, []);
@@ -1461,7 +1601,7 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
         Number(vehicle.tyreSetCost) > 0 && Number(vehicle.expectedTyreLifeKm) > 0
           ? Number(vehicle.tyreSetCost) / Number(vehicle.expectedTyreLifeKm)
           : 0.05;
-      const tyreCost = vehicle.tyreCostPerKm ?? calculatedTyreCost;
+      const tyreCost = vehicle.tyreCostPerKm || calculatedTyreCost;
       const maintCost = vehicle.maintenanceCostPerKm ?? 0.15;
 
       const totalAnnualFixed = (vehicle.annualCosts||[]).reduce((s,c)=>s+Number(c.cost),0);
@@ -1498,7 +1638,7 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
         b.journey?.passengers,
         b.journey?.handbagCount ?? 0,
         b.journey?.suitcaseCount ?? 0,
-        gv?.distanceUnit || 'km',
+        gv?.distanceUnit || 'miles',
         Math.round(liveKm),
         Math.round(deadKm),
         `=O${rNum}+P${rNum}`,
@@ -1550,22 +1690,26 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
     URL.revokeObjectURL(url);
   };
 
-  const saveApi = async (type, item, isDelete=false) => {
+  const saveApi = useCallback(async (type, item, isDelete=false) => {
     const ep = API_BASE_URL + (type === 'matrix' ? '/api/admin/pricing-matrix' :
                type === 'templates' ? '/api/admin/route-templates' : '/api/admin/seasonal');
     if (isDelete) {
-      await fetch(`${ep}?id=${item.id}`, { method: 'DELETE' });
+      const response = await authenticatedFetch(`${ep}?id=${encodeURIComponent(item.id)}`, { method: 'DELETE' });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || `Failed to delete ${type}`);
+      return payload;
     } else {
       const isNew = !item.id || item.id.startsWith('new_');
-      const res = await fetch(ep, {
+      const res = await authenticatedFetch(ep, {
         method: isNew ? 'POST' : 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(isNew ? { ...item, id: undefined } : item)
       });
-      if (!res.ok) throw new Error(`Failed to save ${type}`);
-      return await res.json();
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(payload.error || `Failed to save ${type}`);
+      return payload;
     }
-  };
+  }, []);
 
   const downloadCsv = (filename, headers, rows) => {
     const csv = "\uFEFF" + [headers, ...rows].map(row => row.map(value => `"${String(value ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
@@ -1583,36 +1727,66 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
     document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url);
   };
 
-  const save = async () => {
-    const newGv = { ...gv, yardAddress: depotLoc.address, yardLat: depotLoc.lat, yardLng: depotLoc.lng };
-    const normalizedVehicles = vehicles.map(vehicle => ({
-      ...vehicle,
-      annualCosts: (vehicle.annualFixedCosts || []).map((cost, index) => ({
-        id: cost.id ?? index + 1,
-        label: cost.name ?? cost.label ?? "",
-        cost: Number(cost.amount ?? cost.cost ?? 0)
-      }))
+  const normalizedVehicles = useMemo(() => vehicles.map(vehicle => {
+    const sanitized = (vehicle.annualFixedCosts || []).map((cost, index) => ({
+      id: cost.id ?? index + 1,
+      label: cost.name || cost.label || "Unnamed Cost",
+      cost: Number(cost.amount ?? cost.cost ?? 0)
     }));
-    const newDb = {...db,globalVars:newGv,annualOverheads:overheads,
-      surcharges:sr,vehicles:normalizedVehicles,blockedDates:blocks,operatorDetails};
-    setDb(newDb);
+    return { ...vehicle, annualCosts: sanitized, annualFixedCosts: sanitized };
+  }), [vehicles]);
+
+  const configurationSnapshot = useMemo(() => ({
+    globalVars: { ...gv, yardAddress: depotLoc.address, yardLat: depotLoc.lat, yardLng: depotLoc.lng },
+    annualOverheads: overheads,
+    surcharges: sr,
+    vehicles: normalizedVehicles,
+    blockedDates: blocks,
+    operatorDetails
+  }), [gv, depotLoc, overheads, sr, normalizedVehicles, blocks, operatorDetails]);
+
+  const autosaveTimerRef = useRef(null);
+  const autosaveRevisionRef = useRef(0);
+  const autosaveSavedRevisionRef = useRef(0);
+  const autosaveInFlightRef = useRef(false);
+  const latestConfigurationRef = useRef(configurationSnapshot);
+  const initialConfigurationRef = useRef(JSON.stringify(configurationSnapshot));
+
+  const flushAutosave = useCallback(async () => {
+    if (autosaveInFlightRef.current || !backendOnline) return;
+    autosaveInFlightRef.current = true;
     try {
-      const configResponse = await fetch(API_BASE_URL + '/api/admin/config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newDb)
-      });
-      if (!configResponse.ok) throw new Error("Failed to save configuration");
-      await Promise.all([
-        ...matrixData.filter(item=>item.id).map(item=>saveApi('matrix', item)),
-        ...templatesData.filter(item=>item.id).map(item=>saveApi('templates', item)),
-        ...seasonalData.filter(item=>item.id).map(item=>saveApi('seasonal', item))
-      ]);
-      setToast("All changes saved"); setTimeout(()=>setToast(""),2500);
-    } catch(e) {
-      setToast("Error saving changes"); setTimeout(()=>setToast(""),2500);
+      while (autosaveSavedRevisionRef.current < autosaveRevisionRef.current) {
+        const revision = autosaveRevisionRef.current;
+        const payload = latestConfigurationRef.current;
+        const response = await authenticatedFetch(API_BASE_URL + '/api/admin/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const responsePayload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(responsePayload.error || 'Failed to auto-save configuration');
+        autosaveSavedRevisionRef.current = revision;
+      }
+    } catch (error) {
+      setToast(error.message || 'Unable to auto-save changes');
+      setTimeout(() => setToast(''), 4000);
+    } finally {
+      autosaveInFlightRef.current = false;
     }
-  };
+  }, [backendOnline]);
+
+  useEffect(() => {
+    latestConfigurationRef.current = configurationSnapshot;
+    if (!backendOnline || (autosaveRevisionRef.current === 0 && JSON.stringify(configurationSnapshot) === initialConfigurationRef.current)) return;
+    autosaveRevisionRef.current += 1;
+    if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current);
+    autosaveTimerRef.current = setTimeout(flushAutosave, 300);
+  }, [configurationSnapshot, backendOnline, flushAutosave]);
+
+  useEffect(() => {
+    return () => { if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current); };
+  }, []);
 
   const updateDepotLocation = async (address, coords) => {
     const hasCoordinates = Number.isFinite(coords?.lat) && Number.isFinite(coords?.lng);
@@ -1631,15 +1805,10 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
       yardLng: nextLocation.lng
     };
 
-    // Keep the current screen stable while the partial backend update is saved.
     setGv(current => ({ ...current, ...depotUpdate }));
-    setDb(current => ({
-      ...current,
-      globalVars: { ...(current.globalVars || {}), ...depotUpdate }
-    }));
 
     try {
-      const response = await fetch(API_BASE_URL + '/api/admin/config', {
+      const response = await authenticatedFetch(API_BASE_URL + '/api/admin/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ globalVars: depotUpdate })
@@ -1653,54 +1822,12 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
     }
   };
 
-  const settingsAutoSaveTimerRef = useRef(null);
-  useEffect(() => {
-    if (tab !== 'settings') return;
-
-    if (settingsAutoSaveTimerRef.current) {
-      clearTimeout(settingsAutoSaveTimerRef.current);
-    }
-
-    settingsAutoSaveTimerRef.current = setTimeout(async () => {
-      const normalizedVehicles = vehicles.map(vehicle => ({
-        ...vehicle,
-        annualCosts: (vehicle.annualFixedCosts || []).map((cost, index) => ({
-          id: cost.id ?? index + 1,
-          label: cost.name ?? cost.label ?? "",
-          cost: Number(cost.amount ?? cost.cost ?? 0)
-        }))
-      }));
-
-      try {
-        const response = await fetch(API_BASE_URL + '/api/admin/config', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            globalVars: gv,
-            surcharges: sr,
-            annualOverheads: overheads,
-            operatorDetails,
-            vehicles: normalizedVehicles
-          })
-        });
-        if (!response.ok) throw new Error('Failed to auto-save settings');
-      } catch {
-        setToast('Unable to save settings');
-        setTimeout(() => setToast(''), 2500);
-      }
-    }, 700);
-  }, [tab, gv, sr, overheads, operatorDetails, vehicles]);
-
-  useEffect(() => () => {
-    if (settingsAutoSaveTimerRef.current) clearTimeout(settingsAutoSaveTimerRef.current);
-  }, []);
-  
   const updateV = (id,field,val) =>
     setV(vs=>vs.map(v=>v.id===id?{...v,[field]:isNaN(Number(val))?val:Number(val)}:v));
 
   const handleUnitChange = async (e) => {
     const newUnit = e.target.value;
-    const oldUnit = gv.distanceUnit || 'km';
+    const oldUnit = gv.distanceUnit || 'miles';
     if (newUnit === oldUnit) return;
 
     const isToMiles = newUnit === 'miles';
@@ -1746,7 +1873,7 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
     setV(nextVehicles);
 
     try {
-      const configResponse = await fetch(API_BASE_URL + '/api/admin/config', {
+      const configResponse = await authenticatedFetch(API_BASE_URL + '/api/admin/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ globalVars: { distanceUnit: newUnit }, vehicles: nextVehicles })
@@ -1770,7 +1897,7 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
   useEffect(() => {
     if (tab !== 'fleet') return;
     const delayDebounce = setTimeout(() => {
-      fetch(API_BASE_URL + '/api/admin/economics', {
+      authenticatedFetch(API_BASE_URL + '/api/admin/economics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(previewDb)
@@ -1785,6 +1912,103 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
   const matrixBands = matrix => Array.isArray(matrix?.distanceBands) && matrix.distanceBands.length === 4
     ? matrix.distanceBands
     : matrix?.id ? [] : blankMatrix.distanceBands;
+  const pricingSaveInFlightRef = useRef(false);
+  const showSaveError = error => {
+    setToast(error?.message || 'Unable to save pricing rule.');
+    setTimeout(() => setToast(''), 4000);
+  };
+  const saveSeasonalRule = async () => {
+    const hasOverride = newSeasonal.overrideFare !== null && newSeasonal.overrideFare !== undefined && newSeasonal.overrideFare !== '';
+    const validPrice = hasOverride
+      ? Number.isFinite(Number(newSeasonal.overrideFare)) && Number(newSeasonal.overrideFare) >= 0
+      : Number.isFinite(Number(newSeasonal.multiplier)) && Number(newSeasonal.multiplier) > 0;
+    if (!newSeasonal.startDate || !newSeasonal.endDate || new Date(newSeasonal.endDate) < new Date(newSeasonal.startDate) || !validPrice) {
+      setToast('Enter a valid date range and either a positive multiplier or override fare.');
+      return;
+    }
+    if (pricingSaveInFlightRef.current) return setToast('A pricing rule is already saving.');
+    pricingSaveInFlightRef.current = true;
+    try {
+      const saved = await saveApi('seasonal', newSeasonal);
+      setSeasonalData(current => current.some(rule => rule.id === saved.id)
+        ? current.map(rule => rule.id === saved.id ? saved : rule)
+        : [saved, ...current]);
+      setNS(blankSeasonal);
+      setToast('Seasonal rule saved.');
+      setTimeout(() => setToast(''), 2500);
+    } catch (error) {
+      showSaveError(error);
+    } finally {
+      pricingSaveInFlightRef.current = false;
+    }
+  };
+  const saveMatrixRule = async () => {
+    const bands = matrixBands(newMatrix);
+    if (newMatrix.baseFare < 0 || bands.some(band => !Number.isFinite(Number(band.rate)) || Number(band.rate) < 0)) {
+      return setToast('A valid base fare and all four distance-band rates are required.');
+    }
+    if (matrixView !== 'global' && !newMatrix.vehicleId) return setToast('A target vehicle is required.');
+    if (matrixView === 'city' && (!newMatrix.pickupArea || !newMatrix.dropArea)) return setToast('From and to cities are required.');
+    if (pricingSaveInFlightRef.current) return setToast('A pricing rule is already saving.');
+    pricingSaveInFlightRef.current = true;
+    try {
+      const saved = await saveApi('matrix', { ...newMatrix, distanceBands: bands, scope: matrixView, id: newMatrix.id || `new_${Date.now()}` });
+      setMatrixData(current => current.some(rule => rule.id === saved.id)
+        ? current.map(rule => rule.id === saved.id ? saved : rule)
+        : [saved, ...current]);
+      setNM(blankMatrix);
+      setShowMatrixForm(false);
+      setToast('Matrix rule saved.');
+      setTimeout(() => setToast(''), 2500);
+    } catch (error) {
+      showSaveError(error);
+    } finally {
+      pricingSaveInFlightRef.current = false;
+    }
+  };
+
+  const pricingAutosaveTimerRef = useRef(null);
+  const pricingAutosaveQueueRef = useRef(Promise.resolve());
+  useEffect(() => {
+    const drafts = [];
+    const isExisting = id => id && !String(id).startsWith('new_');
+
+    if (showTemplateForm && isExisting(newTemplate.id) && newTemplate.pickupArea && newTemplate.dropArea && newTemplate.vehicleId &&
+      Number(newTemplate.price) >= 0 && Number(newTemplate.radiusKm) >= 0 && Number(newTemplate.waitingChargePerHour) >= 0) {
+      drafts.push({ type: 'templates', item: newTemplate });
+    }
+
+    const bands = matrixBands(newMatrix);
+    if (showMatrixForm && isExisting(newMatrix.id) && bands.length === 4 && Number(newMatrix.baseFare) >= 0 &&
+      bands.every(band => Number(band.rate) >= 0) && (matrixView === 'global' || newMatrix.vehicleId) &&
+      (matrixView !== 'city' || (newMatrix.pickupArea && newMatrix.dropArea))) {
+      drafts.push({ type: 'matrix', item: { ...newMatrix, distanceBands: bands, scope: matrixView } });
+    }
+
+    const hasOverride = newSeasonal.overrideFare !== null && newSeasonal.overrideFare !== undefined && newSeasonal.overrideFare !== '';
+    const seasonalPriceValid = hasOverride ? Number(newSeasonal.overrideFare) >= 0 : Number(newSeasonal.multiplier) > 0;
+    if (isExisting(newSeasonal.id) && newSeasonal.startDate && newSeasonal.endDate &&
+      new Date(newSeasonal.endDate) >= new Date(newSeasonal.startDate) && seasonalPriceValid) {
+      drafts.push({ type: 'seasonal', item: newSeasonal });
+    }
+
+    if (!drafts.length) return;
+    if (pricingAutosaveTimerRef.current) clearTimeout(pricingAutosaveTimerRef.current);
+    pricingAutosaveTimerRef.current = setTimeout(() => {
+      pricingAutosaveQueueRef.current = pricingAutosaveQueueRef.current.then(async () => {
+        for (const draft of drafts) {
+          const saved = await saveApi(draft.type, draft.item);
+          if (draft.type === 'templates') setTemplatesData(current => current.map(rule => rule.id === saved.id ? saved : rule));
+          if (draft.type === 'matrix') setMatrixData(current => current.map(rule => rule.id === saved.id ? saved : rule));
+          if (draft.type === 'seasonal') setSeasonalData(current => current.map(rule => rule.id === saved.id ? saved : rule));
+        }
+      }).catch(error => {
+        showSaveError(error);
+      });
+    }, 300);
+    return () => clearTimeout(pricingAutosaveTimerRef.current);
+  }, [showTemplateForm, newTemplate, showMatrixForm, newMatrix, matrixView, newSeasonal, saveApi]);
+
   const inferMatrixScope = matrix => ['global','fleet','city'].includes(matrix?.scope) ? matrix.scope : 'invalid';
   const matrixRulesForView = matrixData.filter(matrix => inferMatrixScope(matrix) === matrixView);
   const invalidMatrixRules = matrixData.filter(matrix => inferMatrixScope(matrix) === 'invalid' || matrixBands(matrix).length !== 4);
@@ -1795,6 +2019,7 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     const daily = Array.isArray(dashboardData?.activity?.daily) ? dashboardData.activity.daily : [];
     const weekly = Array.isArray(dashboardData?.activity?.weekly) ? dashboardData.activity.weekly : [];
+    const monthly = Array.isArray(dashboardData?.activity?.monthly) ? dashboardData.activity.monthly : [];
     const activity = activityPeriod === "daily"
       ? {
           labels: ["00–03", "04–07", "08–11", "12–15", "16–19", "20–23"],
@@ -1802,13 +2027,29 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
             .slice(bucket * 4, bucket * 4 + 4)
             .reduce((sum, item) => sum + Number(item.bookingCount || 0), 0))
         }
-      : {
+      : activityPeriod === "weekly" ? {
           labels: weekly.map(item => new Date(`${item.date}T00:00:00Z`).toLocaleDateString("en-GB", { weekday: "short", timeZone: "UTC" })),
           counts: weekly.map(item => Number(item.bookingCount || 0))
+        }
+      : {
+          labels: monthly.map(item => new Date(`${item.month}-01T00:00:00Z`).toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" })),
+          counts: monthly.map(item => Number(item.bookingCount || 0))
         };
     const todayValue = daily.reduce((sum, item) => sum + Number(item.quotedValue || 0), 0);
     const todayCount = daily.reduce((sum, item) => sum + Number(item.bookingCount || 0), 0);
-    const quoteValueByVehicle = (dashboardData?.financial?.byVehicle || [])
+    const localQuotedValue = bookingsData.reduce((sum, booking) => sum + Number(
+      booking.quote?.result?.finalPrice ?? booking.quote?.finalPrice ?? booking.finalPrice ?? booking.totalFare ?? booking.fare ?? 0
+    ), 0);
+    const backendQuoteGroups = Array.isArray(dashboardData?.financial?.byVehicle)
+      ? dashboardData.financial.byVehicle
+      : [];
+    const localQuoteGroups = Array.from(bookingsData.reduce((groups, booking) => {
+      const name = booking.quote?.vehicle?.name || "Unassigned";
+      const value = Number(booking.quote?.result?.finalPrice ?? booking.quote?.finalPrice ?? booking.finalPrice ?? booking.totalFare ?? booking.fare ?? 0);
+      groups.set(name, (groups.get(name) || 0) + value);
+      return groups;
+    }, new Map()).entries()).map(([name, quotedValue]) => ({ name, quotedValue }));
+    const quoteValueByVehicle = (backendQuoteGroups.length ? backendQuoteGroups : localQuoteGroups)
       .map(item => [item.name || "Unassigned", Number(item.quotedValue || 0)])
       .filter(([, value]) => value > 0)
       .sort((a, b) => b[1] - a[1])
@@ -1817,13 +2058,14 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
     return {
       todayCount,
       todayValue,
-      allQuoteValue: Number(dashboardData?.totals?.quotedValue || 0),
+      allQuoteValue: dashboardData?.totals ? Number(dashboardData.totals.quotedValue || 0) : localQuotedValue,
+      savedBookingCount: dashboardData?.totals ? Number(dashboardData.totals.bookings || 0) : bookingsData.length,
       recognizedRevenue: Number(dashboardData?.totals?.recognizedRevenue || 0),
-      configuredFleet: Number(dashboardData?.totals?.configuredFleetUnits || 0),
+      configuredFleet: dashboardData?.totals ? Number(dashboardData.totals.configuredFleetUnits || 0) : vehicles.reduce((sum, vehicle) => sum + (Number(vehicle.fleetCount) || 0), 0),
       blockedUnits: Number(dashboardData?.totals?.blockedFleetUnits || 0),
       availableFleet: Number(dashboardData?.totals?.availableFleetUnits || 0),
       pricingRuleCount: matrixData.filter(rule => rule.status === "active").length + templatesData.length + seasonalData.filter(rule => rule.enabled === true).length,
-      recentBookings: validBookings.slice(0, 4),
+      recentBookings: (Array.isArray(dashboardData?.recentBookings) && dashboardData.recentBookings.length ? dashboardData.recentBookings : validBookings).slice(0, 4),
       revenueByVehicle: quoteValueByVehicle,
       activityLabels: activity.labels,
       activityCounts: activity.counts,
@@ -1841,7 +2083,6 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
     return new Date(timestamp).toLocaleDateString("en-GB");
   };
   const activityValues = dashboardMetrics.activityCounts.map(count => Math.max(count > 0 ? 12 : 0, (count / dashboardMetrics.activityMax) * 100));
-
   const tabMeta = {
     dashboard: { label: "Executive Dashboard", desc: "High-level overview of system metrics and fleet activity." },
     pricing: { label: "Pricing Rules Engine", desc: "Configure global logistics margins, fixed route premiums, and dynamic multipliers." },
@@ -1859,7 +2100,12 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
   ];
 
   return (
-    <div className="admin-premium-shell bg-background text-on-surface dark:bg-[#0B0F19] dark:text-white min-h-screen transition-colors duration-300" style={{ opacity: isReady ? 1 : 0 }}>
+    <div className="admin-premium-shell bg-background text-on-surface dark:bg-[#0B0F19] dark:text-white min-h-screen transition-colors duration-300" style={{ opacity: isReady ? 1 : 0 }} onBlurCapture={() => {
+      if (autosaveTimerRef.current) {
+        clearTimeout(autosaveTimerRef.current);
+        flushAutosave();
+      }
+    }}>
       {/* ── SideNavBar ─────────────────────────────── */}
       <aside className="premium-sidebar h-screen w-64 fixed left-0 top-0 border-r border-outline-variant dark:border-[#1F2937] bg-surface dark:bg-[#111827] flex flex-col py-md px-sm z-50 transition-colors duration-300">
         <div className="mb-xl px-sm pt-4 flex flex-col items-center text-center">
@@ -1974,7 +2220,6 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
                         </div>
                         <div className="flex gap-2">
                           {tab === "pricing" && <button onClick={exportPricingConfiguration} className="px-4 py-2 text-on-surface-variant dark:text-[#9CA3AF] hover:text-primary dark:hover:text-white rounded-lg font-label-caps text-label-caps border border-outline-variant dark:border-[#374151] transition-colors">Export Configuration</button>}
-                          <button className="px-4 py-2 bg-primary dark:bg-[#EF4444] text-on-primary dark:text-white rounded-lg font-label-caps text-label-caps shadow-sm hover:opacity-90 transition-opacity" onClick={save}>Save Changes</button>
                         </div>
                       </div>
                     </section>
@@ -2002,14 +2247,14 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
               
               {/* Top Row: KPI Cards */}
               <div className="dashboard-kpis grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                {/* Card 1: today's quotation value */}
+                {/* Card 1: total persisted quotation value */}
                 <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm flex flex-col justify-between">
                   <div className="flex justify-end items-start mb-4">
-                    <span className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[11px] font-bold px-2 py-1 rounded-full">From saved quotes</span>
+                    <span className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[11px] font-bold px-2 py-1 rounded-full">All saved quotes</span>
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-1">Today's Scheduled Quote Value</div>
-                    <div className="text-3xl font-extrabold text-slate-900 dark:text-white">£{fmt(dashboardMetrics.todayValue)}</div>
+                    <div className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-1">Total Quotation Value</div>
+                    <div className="text-3xl font-extrabold text-slate-900 dark:text-white">£{fmt(dashboardMetrics.allQuoteValue)}</div>
                   </div>
                 </div>
 
@@ -2026,14 +2271,14 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
                   </div>
                 </div>
 
-                {/* Card 3: quotations received today */}
+                {/* Card 3: all persisted quotations */}
                 <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm flex flex-col justify-between">
                   <div className="flex justify-end items-start mb-4">
-                    <span className="bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-[11px] font-bold px-2 py-1 rounded-full">Today</span>
+                    <span className="bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-[11px] font-bold px-2 py-1 rounded-full">Backend</span>
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-1">Journeys Scheduled</div>
-                    <div className="text-3xl font-extrabold text-slate-900 dark:text-white">{dashboardMetrics.todayCount}</div>
+                    <div className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-1">Saved Quotations</div>
+                    <div className="text-3xl font-extrabold text-slate-900 dark:text-white">{dashboardMetrics.savedBookingCount}</div>
                   </div>
                 </div>
 
@@ -2056,11 +2301,12 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
                   <div className="flex justify-between items-start mb-6">
                     <div>
                       <h3 className="text-lg font-bold text-slate-900 dark:text-white">Scheduled Journey Activity</h3>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">Persisted journeys by departure · {activityPeriod === "daily" ? "today by time" : "last 7 days"}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Persisted journeys by departure · {activityPeriod === "daily" ? "today by time" : activityPeriod === "weekly" ? "last 7 days" : "last 12 months"}</p>
                     </div>
                     <div className="fleet-period-toggle flex bg-slate-100 dark:bg-slate-700 rounded-lg p-1">
                       <button onClick={() => setActivityPeriod("daily")} className={`px-3 py-1 text-xs font-semibold rounded shadow-sm transition-colors ${activityPeriod === "daily" ? "analytics-toggle-active bg-white dark:bg-slate-600 text-slate-800 dark:text-white" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"}`}>Daily</button>
                       <button onClick={() => setActivityPeriod("weekly")} className={`px-3 py-1 text-xs font-semibold rounded transition-colors ${activityPeriod === "weekly" ? "analytics-toggle-active bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"}`}>Weekly</button>
+                      <button onClick={() => setActivityPeriod("monthly")} className={`px-3 py-1 text-xs font-semibold rounded transition-colors ${activityPeriod === "monthly" ? "analytics-toggle-active bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"}`}>12 Months</button>
                     </div>
                   </div>
                   <div className="flex-1 flex flex-col justify-between relative min-h-[200px]">
@@ -2225,7 +2471,9 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
                 </div>}
                 
                 <div style={{ flex: 1, overflowY: "auto", background: darkMode ? "#111827" : "#fff" }}>
-                  {isBookingsLoading ? (
+                  {bookingsLoadError && !isBookingsLoading && bookingsData.length === 0 ? (
+                    <div className="adm-empty" style={{ margin: "2rem 0", color: "#b91c1c" }}>{bookingsLoadError}. The dashboard will retry automatically.</div>
+                  ) : isBookingsLoading ? (
                     <div className="adm-empty" style={{ margin: "2rem 0", display: "flex", flexDirection: "column", gap: 12 }}>
                       <span className="spinning" style={{ fontSize: 24, color: PX.brandRed }}>⟳</span>
                       <span style={{ fontSize: 13, color: darkMode ? "#9ca3af" : "#667085" }}>Loading quotation data...</span>
@@ -2556,7 +2804,7 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
                         setNT({...blankTemplate, vehicleId:db.vehicles[0]?.id});
                         setShowTemplateForm(false);
                         setToast("Route saved!"); setTimeout(()=>setToast(""),2000);
-                      }}>{newTemplate.id ? "Update Route" : "+ Save Template"}</button>
+                      }}>{newTemplate.id ? "Done" : "+ Add Template"}</button>
                     </div>
                   )}
 
@@ -2614,7 +2862,7 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
                     <select value={newBlock.vehicleId} onChange={e=>setNB(x=>({...x,vehicleId:e.target.value}))} className="w-full border rounded-md p-2 text-xs bg-white dark:bg-slate-800"><option value="">All vehicles</option>{vehicles.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select>
                     <div className="grid grid-cols-2 gap-2"><input aria-label="Block start date" type="date" value={newBlock.from} onChange={e=>setNB(x=>({...x,from:e.target.value}))} className="border rounded-md p-2 text-xs bg-white dark:bg-slate-800"/><input aria-label="Block end date" type="date" value={newBlock.to} onChange={e=>setNB(x=>({...x,to:e.target.value}))} className="border rounded-md p-2 text-xs bg-white dark:bg-slate-800"/></div>
                     <input aria-label="Block reason" value={newBlock.reason} onChange={e=>setNB(x=>({...x,reason:e.target.value}))} placeholder="Reason" className="border rounded-md p-2 text-xs bg-white dark:bg-slate-800"/>
-                    <button className="bg-primary text-on-primary rounded-md p-2 text-xs font-bold" onClick={()=>{ if(!newBlock.from || !newBlock.to) return setToast('Start and end dates are required.'); setBl(xs=>[{...newBlock,id:'block_'+Date.now()},...xs]); setNB({id:'',vehicleId:vehicles[0]?.id||'',from:'',to:'',reason:'Contract booking',units:1}); setShowBlockForm(false); setToast('Blocked date added. Save changes to publish.'); }}>Add Blocked Date</button>
+                    <button className="bg-primary text-on-primary rounded-md p-2 text-xs font-bold" onClick={()=>{ if(!newBlock.from || !newBlock.to) return setToast('Start and end dates are required.'); setBl(xs=>[{...newBlock,id:'block_'+Date.now()},...xs]); setNB({id:'',vehicleId:vehicles[0]?.id||'',from:'',to:'',reason:'Contract booking',units:1}); setShowBlockForm(false); setToast('Blocked date added.'); }}>Add Blocked Date</button>
                   </div>}
                   
                   <div className="flex flex-col gap-4 mb-5">
@@ -2687,12 +2935,7 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Status</label><select className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={newSeasonal.enabled===false?'inactive':'active'} onChange={e=>setNS(x=>({...x,enabled:e.target.value==='active',status:e.target.value}))}><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
                     </div>
                     <div style={{ display: "flex", gap: 12 }}>
-                      <button className="bg-primary text-on-primary hover:opacity-90 transition-opacity" style={{border: "none", padding: "8px 16px", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: "pointer" }} onClick={async ()=>{
-                        if(!newSeasonal.startDate || !newSeasonal.endDate || newSeasonal.multiplier <= 0) return setToast('Valid dates and multiplier are required.');
-                        const saved = await saveApi('seasonal', newSeasonal);
-                        setSeasonalData(d => { const exists = d.some(x => x.id === saved.id); if (exists) return d.map(x => x.id === saved.id ? saved : x); return [saved, ...d]; });
-                        setNS(blankSeasonal);
-                      }}>Save Rule</button>
+                      <button className="bg-primary text-on-primary hover:opacity-90 transition-opacity" style={{border: "none", padding: "8px 16px", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: "pointer" }} onClick={saveSeasonalRule}>{String(newSeasonal.id).startsWith('new_') ? 'Add Rule' : 'Done'}</button>
                       <button className="bg-slate-100 dark:bg-slate-700 border-none text-slate-900 dark:text-slate-100 py-1.5 px-3 rounded-md text-[10px] font-extrabold cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors" onClick={()=>setNS(blankSeasonal)}>Cancel</button>
                     </div>
                   </div>
@@ -2786,7 +3029,7 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Rule Status</label><select value={newMatrix.status||'active'} onChange={e=>setNM(x=>({...x,status:e.target.value}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
                     </div>
                     <div style={{ display: "flex", gap: 12 }}>
-                      <button className="bg-primary text-on-primary hover:opacity-90 transition-opacity" style={{border: "none", padding: "8px 16px", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: "pointer" }} onClick={async()=>{ const bands=matrixBands(newMatrix); if(newMatrix.baseFare<0 || bands.some(band=>!Number.isFinite(Number(band.rate)) || Number(band.rate)<0)) return setToast('A valid base fare and all four distance-band rates are required.'); if(matrixView!=='global' && !newMatrix.vehicleId) return setToast('A target vehicle is required.'); if(matrixView==='city' && (!newMatrix.pickupArea || !newMatrix.dropArea)) return setToast('From and to cities are required.'); const saved=await saveApi('matrix',{...newMatrix,distanceBands:bands,scope:matrixView,id:newMatrix.id||'new_'+Date.now()}); setMatrixData(d=>{ const exists=d.some(x=>x.id===saved.id); if(exists) return d.map(x=>x.id===saved.id?saved:x); return [saved,...d]; }); setNM(blankMatrix); setShowMatrixForm(false); setToast('Matrix rule saved.'); }}>Save Matrix</button>
+                      <button className="bg-primary text-on-primary hover:opacity-90 transition-opacity" style={{border: "none", padding: "8px 16px", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: "pointer" }} onClick={saveMatrixRule}>{newMatrix.id ? 'Done' : 'Add Matrix Rule'}</button>
                       <button className="bg-slate-100 dark:bg-slate-700 border-none text-slate-900 dark:text-slate-100 py-1.5 px-3 rounded-md text-[10px] font-extrabold cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors" onClick={()=>setShowMatrixForm(false)}>Cancel</button>
                     </div>
                   </div>
@@ -3055,22 +3298,21 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
                       </div>
 
                       {/* Variable Costs Grid (4-Column Compact Style) */}
-                      <div onPointerDownCapture={() => recordFeatureUsage('fleetVariables')} className="fleet-variable-costs grid grid-cols-4 gap-4">
+                      <div onPointerDownCapture={() => recordFeatureUsage('fleetVariables')} className="fleet-variable-costs grid grid-cols-5 gap-3">
                           <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between shadow-sm">
                             <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-                                <SvgSettings size={10} /> Fuel Economy
+                                Fuel Economy
                             </div>
                             <div className="fleet-variable-value flex items-center gap-1 mb-2">
                                 <input aria-label="Fuel economy" className="variable-cost-input hide-spinners w-[72px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0" type="number" step="0.1" value={activeV.fuelKpl ?? 5} onChange={e=>updateV(activeV.id,"fuelKpl",Number(e.target.value))} />
                                 <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 pb-1">kpl</span>
-                                <Edit3 size={11} className="fleet-variable-edit-icon" />
                             </div>
                             <div className="text-[9px] font-bold text-red-600 dark:text-red-400">Avg usage target</div>
                           </div>
 
                           <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between shadow-sm">
                             <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-                                <SvgSettings size={10} /> Maintenance
+                                Maintenance
                             </div>
                             <div className="fleet-variable-value flex items-center gap-1 mb-2">
                                 <span className="text-xs font-bold text-slate-500 dark:text-slate-400 pb-1">£</span>
@@ -3082,7 +3324,7 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
 
                           <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between shadow-sm">
                             <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-                                <SvgSettings size={10} /> Tyre Wear
+                                Tyre Wear
                             </div>
                             <div className="fleet-variable-value flex items-center gap-1 mb-2">
                                 <span className="text-xs font-bold text-slate-500 dark:text-slate-400 pb-1">£</span>
@@ -3090,15 +3332,28 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
                                 <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-1">/{distanceUnitShort}</span>
                             </div>
                             <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400">↓ 2.1% Stable</div>
-                            <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-100 dark:border-slate-700">
-                              <label className="text-[8px] font-bold text-slate-500 uppercase">Set cost<input aria-label="Tyre set cost" type="number" min="0" className="mt-1 w-full bg-slate-50 dark:bg-slate-900 rounded px-1.5 py-1 text-[10px] text-slate-900 dark:text-slate-100" value={activeV.tyreSetCost??0} onChange={e=>updateV(activeV.id,'tyreSetCost',Number(e.target.value))}/></label>
-                              <label className="text-[8px] font-bold text-slate-500 uppercase">Life ({distanceUnitShort})<input aria-label="Expected tyre life" type="number" min="1" className="mt-1 w-full bg-slate-50 dark:bg-slate-900 rounded px-1.5 py-1 text-[10px] text-slate-900 dark:text-slate-100" value={activeV.expectedTyreLifeKm??60000} onChange={e=>updateV(activeV.id,'expectedTyreLifeKm',Number(e.target.value))}/></label>
-                            </div>
                           </div>
 
                           <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between shadow-sm">
                             <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-                                <SvgSettings size={10} /> Luggage Profit
+                                Tyre Lifecycle
+                            </div>
+                            <div className="fleet-variable-value flex items-center justify-between gap-1 mb-2">
+                                <div className="flex items-center">
+                                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400 pb-1">£</span>
+                                  <input aria-label="Tyre set cost" className="variable-cost-input hide-spinners w-[36px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-left" type="number" min="0" value={activeV.tyreSetCost??0} onChange={e=>updateV(activeV.id,'tyreSetCost',Number(e.target.value))}/>
+                                </div>
+                                <div className="flex items-center">
+                                  <input aria-label="Expected tyre life" className="variable-cost-input hide-spinners w-[45px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="1" value={activeV.expectedTyreLifeKm??60000} onChange={e=>updateV(activeV.id,'expectedTyreLifeKm',Number(e.target.value))}/>
+                                  <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-1 ml-0.5">{distanceUnitShort}</span>
+                                </div>
+                            </div>
+                            <div className="text-[9px] font-bold text-slate-500 dark:text-slate-400">Cost & expected life</div>
+                          </div>
+
+                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between shadow-sm">
+                            <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+                                Luggage Profit
                             </div>
                             <div className="fleet-variable-value flex items-center gap-1 mb-2">
                                 <input aria-label="Extra luggage percentage" className="variable-cost-input hide-spinners w-[72px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0" type="number" step="0.01" value={activeV.extraLuggageProfitPct ?? 0.2} onChange={e=>updateV(activeV.id,"extraLuggageProfitPct",Number(e.target.value))} />
@@ -3106,9 +3361,9 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
                             </div>
                             <div className="text-[9px] font-bold text-slate-500 dark:text-slate-400">Extra bag mult.</div>
                           </div>
-                      </div>
-                      
-                      {/* Revenue Projections / System Context Card */}
+                        </div>
+
+                        {/* Revenue Projections / System Context Card */}
                       <div className="fleet-profitability bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-dashed border-slate-300 dark:border-slate-600 p-5 flex justify-between items-center shadow-sm">
                           <div className="fleet-profitability-copy">
                              <div className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wide mb-1">Fleet Profitability & Revenue</div>
@@ -3164,12 +3419,6 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
                 <div>
                   <h2 className="m-0 text-xl font-extrabold text-slate-900 dark:text-slate-100">Settings</h2>
                   <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">Manage one area at a time. Choose a section below.</p>
-                </div>
-                <div className="flex gap-3">
-                  <button className="bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 py-1.5 px-4 rounded-md text-[11px] font-extrabold cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors" onClick={() => { setOperatorDetails({...db.operatorDetails}); setGv({...db.globalVars}); setOH(db.annualOverheads.map(o=>({...o}))); setRoadCharges(buildRoadChargeItems(db.surcharges)); setDepotLoc({address:db.globalVars.yardAddress||'',lat:db.globalVars.yardLat,lng:db.globalVars.yardLng}); setToast('Unsaved changes discarded.'); }}>Discard</button>
-                  <button className="bg-primary text-on-primary py-1.5 px-4 rounded-md text-[11px] font-extrabold cursor-pointer shadow-sm hover:opacity-90 transition-opacity uppercase" onClick={save}>
-                    <span className="flex items-center gap-2"><SvgCheck size={16} color="#fff" /> APPLY CHANGES</span>
-                  </button>
                 </div>
               </div>
 
@@ -3259,7 +3508,7 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
                   <div className="space-y-3">
                     <div className="flex justify-between items-center pb-3 border-b border-slate-200 dark:border-slate-700/50">
                       <span className="text-xs font-bold text-slate-900 dark:text-slate-100">Distance Unit</span>
-                      <select className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1 px-2 text-xs font-bold outline-none" value={gv.distanceUnit || 'km'} onChange={handleUnitChange}>
+                      <select className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1 px-2 text-xs font-bold outline-none" value={gv.distanceUnit || 'miles'} onChange={handleUnitChange}>
                         <option value="km">Kilometers</option>
                         <option value="miles">Miles</option>
                       </select>
@@ -3278,12 +3527,12 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
                   </div>
                   <div className="space-y-4">
                     <div>
-                      <label className="flex justify-between text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2"><span>Target Margin (Weekday)</span><span>{gv.marginWeekday ?? 20}%</span></label>
-                      <input type="range" min="0" max="100" value={gv.marginWeekday ?? 20} onChange={e=>setGv(g=>({...g, marginWeekday: Number(e.target.value)}))} className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary" />
+                      <label className="flex justify-between text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2"><span>Target Margin (Weekday)</span><span>{gv.marginWeekday ?? 30}%</span></label>
+                      <input type="range" min="0" max="100" value={gv.marginWeekday ?? 30} onChange={e=>setGv(g=>({...g, marginWeekday: Number(e.target.value)}))} className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary" />
                     </div>
                     <div>
-                      <label className="flex justify-between text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2"><span>Target Margin (Weekend)</span><span>{gv.marginWeekend ?? 25}%</span></label>
-                      <input type="range" min="0" max="100" value={gv.marginWeekend ?? 25} onChange={e=>setGv(g=>({...g, marginWeekend: Number(e.target.value)}))} className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary" />
+                      <label className="flex justify-between text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2"><span>Target Margin (Weekend)</span><span>{gv.marginWeekend ?? 30}%</span></label>
+                      <input type="range" min="0" max="100" value={gv.marginWeekend ?? 30} onChange={e=>setGv(g=>({...g, marginWeekend: Number(e.target.value)}))} className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary" />
                     </div>
                     <div>
                       <label className="flex justify-between text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2"><span>Target Margin (Holiday)</span><span>{gv.marginHoliday ?? 30}%</span></label>
@@ -3293,17 +3542,17 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
                       <span className="text-xs font-bold text-slate-900 dark:text-slate-100">Overnight Accommodation</span>
                       <div className="flex items-center gap-1">
                         <span className="text-slate-500 dark:text-slate-400">£</span>
-                        <input type="number" step="10" className="w-12 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv.overnightCost ?? 200} onChange={e=>setGv(g=>({...g, overnightCost: Number(e.target.value)}))} />
+                        <input type="number" step="10" className="w-12 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv.overnightCost ?? 220} onChange={e=>setGv(g=>({...g, overnightCost: Number(e.target.value)}))} />
                       </div>
                     </div>
                     <div className="pt-3 border-t border-outline-variant dark:border-[#1F2937] flex justify-between items-center">
                       <span className="text-xs font-bold text-slate-900 dark:text-slate-100">Driver Overnight Subsistence</span>
-                      <div className="flex items-center gap-1"><span className="text-slate-500 dark:text-slate-400">£</span><input type="number" step="5" className="w-12 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={roadCharges.find(row=>row.key==='driverOvernightSubsistence')?.amount ?? 55} onChange={e=>setRoadCharges(rows=>rows.some(row=>row.key==='driverOvernightSubsistence')?rows.map(row=>row.key==='driverOvernightSubsistence'?{...row,amount:Number(e.target.value)}:row):[...rows,{key:'driverOvernightSubsistence',label:'Driver overnight subsistence',color:'#64748B',amount:Number(e.target.value),locked:true}])}/></div>
+                      <div className="flex items-center gap-1"><span className="text-slate-500 dark:text-slate-400">£</span><input type="number" step="5" className="w-12 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={roadCharges.find(row=>row.key==='driverOvernightSubsistence')?.amount ?? 60} onChange={e=>setRoadCharges(rows=>rows.some(row=>row.key==='driverOvernightSubsistence')?rows.map(row=>row.key==='driverOvernightSubsistence'?{...row,amount:Number(e.target.value)}:row):[...rows,{key:'driverOvernightSubsistence',label:'Driver overnight subsistence',color:'#64748B',amount:Number(e.target.value),locked:true}])}/></div>
                     </div>
                     {[
-                      ['driverWageWeekday','Driver wage - weekday',15],
-                      ['driverWageWeekend','Driver wage - weekend',20],
-                      ['driverWageHoliday','Driver wage - holiday',22]
+                      ['driverWageWeekday','Driver wage - weekday',18],
+                      ['driverWageWeekend','Driver wage - weekend',22],
+                      ['driverWageHoliday','Driver wage - holiday',25]
                     ].map(([key,label,fallback]) => <div key={key} className="flex justify-between items-center pt-3 border-t border-outline-variant dark:border-[#1F2937]"><span className="text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span><div className="flex items-center gap-1"><span className="text-slate-500 dark:text-slate-400">£</span><input type="number" step="0.5" className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))}/><span className="text-[10px] text-slate-500 dark:text-slate-400">/hr</span></div></div>)}
                   </div>
                 </div>
@@ -3458,6 +3707,11 @@ function AdminDashboard({ db, setDb, mapsLoaded, backendOnline, onLogout, adminU
             </form>
           </div>,
           document.body
+        )}
+        {toast && (
+          <div className="fixed top-6 right-6 z-[99999] bg-slate-800/95 text-slate-100 font-bold text-xs px-4 py-2 rounded-md shadow-lg border border-slate-700/80 transition-all duration-300">
+            {toast}
+          </div>
         )}
       </div>
     </div>
@@ -3620,9 +3874,26 @@ export default function AdminApp() {
           return;
         }
         if (!response.ok) throw new Error(`Backend returned ${response.status}`);
-        const data = await response.json();
-        if (!data || !Array.isArray(data.vehicles)) {
+        const receivedData = await response.json();
+        if (!receivedData || !Array.isArray(receivedData.vehicles)) {
           throw new Error("Backend returned an invalid configuration payload");
+        }
+        const recovery = restoreMissingConfiguration(receivedData);
+        const data = recovery.data;
+        if (recovery.changed) {
+          const restoreResponse = await authenticatedFetch(API_BASE_URL + "/api/admin/config", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              vehicles: data.vehicles,
+              globalVars: data.globalVars,
+              surcharges: data.surcharges,
+              annualOverheads: data.annualOverheads,
+              operatorDetails: data.operatorDetails
+            }),
+            signal: controller.signal
+          });
+          if (!restoreResponse.ok) throw new Error("Unable to restore missing backend configuration");
         }
         if (!cancelled) {
           setDb({
@@ -3686,7 +3957,6 @@ export default function AdminApp() {
         <AdminDashboard
           key={backendStatus}
           db={db}
-          setDb={setDb}
           mapsLoaded={mapsLoaded}
           backendOnline={backendStatus === 'online'}
           onLogout={handleLogout}

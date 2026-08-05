@@ -2131,18 +2131,36 @@ table {
 .dark .fleet-operational-summary-item strong { color: #f1f5f9 !important; }
 .dark .fleet-operational-summary { border-color: #334155; }
 .dark .fleet-operational-summary-title { color: #c2ccd8; }
-.fleet-variable-costs { grid-column: 1 / -1; grid-row: 2; }
+.fleet-variable-costs { grid-column: 1 / -1; grid-row: 2; align-items: start; }
 .fleet-profitability { grid-column: 1 / -1; grid-row: 3; border-style: solid !important; min-height: 190px; }
 .fleet-auto-notice { grid-column: 1 / -1; grid-row: 4; }
 
 .fleet-variable-costs > div {
-  min-height: 94px;
-  padding: 12px 14px !important;
+  width: 100%;
+  min-height: 82px;
+  padding: 10px 13px !important;
   border-radius: 12px !important;
   box-shadow: 0 5px 18px rgba(31, 45, 61, .055) !important;
 }
-.fleet-variable-costs > div > div:first-child { margin-bottom: 6px !important; }
+.fleet-variable-costs > div > div:first-child { margin-bottom: 4px !important; }
 .fleet-variable-costs > div > div:nth-child(2) { margin-bottom: 2px !important; }
+.fleet-variable-costs > .tyre-lifecycle-strip {
+  min-height: 0;
+  padding: 8px 13px !important;
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) minmax(190px, .8fr) minmax(190px, .8fr);
+  align-items: center;
+  gap: 14px;
+}
+.tyre-lifecycle-strip > div:first-child { margin: 0 !important; }
+.tyre-lifecycle-strip label { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: #64748b; font-size: 9px; font-weight: 800; text-transform: uppercase; }
+.tyre-lifecycle-input { display: flex; align-items: center; gap: 4px; min-width: 108px; padding: 5px 8px; border-radius: 7px; background: #f1f5f9; color: #334155; }
+.tyre-lifecycle-input input { width: 76px; border: 0; outline: 0; background: transparent; color: #0f172a; font-size: 11px; font-weight: 700; }
+.dark .tyre-lifecycle-input { background: #202d3d; color: #aeb9c7; }
+.dark .tyre-lifecycle-input input { color: #f1f5f9; }
+@media (max-width: 760px) {
+  .fleet-variable-costs > .tyre-lifecycle-strip { grid-column: 1; grid-template-columns: 1fr; gap: 8px; }
+}
 
 .fleet-variable-value {
   width: 100%;
@@ -2353,8 +2371,8 @@ table {
 .pricing-rules-page > .grid.grid-cols-4 { gap: 16px !important; }
 .pricing-rules-page > .grid.grid-cols-4 > div {
   position: relative;
-  min-height: 106px;
-  padding: 17px 18px 15px 72px !important;
+  min-height: 74px;
+  padding: 15px 17px !important;
   border: 1px solid #dce3eb !important;
   border-radius: 12px !important;
   box-shadow: 0 4px 14px rgba(28, 43, 61, .045) !important;
@@ -2545,8 +2563,8 @@ table {
   gap: 12px !important;
 }
 .pricing-rules-page > .grid.grid-cols-4 > div {
-  min-height: 86px;
-  padding: 13px 14px 12px 58px !important;
+  min-height: 74px;
+  padding: 14px 16px !important;
   overflow: hidden;
 }
 .pricing-rules-page .pricing-kpi-icon {
@@ -3306,4 +3324,163 @@ table {
 }
 @media (max-width: 900px) {
   .admin-premium-shell .dashboard-abstract-lines { left: 0; }
+}
+
+/* Current admin shell responsive contract. The older .adm-root rules above
+   belong to the retired layout and do not match AdminApp's live class names. */
+@media (max-width: 900px) {
+  .admin-premium-shell .premium-sidebar {
+    width: 72px !important;
+    padding: 12px 8px !important;
+  }
+  .admin-premium-shell .premium-sidebar > div:first-child {
+    margin-bottom: 16px !important;
+    padding: 0 !important;
+  }
+  .admin-premium-shell .premium-sidebar > div:first-child > div:first-child {
+    margin-bottom: 0 !important;
+    padding: 6px !important;
+  }
+  .admin-premium-shell .premium-sidebar > div:first-child img { height: 34px !important; }
+  .admin-premium-shell .premium-sidebar > div:first-child h1,
+  .admin-premium-shell .premium-sidebar > div:first-child p,
+  .admin-premium-shell .premium-sidebar nav button > span:last-child,
+  .admin-premium-shell .sidebar-account-copy,
+  .admin-premium-shell .sidebar-account-logout span { display: none !important; }
+  .admin-premium-shell .premium-sidebar nav button {
+    justify-content: center !important;
+    min-height: 44px;
+    padding: 10px 8px !important;
+  }
+  .admin-premium-shell .sidebar-account { padding: 7px !important; }
+  .admin-premium-shell .sidebar-account-profile { justify-content: center; padding-bottom: 7px; }
+  .admin-premium-shell .sidebar-account-avatar { width: 34px; min-width: 34px; height: 34px; }
+  .admin-premium-shell .sidebar-account-logout { justify-content: center; min-height: 34px; padding: 6px !important; }
+  .admin-premium-shell .premium-sidebar + div { margin-left: 72px !important; }
+  .admin-premium-shell .premium-header { padding: 0 16px !important; }
+  .admin-premium-shell .premium-header .header-quick-nav { display: none !important; }
+  .admin-premium-shell .admin-global-search input { width: min(260px, calc(100vw - 150px)) !important; }
+  .admin-premium-shell main.dashboard-ambient-canvas:not(.pricing-page-active) { min-width: 0; }
+  .admin-premium-shell .dashboard-premium { padding: 16px !important; }
+  .admin-premium-shell .pricing-rules-page .grid.grid-cols-5 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .admin-premium-shell .quotation-list-pane > div[style] { overflow-x: auto !important; }
+  .admin-premium-shell .settings-page > div:first-of-type {
+    align-items: flex-start !important;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 760px) {
+  .admin-premium-shell .fleet-economics-workspace {
+    display: flex !important;
+    flex-direction: column;
+  }
+  .admin-premium-shell .fleet-profit-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-premium-shell .fleet-cost-columns,
+  .admin-premium-shell .fleet-cost-row {
+    grid-template-columns: minmax(150px, 1fr) 104px 32px !important;
+    gap: 8px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-premium-shell .premium-sidebar {
+    top: auto !important;
+    right: 0;
+    bottom: 0;
+    width: 100% !important;
+    height: calc(68px + env(safe-area-inset-bottom)) !important;
+    padding: 5px 8px calc(5px + env(safe-area-inset-bottom)) !important;
+    border-top: 1px solid var(--admin-border) !important;
+    border-right: 0 !important;
+  }
+  .admin-premium-shell .premium-sidebar > div:first-child,
+  .admin-premium-shell .premium-sidebar .sidebar-account { display: none !important; }
+  .admin-premium-shell .premium-sidebar nav {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 2px;
+  }
+  .admin-premium-shell .premium-sidebar nav button {
+    flex-direction: column;
+    justify-content: center !important;
+    gap: 2px !important;
+    min-width: 0;
+    min-height: 56px;
+    padding: 4px 2px !important;
+    border-right: 0 !important;
+  }
+  .admin-premium-shell .premium-sidebar nav button > span:last-child {
+    display: block !important;
+    width: 100%;
+    overflow: hidden;
+    color: inherit;
+    font-size: 9px !important;
+    line-height: 12px !important;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .admin-premium-shell .premium-sidebar + div {
+    margin-left: 0 !important;
+    min-width: 0;
+    padding-bottom: calc(68px + env(safe-area-inset-bottom));
+  }
+  .admin-premium-shell .premium-header {
+    height: 56px !important;
+    padding: 0 12px !important;
+  }
+  .admin-premium-shell .admin-global-search { flex: 1; min-width: 0; }
+  .admin-premium-shell .admin-global-search input { width: min(100%, calc(100vw - 76px)) !important; }
+  .admin-premium-shell main.dashboard-ambient-canvas { overflow-x: hidden; }
+  .admin-premium-shell main.dashboard-ambient-canvas:not(.pricing-page-active) { padding: 12px !important; }
+  .admin-premium-shell .pricing-page-active > section > .flex {
+    align-items: flex-start !important;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .admin-premium-shell .dashboard-premium { padding: 0 !important; }
+  .admin-premium-shell .dashboard-premium > div:first-child { padding: 16px !important; }
+  .admin-premium-shell .dashboard-analytics > div,
+  .admin-premium-shell .dashboard-operations > div { padding: 16px !important; }
+  .admin-premium-shell .pricing-rules-page,
+  .admin-premium-shell .fleet-economics-page,
+  .admin-premium-shell .settings-page,
+  .admin-premium-shell .quotations-page { padding: 12px !important; }
+  .admin-premium-shell .pricing-rules-page .grid.grid-cols-5,
+  .admin-premium-shell .pricing-rules-page .grid.grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+  .admin-premium-shell .quotation-list-pane > div:first-child {
+    align-items: flex-start !important;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .admin-premium-shell .quotation-list-pane > div:first-child > div:last-child {
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+  .admin-premium-shell .quotation-list-pane > div:first-child > div:last-child button { flex: 0 0 auto; }
+  .admin-premium-shell .quotation-kpis { grid-template-columns: 1fr !important; }
+  .admin-premium-shell .settings-page { border-radius: 0 !important; }
+  .admin-premium-shell .settings-page > div:first-of-type > div:last-child {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .admin-premium-shell .settings-business,
+  .admin-premium-shell .settings-operations,
+  .admin-premium-shell .settings-pricing,
+  .admin-premium-shell .settings-geo,
+  .admin-premium-shell .settings-tolls,
+  .admin-premium-shell .settings-overheads { padding: 16px !important; }
+  .admin-premium-shell .fleet-tier-card { width: 190px !important; }
+  .admin-premium-shell .fleet-profit-kpis { grid-template-columns: 1fr; }
 }
