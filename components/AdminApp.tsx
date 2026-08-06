@@ -5,6 +5,8 @@ import { API_BASE_URL } from '../lib/api';
 
 import { Fragment, useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 import { Search, Sun, Moon, TrendingUp, Plus, Edit3, MoreVertical, Pause, History, CalendarDays, SlidersHorizontal, Download, CircleDollarSign, Target, RefreshCw, Activity, MapPinned } from "lucide-react";
 
 const ADMIN_TOKEN_KEY = 'caroleanAdminToken';
@@ -1581,8 +1583,10 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
       "Total Variable Cost (£)", "Driver Hourly Wage (£/hr)", "Holiday Pay (%)", "Total Driver Cost (£)",
       "London ULEZ Surcharge (£)", "Birmingham CAZ Surcharge (£)",
       "Dartford Crossing Surcharge (£)", "M6 Toll Surcharge (£)", "Driver Subsistence (£)",
-      "Total Surcharges (£)", "Profit Margin (%)", "Profit Margin (£)", "Seasonal Multiplier",
-      "Subtotal (£)", "Total Fare (£)"
+      "Total Surcharges (£)", "Target Profit Margin (%)", "Target Profit Margin (£)", "Seasonal Multiplier",
+      "Subtotal (£)", "Total Fare (£)",
+      "Gross Profit (£)", "Gross Margin (%)",
+      "Net Profit (£)", "Net Margin (%)"
     ];
 
     const rows = filteredBookingsData.map((b, index) => {
@@ -1679,20 +1683,64 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
         `=(AW${rNum}+AS${rNum})*(AT${rNum}/100)`,
         (b.quote?.result?.seasonalMultiplier || 1).toFixed(2),
         `=IF(AT${rNum}>0,X${rNum}+AJ${rNum}+AM${rNum},${(result.subtotal || 0).toFixed(2)})`,
-        `=IF(AT${rNum}>0,IF((AW${rNum}+AS${rNum}+AU${rNum})*AV${rNum}<AB${rNum},AB${rNum},(AW${rNum}+AS${rNum}+AU${rNum})*AV${rNum}),(AW${rNum}+AS${rNum}+AU${rNum})*AV${rNum})`
+        `=IF(AT${rNum}>0,IF((AW${rNum}+AS${rNum}+AU${rNum})*AV${rNum}<AB${rNum},AB${rNum},(AW${rNum}+AS${rNum}+AU${rNum})*AV${rNum}),(AW${rNum}+AS${rNum}+AU${rNum})*AV${rNum})`,
+        `=AX${rNum}-AS${rNum}-AJ${rNum}-AM${rNum}-AR${rNum}`,
+        `=IF(AX${rNum}>0, (AY${rNum}/AX${rNum})*100, 0)`,
+        `=AY${rNum}-X${rNum}-Z${rNum}`,
+        `=IF(AX${rNum}>0, (BA${rNum}/AX${rNum})*100, 0)`
       ];
     });
 
-    const csvString = "\uFEFF" + [headers, ...rows].map(e => e.map(cell => `"${String(cell || '').replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `bookings_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet('Bookings');
+    
+    const headerRow = sheet.addRow(headers);
+    headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E293B' } };
+    
+    sheet.views = [{ state: 'frozen', xSplit: 0, ySplit: 1 }];
+
+    rows.forEach((row, rowIndex) => {
+      const addedRow = sheet.addRow(row.map((cell, colIndex) => {
+        if (typeof cell === 'string' && cell.startsWith('=')) {
+          return { formula: cell.substring(1) };
+        }
+        if (typeof cell === 'string' && cell.trim() !== '' && !isNaN(Number(cell))) {
+           if (colIndex === 0 || colIndex > 13) {
+             return Number(cell);
+           }
+        }
+        return cell;
+      }));
+      
+      if (rowIndex % 2 === 0) {
+        addedRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+      }
+    });
+
+    headers.forEach((header, colIndex) => {
+      const col = sheet.getColumn(colIndex + 1);
+      if (header.includes('(£)')) {
+        col.numFmt = '"£"#,##0.00';
+      } else if (header.includes('(%)')) {
+        col.numFmt = '0.0"%"';
+      }
+      
+      if (header.includes('Gross') || header.includes('Net')) {
+        col.eachCell((cell, rowNum) => {
+          if (rowNum > 1) { 
+            cell.font = { bold: true, color: { argb: 'FF065F46' } };
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD1FAE5' } }; 
+          }
+        });
+      }
+      col.width = Math.max(header.length, 12);
+    });
+
+    workbook.xlsx.writeBuffer().then(buffer => {
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      saveAs(blob, `bookings_${new Date().toISOString().split('T')[0]}.xlsx`);
+    });
   };
 
   const saveApi = useCallback(async (type, item, isDelete=false) => {
@@ -2238,7 +2286,6 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-[#9CA3AF]">{tabMeta[tab]?.desc}</p>
                         </div>
                         <div className="flex gap-2">
-                          {tab === "pricing" && <button onClick={exportPricingConfiguration} className="px-4 py-2 text-on-surface-variant dark:text-[#9CA3AF] hover:text-primary dark:hover:text-white rounded-lg font-label-caps text-label-caps border border-outline-variant dark:border-[#374151] transition-colors">Export Configuration</button>}
                         </div>
                       </div>
                     </section>
@@ -2258,9 +2305,9 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 <div className="flex items-center gap-3">
                   {dashboardLoadError ? (
                     <button type="button" onClick={refreshDashboardData} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-bold border-0"><RefreshCw size={13}/> Metrics unavailable · Retry</button>
-                  ) : (
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold"><span className="w-2 h-2 rounded-full bg-emerald-500"/>{dashboardData ? "Backend data loaded" : "Loading backend data…"}</div>
-                  )}
+                  ) : !dashboardData ? (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-500 text-xs font-bold">Loading data...</div>
+                  ) : null}
                 </div>
               </div>
               
@@ -2303,9 +2350,6 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
                 {/* Card 4: active pricing configuration */}
                 <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm flex flex-col justify-between">
-                  <div className="flex justify-end items-start mb-4">
-                    <span className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold px-2 py-1 rounded-full">Backend data</span>
-                  </div>
                   <div>
                     <div className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-1">Active Pricing Rules</div>
                     <div className="text-3xl font-extrabold text-slate-900 dark:text-white">{dashboardMetrics.pricingRuleCount}</div>
@@ -2337,11 +2381,11 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     <div className="border-b border-slate-100 dark:border-slate-700/50 absolute w-full bottom-0"></div>
                     
                     <div className="absolute left-0 top-5 bottom-7 flex flex-col justify-between text-[9px] text-slate-400 dark:text-slate-500"><span>{dashboardMetrics.activityMax}</span><span>{Math.ceil(dashboardMetrics.activityMax * .75)}</span><span>{Math.ceil(dashboardMetrics.activityMax * .5)}</span><span>{Math.ceil(dashboardMetrics.activityMax * .25)}</span><span>0</span></div>
-                    <div className="fleet-chart-legend absolute top-2 right-28 flex items-center gap-3 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                    <div className="fleet-chart-legend absolute top-2 right-0 flex items-center gap-3 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
                       <span className="flex items-center gap-1.5"><span className="fleet-legend-standard w-2 h-2 rounded-sm"></span>Scheduled journeys</span>
                       <span className="flex items-center gap-1.5"><span className="fleet-legend-peak w-2 h-2 rounded-sm"></span>Highest interval</span>
                     </div>
-                    <div className="absolute inset-0 h-full flex items-end pl-6 pr-4 gap-3 sm:gap-5 pb-7 pt-5">
+                    <div className="absolute inset-0 h-full flex items-end pl-6 pr-4 gap-3 sm:gap-5 pb-7 pt-12">
                       {activityValues.map((height, i) => (
                         <div key={i} className="flex-1 h-full bg-transparent rounded-t-sm relative group min-w-0">
                           <div title={`${dashboardMetrics.activityCounts[i]} scheduled journeys`} style={{ height: `${height}%` }} className={`fleet-activity-bar ${dashboardMetrics.activityCounts[i] === dashboardMetrics.activityMax && dashboardMetrics.activityCounts[i] > 0 ? "fleet-activity-bar-peak" : ""} absolute bottom-0 w-full rounded-t-[5px] transition-all duration-300`}>
@@ -2353,7 +2397,6 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         </div>
                       ))}
                     </div>
-                    <div className="absolute top-2 right-0 flex items-center gap-1.5 text-[10px] font-semibold text-slate-500 dark:text-slate-400">Dashboard API data</div>
                   </div>
                   <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/50 grid grid-cols-3 gap-3">
                     <div><div className="text-[10px] text-slate-500 dark:text-slate-400">Highest interval</div><div className="fleet-peak-value text-sm font-bold text-slate-900 dark:text-white">{dashboardMetrics.activityCounts.some(Boolean) ? dashboardMetrics.activityLabels[dashboardMetrics.activityCounts.indexOf(dashboardMetrics.activityMax)] : "No activity"}</div></div>
@@ -2508,6 +2551,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           <th>ROUTE DETAILS</th>
                           <th>ASSIGNED FLEET</th>
                           <th>FARE</th>
+                          <th>MARGINS</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -2536,6 +2580,73 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                               </td>
                               <td className="quotation-fare" style={{ fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800, fontSize: 14 }}>
                                 £{fmt(b.quote?.result?.finalPrice || b.quote?.result?.finalFare || 0)}
+                              </td>
+                              <td className="quotation-margins" style={{ fontSize: 12 }}>
+                                {(() => {
+                                  const rev = b.quote?.result?.finalPrice || b.quote?.result?.finalFare || 0;
+                                  const bd = b.quote?.result?.breakdown || {};
+                                  if (!rev) return <span style={{ color: darkMode ? "#475569" : "#cbd5e1" }}>-</span>;
+                                  
+                                  let surcharges = bd.surchargeTotal || 0;
+                                  let distCost = bd.distanceCost || 0;
+                                  let drvCost = bd.driverCost || 0;
+                                  const overnightCost = bd.overnightCost || 0;
+                                  
+                                  const vehicle = (db.vehicles || []).find(v => v.id === b.quote?.vehicle?.id);
+                                  
+                                  // Graceful fallback for old dummy data to ensure realistic percentages
+                                  if (distCost === 0 && drvCost === 0 && b.quote?.result?.totalKm) {
+                                    const ratePerKm = Number(vehicle?.ratePerKm) || 1.2;
+                                    const cw = Number(vehicle?.commercialWeight) || 1;
+                                    const driverWage = Number(db.globalVars?.driverHourlyWage) || 15;
+                                    distCost = (b.quote.result.totalKm * ratePerKm * cw);
+                                    drvCost = (b.quote.result.totalShiftHrs || 0) * driverWage;
+                                  }
+                                  
+                                  const totalOverheads = (db.annualOverheads || []).reduce((sum, item) => sum + Number(item.cost || 0), 0);
+                                  const totalFleetUnits = (db.vehicles || []).reduce((sum, v) => sum + (Number(v.fleetCount) || 0), 0);
+                                  const overheadPerUnit = totalFleetUnits > 0 ? totalOverheads / totalFleetUnits : 0;
+                                  
+                                  const annualFixed = vehicle?.annualFixedCosts?.reduce((sum, c) => sum + Number(c.amount || 0), 0) 
+                                      || vehicle?.annualCosts?.reduce((sum, c) => sum + Number(c.cost || 0), 0) || 0;
+                                  const utilDays = Number(vehicle?.utilisationDays) || 225;
+                                  
+                                  const dailyOverhead = overheadPerUnit / utilDays;
+                                  const dailyStanding = annualFixed / utilDays;
+                                  
+                                  const grossProfit = rev - surcharges - distCost - drvCost - overnightCost;
+                                  const netProfit = grossProfit - dailyStanding - dailyOverhead;
+                                  
+                                  const baseForMargin = rev;
+                                  if (baseForMargin <= 0) return <span style={{ color: darkMode ? "#475569" : "#cbd5e1" }}>-</span>;
+                                  
+                                  const grossMargin = (grossProfit / baseForMargin) * 100;
+                                  const profitMargin = (netProfit / baseForMargin) * 100;
+                                  
+                                  return (
+                                    <div style={{ display: "flex", flexDirection: "column", gap: 6, width: "100%", minWidth: 120 }}>
+                                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                        <span style={{ fontSize: 11, color: darkMode ? "#9ca3af" : "#64748b", fontWeight: 600 }}>Total Profit</span>
+                                        <span style={{ fontSize: 12, fontWeight: 800, color: profitMargin > 0 ? (darkMode ? "#10b981" : "#059669") : (darkMode ? "#ef4444" : "#dc2626") }}>
+                                          {profitMargin > 0 ? "+" : ""}£{fmt(netProfit)}
+                                        </span>
+                                      </div>
+                                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                        <span style={{ fontSize: 10, color: darkMode ? "#6b7280" : "#94a3b8", fontWeight: 500 }}>Margin</span>
+                                        <span style={{ fontSize: 10, fontWeight: 700, color: profitMargin > 0 ? (darkMode ? "#10b981" : "#059669") : (darkMode ? "#ef4444" : "#dc2626") }}>
+                                          {profitMargin.toFixed(1)}%
+                                        </span>
+                                      </div>
+                                      <div style={{ height: 1, background: darkMode ? "#374151" : "#e2e8f0", margin: "2px 0" }} />
+                                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                        <span style={{ fontSize: 10, color: darkMode ? "#6b7280" : "#94a3b8", fontWeight: 500 }}>Gross</span>
+                                        <span style={{ fontSize: 10, fontWeight: 600, color: darkMode ? "#9ca3af" : "#64748b" }}>
+                                          {grossMargin.toFixed(1)}%
+                                        </span>
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
                               </td>
 
                             </tr>
@@ -2671,6 +2782,90 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         </div>
                       </div>
                       
+                      {(() => {
+                        const rev = previewBooking.quote?.result?.finalPrice || previewBooking.quote?.result?.finalFare || 0;
+                        const bd = previewBooking.quote?.result?.breakdown || {};
+                        if (!rev) return null;
+                        
+                        let surcharges = bd.surchargeTotal || 0;
+                        let distCost = bd.distanceCost || 0;
+                        let drvCost = bd.driverCost || 0;
+                        const overnightCost = bd.overnightCost || 0;
+                        const targetMargin = bd.marginPct || Number(db.globalVars?.profitMarginPct) || 0;
+                        
+                        const vehicle = (db.vehicles || []).find(v => v.id === previewBooking.quote?.vehicle?.id);
+                        
+                        // Graceful fallback for old dummy data to ensure realistic percentages
+                        if (distCost === 0 && drvCost === 0 && previewBooking.quote?.result?.totalKm) {
+                          const ratePerKm = Number(vehicle?.ratePerKm) || 1.2;
+                          const cw = Number(vehicle?.commercialWeight) || 1;
+                          const driverWage = Number(db.globalVars?.driverHourlyWage) || 15;
+                          distCost = (previewBooking.quote.result.totalKm * ratePerKm * cw);
+                          drvCost = (previewBooking.quote.result.totalShiftHrs || 0) * driverWage;
+                        }
+                        
+                        const totalOverheads = (db.annualOverheads || []).reduce((sum, item) => sum + Number(item.cost || 0), 0);
+                        const totalFleetUnits = (db.vehicles || []).reduce((sum, v) => sum + (Number(v.fleetCount) || 0), 0);
+                        const overheadPerUnit = totalFleetUnits > 0 ? totalOverheads / totalFleetUnits : 0;
+                        
+                        const annualFixed = vehicle?.annualFixedCosts?.reduce((sum, c) => sum + Number(c.amount || 0), 0) 
+                            || vehicle?.annualCosts?.reduce((sum, c) => sum + Number(c.cost || 0), 0) || 0;
+                        const utilDays = Number(vehicle?.utilisationDays) || 225;
+                        
+                        const dailyOverhead = overheadPerUnit / utilDays;
+                        const dailyStanding = annualFixed / utilDays;
+                        
+                        const grossProfit = rev - surcharges - distCost - drvCost - overnightCost;
+                        const netProfit = grossProfit - dailyStanding - dailyOverhead;
+                        
+                        const baseForMargin = rev;
+                        if (baseForMargin <= 0) return null;
+
+                        const grossMargin = (grossProfit / baseForMargin) * 100;
+                        const profitMargin = (netProfit / baseForMargin) * 100;
+
+                        return (
+                          <>
+                            <div style={{ fontSize: 11, fontWeight: 800, color: darkMode ? "#6b7280" : PX.gray400, textTransform: "uppercase", letterSpacing: 1, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                              <span>Financial Margins</span>
+                              <div style={{ flex: 1, height: 1, background: darkMode ? "#1f2937" : "#f1f5f9" }} />
+                            </div>
+                            
+                            <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse", marginBottom: 24 }}>
+                              <thead>
+                                <tr style={{ borderBottom: `1px solid ${darkMode ? "#374151" : "#e2e8f0"}`, color: darkMode ? "#9ca3af" : PX.gray500, fontSize: 11 }}>
+                                  <th style={{ textAlign: "left", paddingBottom: 8, fontWeight: 700 }}>METRIC</th>
+                                  <th style={{ textAlign: "right", paddingBottom: 8, fontWeight: 700 }}>AMOUNT (£)</th>
+                                  <th style={{ textAlign: "right", paddingBottom: 8, fontWeight: 700 }}>MARGIN (%)</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr style={{ borderBottom: `1px solid ${darkMode ? "#1f2937" : "#f1f5f9"}` }}>
+                                  <td style={{ padding: "12px 0", color: darkMode ? "#d1d5db" : PX.gray700 }}><strong>Gross Profit</strong> <span style={{ fontSize: 10, color: darkMode ? "#6b7280" : PX.gray400, display: "block", marginTop: 2 }}>(Revenue minus direct trip costs)</span></td>
+                                  <td style={{ padding: "12px 0", textAlign: "right", fontWeight: 800, fontSize: 14, color: grossProfit > 0 ? (darkMode ? "#34d399" : "#16a34a") : (darkMode ? "#f87171" : "#dc2626") }}>£{fmt(grossProfit)}</td>
+                                  <td style={{ padding: "12px 0", textAlign: "right" }}>
+                                    <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 12, fontSize: 12, fontWeight: 800, background: grossProfit > 0 ? (darkMode ? "rgba(52, 211, 153, 0.15)" : "rgba(22, 163, 74, 0.1)") : (darkMode ? "rgba(248, 113, 113, 0.15)" : "rgba(220, 38, 38, 0.1)"), color: grossProfit > 0 ? (darkMode ? "#34d399" : "#16a34a") : (darkMode ? "#f87171" : "#dc2626") }}>{grossMargin.toFixed(1)}%</span>
+                                  </td>
+                                </tr>
+                                <tr style={{ borderBottom: `1px solid ${darkMode ? "#1f2937" : "#f1f5f9"}` }}>
+                                  <td style={{ padding: "12px 0", color: darkMode ? "#d1d5db" : PX.gray700 }}><strong>Net Profit</strong> <span style={{ fontSize: 10, color: darkMode ? "#6b7280" : PX.gray400, display: "block", marginTop: 2 }}>(After daily fleet overheads & fixed costs)</span></td>
+                                  <td style={{ padding: "12px 0", textAlign: "right", fontWeight: 800, fontSize: 14, color: netProfit > 0 ? (darkMode ? "#34d399" : "#16a34a") : (darkMode ? "#f87171" : "#dc2626") }}>£{fmt(netProfit)}</td>
+                                  <td style={{ padding: "12px 0", textAlign: "right" }}>
+                                    <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 12, fontSize: 12, fontWeight: 800, background: netProfit > 0 ? (darkMode ? "rgba(52, 211, 153, 0.15)" : "rgba(22, 163, 74, 0.1)") : (darkMode ? "rgba(248, 113, 113, 0.15)" : "rgba(220, 38, 38, 0.1)"), color: netProfit > 0 ? (darkMode ? "#34d399" : "#16a34a") : (darkMode ? "#f87171" : "#dc2626") }}>{profitMargin.toFixed(1)}%</span>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td style={{ padding: "12px 0", color: darkMode ? "#d1d5db" : PX.gray700 }}><strong>Target Profit Margin</strong> <span style={{ fontSize: 10, color: darkMode ? "#6b7280" : PX.gray400, display: "block", marginTop: 2 }}>(Admin Engine Setting)</span></td>
+                                  <td style={{ padding: "12px 0", textAlign: "right", fontWeight: 700, color: darkMode ? "#9ca3af" : PX.gray500 }}>--</td>
+                                  <td style={{ padding: "12px 0", textAlign: "right" }}>
+                                    <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 12, fontSize: 12, fontWeight: 800, background: darkMode ? "rgba(148, 163, 184, 0.15)" : "rgba(100, 116, 139, 0.1)", color: darkMode ? "#94a3b8" : "#475569" }}>{targetMargin}%</span>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </>
+                        );
+                      })()}
                       
                     </div>
                   </>
