@@ -17,7 +17,7 @@ const RECOVERY_CONFIGURATION = {
     minibus: {
       capacity: 16, fleetCount: 2, utilisationDays: 225, fuelKpl: 9.5,
       ratePerKm: 1.2, commercialWeight: 1, standingCostPerDay: 150,
-      maintenanceCostPerKm: 0.08, tyreSetCost: 1200, expectedTyreLifeKm: 60000,
+      maintenanceCostPerKm: 0, maintenanceSetCost: 4800, expectedMaintenanceLifeKm: 60000, tyreSetCost: 1200, expectedTyreLifeKm: 60000,
       annualCosts: [
         { id: 1, label: 'Vehicle Excise Duty (VED)', cost: 600 },
         { id: 2, label: 'Annual Insurance', cost: 3200 },
@@ -27,7 +27,7 @@ const RECOVERY_CONFIGURATION = {
     bus: {
       capacity: 33, fleetCount: 2, utilisationDays: 225, fuelKpl: 7.2,
       ratePerKm: 1.65, commercialWeight: 1.08, standingCostPerDay: 200,
-      maintenanceCostPerKm: 0.12, tyreSetCost: 2800, expectedTyreLifeKm: 80000,
+      maintenanceCostPerKm: 0, maintenanceSetCost: 9600, expectedMaintenanceLifeKm: 80000, tyreSetCost: 2800, expectedTyreLifeKm: 80000,
       annualCosts: [
         { id: 1, label: 'Vehicle Excise Duty (VED)', cost: 850 },
         { id: 2, label: 'Annual Insurance', cost: 5800 },
@@ -36,7 +36,7 @@ const RECOVERY_CONFIGURATION = {
     },
     coach: {
       capacity: 49, fleetCount: 1, utilisationDays: 260, fuelKpl: 3.6,
-      maintenanceCostPerKm: 0.28, tyreCostPerKm: 0.09, tyreSetCost: 2400,
+      maintenanceCostPerKm: 0, maintenanceSetCost: 22400, expectedMaintenanceLifeKm: 80000, tyreCostPerKm: 0.09, tyreSetCost: 2400,
       expectedTyreLifeKm: 80000, profitMarginPct: 30, fuelPricePerLitre: 1.52,
       ratePerKm: 2.6, commercialWeight: 1.12, standingCostPerDay: 260,
       annualCosts: [
@@ -1161,7 +1161,9 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     const tyreSetCost = Number(newV.tyreSetCost);
     const tyreLife = Number(newV.expectedTyreLifeKm);
     const tyrePerKm = directTyreCost > 0 ? directTyreCost : (tyreSetCost > 0 && tyreLife > 0 ? tyreSetCost / tyreLife : 0.05);
-    const maintCost = Number(newV.maintenanceCostPerKm) || 0.15;
+    const maintSetCost = Number(newV.maintenanceSetCost);
+    const maintLife = Number(newV.expectedMaintenanceLifeKm);
+    const maintCost = Number(newV.maintenanceCostPerKm) > 0 ? Number(newV.maintenanceCostPerKm) : (maintSetCost > 0 && maintLife > 0 ? maintSetCost / maintLife : 0.15);
     const vcSum = fuelPerKm + tyrePerKm + maintCost;
     if (vcSum > 0) {
       newV.ratePerKm = vcSum;
@@ -1611,7 +1613,10 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
           ? Number(vehicle.tyreSetCost) / Number(vehicle.expectedTyreLifeKm)
           : 0.05;
       const tyreCost = vehicle.tyreCostPerKm || calculatedTyreCost;
-      const maintCost = vehicle.maintenanceCostPerKm ?? 0.15;
+      const calculatedMaintCost = Number(vehicle.maintenanceSetCost) > 0 && Number(vehicle.expectedMaintenanceLifeKm) > 0
+        ? Number(vehicle.maintenanceSetCost) / Number(vehicle.expectedMaintenanceLifeKm)
+        : 0.15;
+      const maintCost = vehicle.maintenanceCostPerKm || calculatedMaintCost;
 
       const totalAnnualFixed = (vehicle.annualCosts||[]).reduce((s,c)=>s+Number(c.cost),0);
       const fleetCount = vehicle.fleetCount || 1;
@@ -1917,7 +1922,9 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
       maintenanceCostPerKm: convert(v.maintenanceCostPerKm, rateFactor, 2),
       tyreCostPerKm: convert(v.tyreCostPerKm, rateFactor, 2),
       ratePerKm: convert(v.ratePerKm, rateFactor, 2),
-      fuelKpl: convert(v.fuelKpl, distFactor, 1)
+      fuelKpl: convert(v.fuelKpl, distFactor, 1),
+      expectedMaintenanceLifeKm: convert(v.expectedMaintenanceLifeKm, distFactor, 0),
+      expectedTyreLifeKm: convert(v.expectedTyreLifeKm, distFactor, 0)
     }));
 
     setGv(nextGlobalVars);
@@ -2140,7 +2147,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     dashboard: { label: "Executive Dashboard", desc: "High-level overview of system metrics and fleet activity." },
     pricing: { label: "Pricing Rules Engine", desc: "Configure global logistics margins, fixed route premiums, and dynamic multipliers." },
     fleet:   { label: "Fleet Economics", desc: "Set fleet economics, overheads, and variable costs." },
-    bookings:{ label: "Quotation", desc: "Browse quote requests and export CSV reports." },
+    bookings:{ label: "Quotation", desc: "Browse quote requests and export Excel reports." },
     settings:{ label: "System Settings", desc: "Global calculator settings and surcharges." },
   };
 
@@ -2340,7 +2347,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 {/* Card 3: all persisted quotations */}
                 <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm flex flex-col justify-between">
                   <div className="flex justify-end items-start mb-4">
-                    <span className="bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-[11px] font-bold px-2 py-1 rounded-full">Backend</span>
+                    <span className="bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:purple-400 text-[11px] font-bold px-2 py-1 rounded-full">Backend</span>
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-1">Saved Quotations</div>
@@ -2511,19 +2518,19 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
               
               {/* LEFT COLUMN: Quotations List */}
               <div className="quotation-list-pane bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden min-w-0 min-h-0">
-                <div className="py-4 px-5 flex justify-between items-center border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+                <div className="py-4 px-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
                   <div className="flex items-center gap-3">
                     <h2 className="m-0 text-lg font-extrabold text-slate-900 dark:text-slate-100">Quotations</h2>
                     <span className="bg-slate-100 dark:bg-slate-700 py-1 px-2 rounded-xl text-[11px] font-bold text-slate-500 dark:text-slate-400">{filteredBookingsData.length} Total</span>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Btn variant="ghost" size="sm" style={{ color: bookingLast30Days ? "#fff" : (darkMode ? "#cbd5e1" : PX.navy800), background: bookingLast30Days ? PX.brandRed : "transparent", borderColor: bookingLast30Days ? PX.brandRed : (darkMode ? "#475569" : PX.gray200) }} onClick={() => setBookingLast30Days(v=>!v)}><CalendarDays size={14}/> Last 30 Days</Btn>
                     <Btn variant="ghost" size="sm" style={{ color: showBookingFilters ? "#fff" : (darkMode ? "#cbd5e1" : PX.navy800), background: showBookingFilters ? PX.brandRed : "transparent", borderColor: showBookingFilters ? PX.brandRed : (darkMode ? "#475569" : PX.gray200) }} onClick={() => setShowBookingFilters(v=>!v)}><SlidersHorizontal size={14}/> Filter</Btn>
-                    <Btn variant="ghost" size="sm" style={{ color: darkMode ? "#cbd5e1" : PX.navy800, borderColor: darkMode ? "#475569" : PX.gray200 }} onClick={exportBookingsToCSV}><Download size={14}/> Export CSV</Btn>
+                    <Btn variant="ghost" size="sm" style={{ color: darkMode ? "#cbd5e1" : PX.navy800, borderColor: darkMode ? "#475569" : PX.gray200 }} onClick={exportBookingsToCSV}><Download size={14}/> Export Excel</Btn>
                   </div>
                 </div>
 
-                {showBookingFilters && <div className="quotation-filters adm-search-bar">
+                {showBookingFilters && <div className="quotation-filters adm-search-bar flex flex-wrap gap-2 items-center overflow-x-auto">
                   <input type="text" placeholder="Name / Ref ID" value={searchNameRef} onChange={e=>setSearchNameRef(e.target.value)} />
                   <input type="text" placeholder="Vehicle" value={searchVehicle} onChange={e=>setSearchVehicle(e.target.value)} />
                   <div className="quotation-fare-filter"><span>£ Fare</span><input type="number" min="0" placeholder="From" value={searchFareFrom} onChange={e=>setSearchFareFrom(e.target.value)} /><i>—</i><input type="number" min="0" placeholder="To" value={searchFareTo} onChange={e=>setSearchFareTo(e.target.value)} /></div>
@@ -2532,7 +2539,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   {(searchNameRef||searchVehicle||searchFareFrom||searchFareTo||searchRoute||reportDate) && <button onClick={()=>{setSearchNameRef('');setSearchVehicle('');setSearchFareFrom('');setSearchFareTo('');setSearchRoute('');setReportDate('');}}>Clear</button>}
                 </div>}
                 
-                <div style={{ flex: 1, overflowY: "auto", background: darkMode ? "#111827" : "#fff" }}>
+                <div style={{ flex: 1, overflowY: "auto", overflowX: "auto", background: darkMode ? "#111827" : "#fff" }}>
                   {bookingsLoadError && !isBookingsLoading && bookingsData.length === 0 ? (
                     <div className="adm-empty" style={{ margin: "2rem 0", color: "#b91c1c" }}>{bookingsLoadError}. The dashboard will retry automatically.</div>
                   ) : isBookingsLoading ? (
@@ -2678,8 +2685,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       </div>
                     </div>
                     
-                    <div className="quotation-detail-map" style={{ position: "relative", height: 140, flex: "0 0 140px", borderBottom: `1px solid ${darkMode ? "#1f2937" : "#eaecf0"}`, overflow: "hidden" }}>
-                      <RouteMap result={previewBooking.quote?.result} journey={previewBooking.journey} gv={gv} height={140} minimal={true} darkMode={darkMode} mapsLoaded={mapsLoaded} />
+                    <div className="quotation-detail-map" style={{ position: "relative", height: 220, flex: "0 0 220px", borderBottom: `1px solid ${darkMode ? "#1f2937" : "#eaecf0"}`, overflow: "hidden" }}>
+                      <RouteMap result={previewBooking.quote?.result} journey={previewBooking.journey} gv={gv} height={220} minimal={true} darkMode={darkMode} mapsLoaded={mapsLoaded} />
                       <div style={{ position: "absolute", bottom: 12, left: 12, background: darkMode ? "rgba(15, 23, 42, 0.9)" : "rgba(255, 255, 255, 0.94)", color: darkMode ? "#e2e8f0" : PX.navy800, border: `1px solid ${darkMode ? "#475569" : "#e2e8f0"}`, padding: "4px 10px", borderRadius: 20, fontSize: 10, fontWeight: 800, letterSpacing: 0.5, display: "flex", alignItems: "center", gap: 4, backdropFilter: "blur(4px)" }}>
                         <MapPinned size={12} /> ROUTE PREVIEW
                       </div>
@@ -2928,7 +2935,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   <div className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">Active Rules</div>
                   <div className="text-3xl font-black text-red-600 dark:text-red-400 leading-none">{templatesData.length + matrixData.filter(m=>m.status==='active').length}</div>
                   <div className="text-[11px] font-bold text-primary dark:text-primary-fixed mt-2 flex items-center gap-1">
-                    <span style={{ fontSize: 13 }}>📈</span> +12% vs last month
+                    <TrendingUp size={13} className="inline-block" /> +12% vs last month
                   </div>
                 </div>
 
@@ -3190,7 +3197,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     <p className="m-0 text-[11px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Fleet-wide cross-calculation based on demand and distance.</p>
                   </div>
                   <div className="flex bg-slate-100 dark:bg-slate-900 rounded-lg p-1 border border-slate-200 dark:border-slate-700">
-                    {['global','fleet','city'].map(view=><button key={view} onClick={()=>{setMatrixView(view); setShowMatrixForm(false);}} className={`${matrixView===view?'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm':'bg-transparent text-slate-500 dark:text-slate-400'} border-none py-1 px-3 rounded-md text-[10px] font-bold`}>{view==='global'?'Global':view==='fleet'?'By Fleet':'By City'}</button>)}
+                    {['global','fleet'/*,'city'*/].map(view=><button key={view} onClick={()=>{setMatrixView(view); setShowMatrixForm(false);}} className={`${matrixView===view?'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm':'bg-transparent text-slate-500 dark:text-slate-400'} border-none py-1 px-3 rounded-md text-[10px] font-bold`}>{view==='global'?'Global':view==='fleet'?'By Fleet':'By City'}</button>)}
                   </div>
                 </div>
                 
@@ -3326,7 +3333,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   const source=vehicles[0]||{}; const id=`vehicle_${Date.now()}`;
                   const created=injectDefaults({...source,id,name:'New vehicle tier',description:'',emoji:'minibus',fleetCount:1,annualFixedCosts:(source.annualFixedCosts||[]).map((cost,index)=>({...cost,id:`${id}_cost_${index}`}))});
                   setV(list=>[...list,created]); setActiveVehicleId(id); setShowVehicleDetails(true);
-                }}><Plus size={14}/> Add tier</button>
+                }}><Plus size={14}/> Add vehicle</button>
                 {(() => {
                   const selectedVehicle = vehicles.find(v => v.id === activeVehicleId) || vehicles[0];
                   const selectedEconomics = eco.vehicleBreakdown.find(v => v.id === selectedVehicle?.id);
@@ -3344,7 +3351,17 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 <div><label className="block text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-1">Tier name</label><input className="w-full rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-2.5 py-2 text-xs font-bold" value={selected.name||''} onChange={e=>updateV(selected.id,'name',e.target.value)}/></div>
                 <div><label className="block text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-1">Description</label><input className="w-full rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-2.5 py-2 text-xs" value={selected.description||''} onChange={e=>updateV(selected.id,'description',e.target.value)}/></div>
                 <div><label className="block text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-1">Vehicle icon</label><select className="w-full rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-2.5 py-2 text-xs" value={selected.emoji||'bus'} onChange={e=>updateV(selected.id,'emoji',e.target.value)}><option value="minibus">Minibus</option><option value="bus">Bus</option><option value="coach">Coach</option></select></div>
-                <button className="rounded-md bg-slate-100 dark:bg-slate-700 px-3 py-2 text-[10px] font-extrabold" onClick={()=>setShowVehicleDetails(false)}>Done</button>
+                                  <div className="flex gap-2">
+                    {selected.id.startsWith('vehicle_') && (
+                      <button className="rounded-md bg-transparent border border-slate-200 dark:border-slate-600 px-3 py-2 text-[10px] font-extrabold cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500" onClick={()=>{
+                        const remaining = vehicles.filter(x=>x.id!==selected.id);
+                        setV(remaining);
+                        if (activeVehicleId === selected.id) setActiveVehicleId(remaining[0]?.id || "");
+                        setShowVehicleDetails(false);
+                      }}>Cancel</button>
+                    )}
+                    <button className="rounded-md bg-slate-100 dark:bg-slate-700 px-3 py-2 text-[10px] font-extrabold cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600" onClick={()=>setShowVehicleDetails(false)}>Done</button>
+                  </div>
               </div>})()}
 
               {/* Main Dense Grid */}
@@ -3390,7 +3407,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                  <div className="fleet-card-eyebrow">Operating assumptions</div>
                                  <div className="fleet-card-title">Fleet variables</div>
                                </div>
-                               <button type="button" className="fleet-settings-icon" aria-label="Edit selected tier" title="Edit selected tier" onClick={()=>setShowVehicleDetails(v=>!v)}><SvgSettings size={14} /></button>
+                               {/* settings icon removed */}
                             </div>
                             
                             <div className="flex flex-col gap-3">
@@ -3425,12 +3442,12 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                     <input className="hide-spinners w-8 bg-transparent border-none text-slate-900 dark:text-slate-100 text-[11px] font-extrabold outline-none text-right p-0" type="number" value={activeV.capacity} onChange={e=>updateV(activeV.id,"capacity",Number(e.target.value))} />
                                   </div>
                                   <div className="fleet-compact-field">
-                                    <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">Weight</label>
+                                    <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">Multiplier</label>
                                     <input className="hide-spinners w-9 bg-transparent border-none text-slate-900 dark:text-slate-100 text-[11px] font-extrabold outline-none text-right p-0" type="number" step="0.1" value={activeV.commercialWeight ?? 1} onChange={e=>updateV(activeV.id,"commercialWeight",Number(e.target.value))} />
                                   </div>
                                   <div className="fleet-compact-field">
-                                    <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">£/km</label>
-                                    <input aria-label="Commercial vehicle rate per kilometre" className="hide-spinners w-12 bg-transparent border-none text-slate-900 dark:text-slate-100 text-[11px] font-extrabold outline-none text-right p-0" type="number" min="0.01" step="0.05" value={activeV.ratePerKm ?? 0} onChange={e=>updateV(activeV.id,"ratePerKm",Number(e.target.value))} />
+                                    <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">RATE/{distanceUnitShort}</label>
+                                    <input aria-label="Commercial vehicle rate per kilometre" className="hide-spinners w-16 bg-transparent border-none text-slate-900 dark:text-slate-100 text-[11px] font-extrabold outline-none text-right p-0" type="number" min="0.01" step="0.05" value={activeV.ratePerKm ?? 0} onChange={e=>updateV(activeV.id,"ratePerKm",Number(e.target.value))} />
                                   </div>
                                 </div>
                             </div>
@@ -3489,7 +3506,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                   }} className="bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 text-xs font-semibold w-full py-1 placeholder-slate-400 dark:placeholder-slate-600" placeholder="e.g. Insurance" />
                                   
                                   <div className="flex items-center justify-end gap-1">
-                                      <span className="text-xs font-bold text-slate-400 dark:text-slate-500">£</span>
+                                      <span className="teyt-xs font-bold text-slate-400 dark:text-slate-500">³</span>
                                       <input className="hide-spinners w-20 bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 text-[13px] font-extrabold text-right py-1" type="number" value={fc.amount} onChange={e => {
                                         const newFc = [...(activeV.annualFixedCosts||[])];
                                         newFc[idx] = { ...newFc[idx], amount: Number(e.target.value) };
@@ -3507,81 +3524,80 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                       const vs = vehicles.map(vx => vx.id === activeV.id ? { ...vx, annualFixedCosts: newFc, standingCostPerDay: (sum / (activeV.fleetCount||1)) / utilDays } : vx);
                                       setV(vs);
                                   }} className="admin-icon-action admin-icon-delete"><SvgTrash size={12}/></button>
-                                </div>
-                            ))}
-                            </div>
-                            <div className="fleet-cost-total flex justify-between items-center py-4 px-5 bg-primary/5 dark:bg-primary/10">
-                                <span className="text-[10px] font-extrabold text-primary dark:text-primary-fixed uppercase tracking-wide">Gross Standing Total</span>
-                                <span className="text-lg font-black text-primary dark:text-primary-fixed">£{((activeV.annualFixedCosts||[]).reduce((s,x)=>s+(Number(x.amount)||0),0)).toLocaleString()}</span>
-                            </div>
+                              </div>
+                          ))}
                           </div>
+                          <div className="fleet-cost-total flex justify-between items-center py-4 px-5 bg-primary/5 dark:bg-primary/10">
+                              <span className="text-[10px] font-extrabold text-primary dark:text-primary-fixed uppercase tracking-wide">Gross Standing Total</span>
+                              <span className="text-lg font-black text-primary dark:text-primary-fixed">£{((activeV.annualFixedCosts||[]).reduce((s,x)=>s+(Number(x.amount)||0),0)).toLocaleString()}</span>
+                          </div>
+                        </div>
                       </div>
 
                       {/* Variable Costs Grid (4-Column Compact Style) */}
-                      <div onPointerDownCapture={() => recordFeatureUsage('fleetVariables')} className="fleet-variable-costs grid grid-cols-5 gap-3">
-                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between shadow-sm">
-                            <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-                                Fuel Economy
-                            </div>
-                            <div className="fleet-variable-value flex items-center gap-1 mb-2">
-                                <input aria-label="Fuel economy" className="variable-cost-input hide-spinners w-[72px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0" type="number" step="0.1" value={activeV.fuelKpl ?? 5} onChange={e=>updateV(activeV.id,"fuelKpl",Number(e.target.value))} />
-                                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 pb-1">kpl</span>
-                            </div>
-                            <div className="text-[9px] font-bold text-red-600 dark:text-red-400">Avg usage target</div>
+                      <div onPointerDownCapture={() => recordFeatureUsage('fleetVariables')} className="fleet-variable-costs grid grid-cols-4 gap-3">
+                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex items-center justify-between">
+                              <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Fuel Economy</div>
+                              <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
+                              <div className="fleet-variable-value !w-auto flex items-center gap-1 shrink-0">
+                                  <input aria-label="Fuel economy" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" step="0.1" value={activeV.fuelKpl ?? 5} onChange={e=>updateV(activeV.id,"fuelKpl",Number(e.target.value))} />
+                                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5">{gv?.distanceUnit === 'miles' ? 'mpl' : 'kpl'}</span>
+                              </div>
+                              <div className="text-[9px] font-bold text-red-600 dark:text-red-400 ml-1.5 whitespace-nowrap shrink-0 border-l border-slate-200 dark:border-slate-700 pl-1.5">Target</div>
                           </div>
 
-                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between shadow-sm">
-                            <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-                                Maintenance
-                            </div>
-                            <div className="fleet-variable-value flex items-center gap-1 mb-2">
-                                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 pb-1">£</span>
-                                <input aria-label="Maintenance cost per distance unit" className="variable-cost-input hide-spinners w-[72px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0" type="number" step="0.01" value={activeV.maintenanceCostPerKm ?? 0.15} onChange={e=>updateV(activeV.id,"maintenanceCostPerKm",Number(e.target.value))} />
-                                <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-1">/{distanceUnitShort}</span>
-                            </div>
-                            <div className="text-[9px] font-bold text-slate-500 dark:text-slate-400">— On Budget</div>
+                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex items-center justify-between">
+                              <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Maint. Lifecycle</div>
+                              <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
+                              <div className="fleet-variable-value !w-auto flex items-center shrink-0">
+                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">£</span>
+                                <input aria-label="Maintenance set cost" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="0" value={activeV.maintenanceSetCost??0} onChange={e=>{
+                                  const val = Number(e.target.value);
+                                  setV(vs=>vs.map(v=>v.id===activeV.id?{...v, maintenanceSetCost: val, maintenanceCostPerKm: 0}:v));
+                                }}/>
+                                <div className="text-slate-300 dark:text-slate-600 font-light mx-0.5">/</div>
+                                <input aria-label="Expected maintenance life" className="variable-cost-input hide-spinners w-[36px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="1" value={activeV.expectedMaintenanceLifeKm??60000} onChange={e=>{
+                                  const val = Number(e.target.value);
+                                  setV(vs=>vs.map(v=>v.id===activeV.id?{...v, expectedMaintenanceLifeKm: val, maintenanceCostPerKm: 0}:v));
+                                }}/>
+                                <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{distanceUnitShort}</span>
+                              </div>
+                              <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5">
+                                  = £{((activeV.maintenanceSetCost || 0) / (activeV.expectedMaintenanceLifeKm || 1)).toFixed(3)}
+                              </div>
                           </div>
 
-                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between shadow-sm">
-                            <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-                                Tyre Wear
-                            </div>
-                            <div className="fleet-variable-value flex items-center gap-1 mb-2">
-                                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 pb-1">£</span>
-                                <input aria-label="Tyre cost per distance unit" className="variable-cost-input hide-spinners w-[72px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0" type="number" step="0.01" value={activeV.tyreCostPerKm ?? 0.05} onChange={e=>updateV(activeV.id,"tyreCostPerKm",Number(e.target.value))} />
-                                <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-1">/{distanceUnitShort}</span>
-                            </div>
-                            <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400">↓ 2.1% Stable</div>
+                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex items-center justify-between">
+                              <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Tyre Lifecycle</div>
+                              <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
+                              <div className="fleet-variable-value !w-auto flex items-center shrink-0">
+                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">£</span>
+                                <input aria-label="Tyre set cost" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="0" value={activeV.tyreSetCost??0} onChange={e=>{
+                                  const val = Number(e.target.value);
+                                  setV(vs=>vs.map(v=>v.id===activeV.id?{...v, tyreSetCost: val, tyreCostPerKm: 0}:v));
+                                }}/>
+                                <div className="text-slate-300 dark:text-slate-600 font-light mx-0.5">/</div>
+                                <input aria-label="Expected tyre life" className="variable-cost-input hide-spinners w-[36px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="1" value={activeV.expectedTyreLifeKm??40000} onChange={e=>{
+                                  const val = Number(e.target.value);
+                                  setV(vs=>vs.map(v=>v.id===activeV.id?{...v, expectedTyreLifeKm: val, tyreCostPerKm: 0}:v));
+                                }}/>
+                                <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{distanceUnitShort}</span>
+                              </div>
+                              <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5">
+                                  = £{((activeV.tyreSetCost || 0) / (activeV.expectedTyreLifeKm || 1)).toFixed(3)}
+                              </div>
                           </div>
 
-                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between shadow-sm">
-                            <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-                                Tyre Lifecycle
-                            </div>
-                            <div className="fleet-variable-value flex items-center justify-between gap-1 mb-2">
-                                <div className="flex items-center">
-                                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400 pb-1">£</span>
-                                  <input aria-label="Tyre set cost" className="variable-cost-input hide-spinners w-[36px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-left" type="number" min="0" value={activeV.tyreSetCost??0} onChange={e=>updateV(activeV.id,'tyreSetCost',Number(e.target.value))}/>
-                                </div>
-                                <div className="flex items-center">
-                                  <input aria-label="Expected tyre life" className="variable-cost-input hide-spinners w-[45px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="1" value={activeV.expectedTyreLifeKm??60000} onChange={e=>updateV(activeV.id,'expectedTyreLifeKm',Number(e.target.value))}/>
-                                  <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-1 ml-0.5">{distanceUnitShort}</span>
-                                </div>
-                            </div>
-                            <div className="text-[9px] font-bold text-slate-500 dark:text-slate-400">Cost & expected life</div>
+                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex items-center justify-between">
+                              <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Luggage Profit</div>
+                              <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
+                              <div className="fleet-variable-value !w-auto flex items-center gap-1 shrink-0">
+                                  <input aria-label="Luggage profit multiplier" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" step="0.05" value={activeV.extraLuggageProfitPct ?? 0.2} onChange={e=>updateV(activeV.id,"extraLuggageProfitPct",Number(e.target.value))} />
+                                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5">Mult.</span>
+                              </div>
+                              <div className="text-[9px] font-bold text-slate-500 dark:text-slate-400 ml-1.5 whitespace-nowrap shrink-0 border-l border-slate-200 dark:border-slate-700 pl-1.5">Extra bag</div>
                           </div>
-
-                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between shadow-sm">
-                            <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-                                Luggage Profit
-                            </div>
-                            <div className="fleet-variable-value flex items-center gap-1 mb-2">
-                                <input aria-label="Extra luggage percentage" className="variable-cost-input hide-spinners w-[72px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0" type="number" step="0.01" value={activeV.extraLuggageProfitPct ?? 0.2} onChange={e=>updateV(activeV.id,"extraLuggageProfitPct",Number(e.target.value))} />
-                                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 pb-1">%</span>
-                            </div>
-                            <div className="text-[9px] font-bold text-slate-500 dark:text-slate-400">Extra bag mult.</div>
-                          </div>
-                        </div>
+                      </div>
 
                         {/* Revenue Projections / System Context Card */}
                       <div className="fleet-profitability bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-dashed border-slate-300 dark:border-slate-600 p-5 flex justify-between items-center shadow-sm">
@@ -3971,7 +3987,7 @@ function FleetEconomicsPanel({ eco, darkMode }) {
       <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(200px, 1fr))",gap:12 }}>
         {[
           ["Total company overheads",fmtK(eco.companyOverheads),"annual total","#f5f3ff","#ede9fe","#5b21b6","#7c3aed"],
-          ["Overhead per unit",fmtK(eco.overheadPerUnit),`÷ ${eco.totalFleetUnits} total units`,"#f5f3ff","#ede9fe","#5b21b6","#7c3aed"],
+          ["Overhead per unit",fmtK(eco.overheadPerUnit),`Ã· ${eco.totalFleetUnits} total units`,"#f5f3ff","#ede9fe","#5b21b6","#7c3aed"],
           ["Total fleet units",`${eco.totalFleetUnits}`,`across ${eco.vehicleBreakdown.length} tiers`,PX.gray50,PX.gray200,PX.navy800,PX.gray400],
         ].map(([l,v,sub,bg,br,tc,sc])=>(
           <div key={l} style={{ background:bg,border:`1.5px solid ${br}`,borderRadius:9,padding:"14px" }}>

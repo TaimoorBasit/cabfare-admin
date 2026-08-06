@@ -646,40 +646,40 @@ input, select, textarea {
 /* Quotation row typography only */
 .admin-premium-shell .quotations-table tbody td {
   font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif !important;
-  font-size: 13px !important;
+  font-size: 12.5px !important;
   line-height: 18px !important;
 }
 .admin-premium-shell .quotations-table td.quotation-ref {
   color: #071348 !important;
-  font-size: 13px !important;
-  line-height: 18px !important;
+  font-size: 12px !important;
+  line-height: 16px !important;
   font-weight: 800 !important;
   letter-spacing: 0 !important;
 }
 .admin-premium-shell .quotations-table td:nth-child(2) > div > div:last-child > div:first-child,
 .admin-premium-shell .quotations-table td:nth-child(3) > div:first-child {
   color: #09133f !important;
-  font-size: 13px !important;
-  line-height: 18px !important;
+  font-size: 12.5px !important;
+  line-height: 17px !important;
   font-weight: 700 !important;
 }
 .admin-premium-shell .quotations-table td:nth-child(2) > div > div:last-child > div:last-child,
 .admin-premium-shell .quotations-table td:nth-child(3) > div:last-child {
   color: #8a98ae !important;
-  font-size: 10px !important;
-  line-height: 15px !important;
+  font-size: 9.5px !important;
+  line-height: 14px !important;
   font-weight: 450 !important;
 }
 .admin-premium-shell .quotations-table td.quotation-fleet,
 .admin-premium-shell .quotations-table td.quotation-fleet span {
-  font-size: 12px !important;
-  line-height: 17px !important;
+  font-size: 11px !important;
+  line-height: 15px !important;
   font-weight: 500 !important;
 }
 .admin-premium-shell .quotations-table td.quotation-fare {
   color: #d41124 !important;
-  font-size: 15px !important;
-  line-height: 20px !important;
+  font-size: 13.5px !important;
+  line-height: 18px !important;
   font-weight: 800 !important;
 }
 .dark .admin-premium-shell .quotations-table td.quotation-ref,
@@ -688,8 +688,8 @@ input, select, textarea {
 
 .admin-premium-shell .quotations-table td.quotation-ref {
   color: #c82032 !important;
-  font-size: 14px !important;
-  line-height: 20px !important;
+  font-size: 12.5px !important;
+  line-height: 18px !important;
   font-weight: 500 !important;
 }
 .dark .admin-premium-shell .quotations-table td.quotation-ref { color: #fb7185 !important; }
@@ -859,14 +859,13 @@ input, select, textarea {
 .quotation-list-title button { min-height: 36px; padding: 8px 15px; border-radius: 7px; background: #a73746; color: #fff; font-size: 12px; font-weight: 700; }
 .quotations-page .quotations-table { min-width: 980px; table-layout: fixed; }
 .quotations-page .quotations-table th,
-.quotations-page .quotations-table td { padding: 11px 12px !important; }
-.quotations-page .quotations-table th:nth-child(1), .quotations-page .quotations-table td:nth-child(1) { width: 14%; padding-left: 18px !important; }
-.quotations-page .quotations-table th:nth-child(2), .quotations-page .quotations-table td:nth-child(2) { width: 19%; }
-.quotations-page .quotations-table th:nth-child(3), .quotations-page .quotations-table td:nth-child(3) { width: 23%; }
-.quotations-page .quotations-table th:nth-child(4), .quotations-page .quotations-table td:nth-child(4) { width: 17%; }
-.quotations-page .quotations-table th:nth-child(5), .quotations-page .quotations-table td:nth-child(5) { width: 10%; text-align: left; }
-.quotations-page .quotations-table th:nth-child(6), .quotations-page .quotations-table td:nth-child(6) { width: 10%; }
-.quotations-page .quotations-table th:nth-child(7), .quotations-page .quotations-table td:nth-child(7) { width: 7%; text-align: right; padding-right: 18px !important; }
+.quotations-page .quotations-table td { padding: 9px 12px !important; overflow: hidden; }
+.quotations-page .quotations-table th:nth-child(1), .quotations-page .quotations-table td:nth-child(1) { width: 13%; padding-left: 18px !important; }
+.quotations-page .quotations-table th:nth-child(2), .quotations-page .quotations-table td:nth-child(2) { width: 21%; }
+.quotations-page .quotations-table th:nth-child(3), .quotations-page .quotations-table td:nth-child(3) { width: 24%; }
+.quotations-page .quotations-table th:nth-child(4), .quotations-page .quotations-table td:nth-child(4) { width: 16%; }
+.quotations-page .quotations-table th:nth-child(5), .quotations-page .quotations-table td:nth-child(5) { width: 11%; text-align: left; }
+.quotations-page .quotations-table th:nth-child(6), .quotations-page .quotations-table td:nth-child(6) { width: 15%; text-align: right; padding-right: 18px !important; }
 .quotation-status { display: inline-flex; align-items: center; min-height: 26px; padding: 4px 8px; border-radius: 6px; background: #e8f1ff; color: #2767b2; font-size: 11px; line-height: 16px; font-weight: 700; text-transform: capitalize; white-space: nowrap; }
 .quotation-status.accepted { color: #18754e; background: #def5e9; }.quotation-status.draft { color: #58687c; background: #edf1f5; }.quotation-status.rejected, .quotation-status.cancelled { color: #a73746; background: #fae7ea; }
 .quotation-actions { display: flex; justify-content: flex-end; gap: 3px; }
@@ -1356,8 +1355,8 @@ table {
 .admin-premium-shell table th,
 .admin-premium-shell .admin-table thead th,
 .admin-premium-shell .quotations-table thead th {
-  font-size: 13px !important;
-  font-weight: 600 !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
   line-height: 20px !important;
   letter-spacing: 0 !important;
 }
@@ -1365,9 +1364,9 @@ table {
 .admin-premium-shell table td,
 .admin-premium-shell .admin-table tbody td,
 .admin-premium-shell .quotations-table tbody td {
-  font-size: 14px !important;
+  font-size: 12.5px !important;
   font-weight: 400 !important;
-  line-height: 22px !important;
+  line-height: 18px !important;
   letter-spacing: 0 !important;
 }
 
@@ -2180,16 +2179,7 @@ table {
   background: #fff;
   box-shadow: 0 0 0 3px rgba(167, 55, 70, .11);
 }
-.fleet-variable-value::after {
-  content: "Edit";
-  margin-left: auto;
-  color: #8795a6;
-  font-size: 9px;
-  font-weight: 800;
-  line-height: 12px;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-}
+
 .admin-premium-shell .fleet-variable-value .variable-cost-input {
   width: 54px;
   min-height: 26px;
@@ -2211,7 +2201,7 @@ table {
 .dark .fleet-variable-value:hover,
 .dark .fleet-variable-value:focus-within { background: #243246; }
 .dark .fleet-variable-value:focus-within { border-color: #d25b69; box-shadow: 0 0 0 3px rgba(210, 91, 105, .16); }
-.dark .fleet-variable-value::after { color: #93a3b5; }
+.dark 
 
 .fleet-fixed-costs,
 .fleet-operational-card,
