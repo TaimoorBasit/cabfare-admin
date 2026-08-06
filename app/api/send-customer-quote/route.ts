@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       },
     });
 
-    const fromEmail = (smtpFrom || smtpEmail).replace(/^"|"$/g, '');
+    const fromAddress = smtpEmail.replace(/"/g, '');
     const toEmail = booking?.customer?.email;
 
     if (!toEmail) {
@@ -62,7 +62,10 @@ export async function POST(req: Request) {
     `;
 
     await transporter.sendMail({
-      from: fromEmail,
+      from: {
+        name: 'Carolean Coaches',
+        address: fromAddress
+      },
       to: toEmail,
       subject,
       html,
