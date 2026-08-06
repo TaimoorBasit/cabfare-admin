@@ -7,10 +7,14 @@ export async function POST(req: Request) {
 
     const smtpEmail = process.env.SMTP_EMAIL || process.env.SMTP_USER;
     const smtpPass = process.env.SMTP_PASS;
-    const smtpFrom = process.env.SMTP_FROM || smtpEmail;
+
+    console.log('[send-customer-quote] SMTP_EMAIL present:', !!smtpEmail);
+    console.log('[send-customer-quote] SMTP_PASS present:', !!smtpPass);
+    console.log('[send-customer-quote] Booking ID:', booking?.id);
+    console.log('[send-customer-quote] Customer email:', booking?.customer?.email);
 
     if (!smtpEmail || !smtpPass) {
-      console.error('SMTP credentials missing in environment variables.');
+      console.error('[send-customer-quote] SMTP credentials missing in environment variables.');
       return NextResponse.json({ error: 'Email configuration missing' }, { status: 500 });
     }
 
@@ -71,6 +75,7 @@ export async function POST(req: Request) {
       html,
     });
 
+    console.log('[send-customer-quote] Email sent successfully to:', toEmail);
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error('Failed to send customer quote:', error);
