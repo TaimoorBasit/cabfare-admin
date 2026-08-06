@@ -2124,12 +2124,26 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
           {navItems.map(({ k, label, icon }) => {
             const isSel = tab === k;
             return (
-              <button key={k} onClick={() => setTab(k)} className={`w-full flex items-center gap-3 px-sm py-3 rounded transition-colors duration-200 group ${isSel ? "text-primary dark:text-[#60A5FA] font-bold border-r-2 border-primary dark:border-[#60A5FA] bg-surface-container-low dark:bg-[#1F2937]" : "text-on-surface-variant dark:text-[#9CA3AF] hover:bg-surface-container-low dark:hover:bg-[#1F2937] hover:text-primary dark:hover:text-white"}`}>
-                <span className={`flex-shrink-0 flex items-center justify-center ${isSel ? "text-primary" : "text-on-surface-variant group-hover:text-primary"}`}>
-                  {icon}
-                </span>
-                <span className="font-label-caps text-label-caps">{label}</span>
-              </button>
+              <div key={k}>
+                <button onClick={() => setTab(k)} className={`w-full flex items-center gap-3 px-sm py-3 rounded transition-colors duration-200 group ${isSel ? "text-primary dark:text-[#60A5FA] font-bold border-r-2 border-primary dark:border-[#60A5FA] bg-surface-container-low dark:bg-[#1F2937]" : "text-on-surface-variant dark:text-[#9CA3AF] hover:bg-surface-container-low dark:hover:bg-[#1F2937] hover:text-primary dark:hover:text-white"}`}>
+                  <span className={`flex-shrink-0 flex items-center justify-center ${isSel ? "text-primary" : "text-on-surface-variant group-hover:text-primary"}`}>
+                    {icon}
+                  </span>
+                  <span className="font-label-caps text-label-caps">{label}</span>
+                </button>
+                {k === 'settings' && (
+                  <div className="pl-11 py-1 space-y-0.5">
+                    {[['company', 'Business'], ['pricing', 'Pricing']].map(([key, subLabel]) => {
+                      const subSel = tab === 'settings' && settingsSection === key;
+                      return (
+                        <button key={key} onClick={() => { setTab('settings'); setSettingsSection(key); }} className={`w-full text-left px-sm py-1.5 rounded text-[11px] font-bold transition-colors duration-200 ${subSel ? "text-primary dark:text-[#60A5FA] bg-surface-container-low dark:bg-[#1F2937]" : "text-on-surface-variant dark:text-[#9CA3AF] hover:bg-surface-container-low dark:hover:bg-[#1F2937] hover:text-primary dark:hover:text-white"}`}>
+                          {subLabel}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             );
           })}
         </nav>
@@ -3428,13 +3442,6 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   <h2 className="m-0 text-xl font-extrabold text-slate-900 dark:text-slate-100">Settings</h2>
                   <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">Manage one area at a time. Choose a section below.</p>
                 </div>
-              </div>
-
-              <div className="settings-tabs" role="tablist" aria-label="Settings sections">
-                {[
-                  ['company','Business','Company details, depot, units and location'],
-                  ['pricing','Pricing','Wages, margins, road charges and annual overheads']
-                ].map(([key,label,description]) => <button key={key} type="button" role="tab" aria-selected={settingsSection === key} onClick={()=>setSettingsSection(key)} className={settingsSection === key ? 'is-active' : ''}><strong>{label}</strong><span>{description}</span></button>)}
               </div>
 
               <div className={`settings-layout settings-section-${settingsSection} grid grid-cols-12 gap-4`}>
