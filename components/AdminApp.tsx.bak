@@ -1448,13 +1448,6 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
       setEditingBooking(null);
       setBookingEditForm(null);
       setToast(`Quotation #${savedBooking.id} updated.`);
-      if (editingBooking.status !== 'sent' && updatedBooking.status === 'sent') {
-        fetch('/api/send-customer-quote', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ booking: savedBooking })
-        }).catch(console.error);
-      }
       setTimeout(() => setToast(""), 2500);
     } catch (error: any) {
       setBookingEditError(error.message || "Unable to update this quotation.");
@@ -2154,7 +2147,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     dashboard: { label: "Executive Dashboard", desc: "High-level overview of system metrics and fleet activity." },
     pricing: { label: "Pricing Rules Engine", desc: "Configure global logistics margins, fixed route premiums, and dynamic multipliers." },
     fleet:   { label: "Fleet Economics", desc: "Set fleet economics, overheads, and variable costs." },
-    bookings:{ label: "Quotation", desc: "Browse quote requests and export Excel reports." },
+    bookings:{ label: "Quotation", desc: "Browse quote requests and export CSV reports." },
     settings:{ label: "System Settings", desc: "Global calculator settings and surcharges." },
   };
 
@@ -2533,7 +2526,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   <div className="flex flex-wrap gap-2">
                     <Btn variant="ghost" size="sm" style={{ color: bookingLast30Days ? "#fff" : (darkMode ? "#cbd5e1" : PX.navy800), background: bookingLast30Days ? PX.brandRed : "transparent", borderColor: bookingLast30Days ? PX.brandRed : (darkMode ? "#475569" : PX.gray200) }} onClick={() => setBookingLast30Days(v=>!v)}><CalendarDays size={14}/> Last 30 Days</Btn>
                     <Btn variant="ghost" size="sm" style={{ color: showBookingFilters ? "#fff" : (darkMode ? "#cbd5e1" : PX.navy800), background: showBookingFilters ? PX.brandRed : "transparent", borderColor: showBookingFilters ? PX.brandRed : (darkMode ? "#475569" : PX.gray200) }} onClick={() => setShowBookingFilters(v=>!v)}><SlidersHorizontal size={14}/> Filter</Btn>
-                    <Btn variant="ghost" size="sm" style={{ color: darkMode ? "#cbd5e1" : PX.navy800, borderColor: darkMode ? "#475569" : PX.gray200 }} onClick={exportBookingsToCSV}><Download size={14}/> Export Excel</Btn>
+                    <Btn variant="ghost" size="sm" style={{ color: darkMode ? "#cbd5e1" : PX.navy800, borderColor: darkMode ? "#475569" : PX.gray200 }} onClick={exportBookingsToCSV}><Download size={14}/> Export CSV</Btn>
                   </div>
                 </div>
 
@@ -3543,68 +3536,88 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
                       {/* Variable Costs Grid (4-Column Compact Style) */}
                       <div onPointerDownCapture={() => recordFeatureUsage('fleetVariables')} className="fleet-variable-costs grid grid-cols-4 gap-3">
-                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex items-center justify-between">
-                              <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Fuel Economy</div>
-                              <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
-                              <div className="fleet-variable-value !w-auto flex items-center gap-1 shrink-0">
-                                  <input aria-label="Fuel economy" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" step="0.1" value={activeV.fuelKpl ?? 5} onChange={e=>updateV(activeV.id,"fuelKpl",Number(e.target.value))} />
-                                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5">{gv?.distanceUnit === 'miles' ? 'mpl' : 'kpl'}</span>
-                              </div>
-                              <div className="text-[9px] font-bold text-red-600 dark:text-red-400 ml-1.5 whitespace-nowrap shrink-0 border-l border-slate-200 dark:border-slate-700 pl-1.5">Target</div>
+                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between shadow-sm">
+                            <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+                                Fuel Economy
+                            </div>
+                            <div className="fleet-variable-value flex items-center gap-1 mb-2 px-1">
+                                <input aria-label="Fuel economy" className="variable-cost-input hide-spinners w-[48px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-left" type="number" step="0.1" value={activeV.fuelKpl ?? 5} onChange={e=>updateV(activeV.id,"fuelKpl",Number(e.target.value))} />
+                                <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-1.5 relative top-[2px]"></div>
+                                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 pb-1">{gv?.distanceUnit === 'miles' ? 'mpl' : 'kpl'}</span>
+                            </div>
+                            <div className="text-[9px] font-bold text-red-600 dark:text-red-400">Avg usage target</div>
                           </div>
 
-                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex items-center justify-between">
-                              <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Maint. Lifecycle</div>
-                              <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
-                              <div className="fleet-variable-value !w-auto flex items-center shrink-0">
-                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">£</span>
-                                <input aria-label="Maintenance set cost" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="0" value={activeV.maintenanceSetCost??0} onChange={e=>{
-                                  const val = Number(e.target.value);
-                                  setV(vs=>vs.map(v=>v.id===activeV.id?{...v, maintenanceSetCost: val, maintenanceCostPerKm: 0}:v));
-                                }}/>
-                                <div className="text-slate-300 dark:text-slate-600 font-light mx-0.5">/</div>
-                                <input aria-label="Expected maintenance life" className="variable-cost-input hide-spinners w-[36px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="1" value={activeV.expectedMaintenanceLifeKm??60000} onChange={e=>{
-                                  const val = Number(e.target.value);
-                                  setV(vs=>vs.map(v=>v.id===activeV.id?{...v, expectedMaintenanceLifeKm: val, maintenanceCostPerKm: 0}:v));
-                                }}/>
-                                <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{distanceUnitShort}</span>
-                              </div>
-                              <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5">
+                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between shadow-sm">
+                            <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+                                Maintenance Lifecycle
+                            </div>
+                            <div className="fleet-variable-value flex items-center justify-between gap-1 mb-2">
+                                <div className="flex items-center">
+                                  <div className="flex items-center">
+                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 pb-1">£</span>
+                                    <input aria-label="Maintenance set cost" className="variable-cost-input hide-spinners w-[42px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-left" type="number" min="0" value={activeV.maintenanceSetCost??0} onChange={e=>{
+                                      const val = Number(e.target.value);
+                                      setV(vs=>vs.map(v=>v.id===activeV.id?{...v, maintenanceSetCost: val, maintenanceCostPerKm: 0}:v));
+                                    }}/>
+                                  </div>
+                                  <div className="text-slate-300 dark:text-slate-600 font-light mx-1">/</div>
+                                  <div className="flex items-center">
+                                    <input aria-label="Expected maintenance life" className="variable-cost-input hide-spinners w-[52px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="1" value={activeV.expectedMaintenanceLifeKm??60000} onChange={e=>{
+                                      const val = Number(e.target.value);
+                                      setV(vs=>vs.map(v=>v.id===activeV.id?{...v, expectedMaintenanceLifeKm: val, maintenanceCostPerKm: 0}:v));
+                                    }}/>
+                                    <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-1 ml-0.5">{distanceUnitShort}</span>
+                                  </div>
+                                </div>
+                                <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded flex items-center shrink-0">
                                   = £{((activeV.maintenanceSetCost || 0) / (activeV.expectedMaintenanceLifeKm || 1)).toFixed(3)}
-                              </div>
+                                </div>
+                            </div>
+                            <div className="text-[9px] font-bold opacity-0 pointer-events-none select-none" aria-hidden="true">Spacer</div>
                           </div>
 
-                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex items-center justify-between">
-                              <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Tyre Lifecycle</div>
-                              <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
-                              <div className="fleet-variable-value !w-auto flex items-center shrink-0">
-                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">£</span>
-                                <input aria-label="Tyre set cost" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="0" value={activeV.tyreSetCost??0} onChange={e=>{
-                                  const val = Number(e.target.value);
-                                  setV(vs=>vs.map(v=>v.id===activeV.id?{...v, tyreSetCost: val, tyreCostPerKm: 0}:v));
-                                }}/>
-                                <div className="text-slate-300 dark:text-slate-600 font-light mx-0.5">/</div>
-                                <input aria-label="Expected tyre life" className="variable-cost-input hide-spinners w-[36px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="1" value={activeV.expectedTyreLifeKm??40000} onChange={e=>{
-                                  const val = Number(e.target.value);
-                                  setV(vs=>vs.map(v=>v.id===activeV.id?{...v, expectedTyreLifeKm: val, tyreCostPerKm: 0}:v));
-                                }}/>
-                                <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{distanceUnitShort}</span>
-                              </div>
-                              <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5">
+                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between shadow-sm">
+                            <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+                                Tyre Lifecycle
+                            </div>
+                            <div className="fleet-variable-value flex items-center justify-between gap-1 mb-2">
+                                <div className="flex items-center">
+                                  <div className="flex items-center">
+                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 pb-1">£</span>
+                                    <input aria-label="Tyre set cost" className="variable-cost-input hide-spinners w-[42px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-left" type="number" min="0" value={activeV.tyreSetCost??0} onChange={e=>{
+                                      const val = Number(e.target.value);
+                                      setV(vs=>vs.map(v=>v.id===activeV.id?{...v, tyreSetCost: val, tyreCostPerKm: 0}:v));
+                                    }}/>
+                                  </div>
+                                  <div className="text-slate-300 dark:text-slate-600 font-light mx-1">/</div>
+                                  <div className="flex items-center">
+                                    <input aria-label="Expected tyre life" className="variable-cost-input hide-spinners w-[52px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="1" value={activeV.expectedTyreLifeKm??60000} onChange={e=>{
+                                      const val = Number(e.target.value);
+                                      setV(vs=>vs.map(v=>v.id===activeV.id?{...v, expectedTyreLifeKm: val, tyreCostPerKm: 0}:v));
+                                    }}/>
+                                    <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-1 ml-0.5">{distanceUnitShort}</span>
+                                  </div>
+                                </div>
+                                <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded flex items-center shrink-0">
                                   = £{((activeV.tyreSetCost || 0) / (activeV.expectedTyreLifeKm || 1)).toFixed(3)}
-                              </div>
+                                </div>
+                            </div>
+                            <div className="text-[9px] font-bold opacity-0 pointer-events-none select-none" aria-hidden="true">Spacer</div>
                           </div>
 
-                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex items-center justify-between">
-                              <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Luggage Profit</div>
-                              <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
-                              <div className="fleet-variable-value !w-auto flex items-center gap-1 shrink-0">
-                                  <input aria-label="Luggage profit multiplier" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" step="0.05" value={activeV.extraLuggageProfitPct ?? 0.2} onChange={e=>updateV(activeV.id,"extraLuggageProfitPct",Number(e.target.value))} />
-                                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5">Mult.</span>
-                              </div>
-                              <div className="text-[9px] font-bold text-slate-500 dark:text-slate-400 ml-1.5 whitespace-nowrap shrink-0 border-l border-slate-200 dark:border-slate-700 pl-1.5">Extra bag</div>
+                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between shadow-sm">
+                            <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+                                Luggage Profit
+                            </div>
+                            <div className="fleet-variable-value flex items-center gap-1 mb-2 px-1">
+                            <div className="fleet-variable-value flex items-center gap-1 mb-2 px-1">
+                                <input aria-label="Extra luggage percentage" className="variable-cost-input hide-spinners w-[48px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-left" type="number" step="0.01" value={activeV.extraLuggageProfitPct ?? 0.2} onChange={e=>updateV(activeV.id,"extraLuggageProfitPct",Number(e.target.value))} />
+                                <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-1.5 relative top-[2px]"></div>
+                            </div>
+                            <div className="text-[9px] font-bold text-slate-500 dark:text-slate-400">Extra bag mult.</div>
                           </div>
-                      </div>
+                        </div>
 
                         {/* Revenue Projections / System Context Card */}
                       <div className="fleet-profitability bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-dashed border-slate-300 dark:border-slate-600 p-5 flex justify-between items-center shadow-sm">
@@ -3642,6 +3655,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
                     </div>
                 </div>
+</div>
                 );
               })()}
             </div>
