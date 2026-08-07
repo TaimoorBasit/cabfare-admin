@@ -2087,7 +2087,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     const monthly = Array.isArray(dashboardData?.activity?.monthly) ? dashboardData.activity.monthly : [];
     const activity = activityPeriod === "daily"
       ? {
-          labels: ["00â€“03", "04â€“07", "08â€“11", "12â€“15", "16â€“19", "20â€“23"],
+          labels: ["00–03", "04–07", "08–11", "12–15", "16–19", "20–23"],
           counts: Array.from({ length: 6 }, (_, bucket) => daily
             .slice(bucket * 4, bucket * 4 + 4)
             .reduce((sum, item) => sum + Number(item.bookingCount || 0), 0))
@@ -2316,7 +2316,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 </div>
                 <div className="flex items-center gap-3">
                   {dashboardLoadError ? (
-                    <button type="button" onClick={refreshDashboardData} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-bold border-0"><RefreshCw size={13}/> Metrics unavailable Â· Retry</button>
+                    <button type="button" onClick={refreshDashboardData} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-bold border-0"><RefreshCw size={13}/> Metrics unavailable · Retry</button>
                   ) : !dashboardData ? (
                     <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-500 text-xs font-bold">Loading data...</div>
                   ) : null}
@@ -2376,7 +2376,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   <div className="flex justify-between items-start mb-6">
                     <div>
                       <h3 className="text-lg font-bold text-slate-900 dark:text-white">Scheduled Journey Activity</h3>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">Persisted journeys by departure Â· {activityPeriod === "daily" ? "today by time" : activityPeriod === "weekly" ? "last 7 days" : "last 12 months"}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Persisted journeys by departure · {activityPeriod === "daily" ? "today by time" : activityPeriod === "weekly" ? "last 7 days" : "last 12 months"}</p>
                     </div>
                     <div className="fleet-period-toggle flex bg-slate-100 dark:bg-slate-700 rounded-lg p-1">
                       <button onClick={() => setActivityPeriod("daily")} className={`px-3 py-1 text-xs font-semibold rounded shadow-sm transition-colors ${activityPeriod === "daily" ? "analytics-toggle-active bg-white dark:bg-slate-600 text-slate-800 dark:text-white" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"}`}>Daily</button>
@@ -2460,10 +2460,10 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       <button key={booking.id} type="button" onClick={() => { setPreviewBooking(booking); setTab("bookings"); }} className="w-full flex items-start gap-4 p-5 border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors text-left">
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start mb-1">
-                            <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">#{booking.id} Â· {booking.customer?.name || "Unnamed customer"}</h4>
+                            <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">#{booking.id} · {booking.customer?.name || "Unnamed customer"}</h4>
                             <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 whitespace-nowrap ml-2">{formatRelativeTime(booking.createdAt)}</span>
                           </div>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{booking.journey?.origin || "Origin not set"} â†’ {booking.journey?.destination || "Destination not set"}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{booking.journey?.origin || "Origin not set"} → {booking.journey?.destination || "Destination not set"}</p>
                         </div>
                       </button>
                     ))}
@@ -2482,7 +2482,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         <div className="mt-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Saved vehicle and availability data</div>
                       </div>
                       <button onClick={() => setTab("fleet")} className="px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors">
-                        View fleet â†’
+                        View fleet →
                       </button>
                     </div>
 
@@ -2506,7 +2506,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       {vehicles.length === 0 ? <div className="text-xs text-slate-500 dark:text-slate-400">No vehicle tiers configured.</div> : vehicles.slice(0, 3).map(vehicle => (
                         <button key={vehicle.id} onClick={() => { setActiveVehicleId(vehicle.id); setTab("fleet"); }} className="w-full flex items-center gap-3 rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50/90 dark:bg-slate-900/50 p-3 text-left hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
                           <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
-                          <span className="min-w-0 flex-1"><span className="block text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{vehicle.name}</span><span className="block text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{Number(vehicle.fleetCount) || 0} units Â· capacity {Number(vehicle.capacity) || 0}</span></span>
+                          <span className="min-w-0 flex-1"><span className="block text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{vehicle.name}</span><span className="block text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{Number(vehicle.fleetCount) || 0} units · capacity {Number(vehicle.capacity) || 0}</span></span>
                           <span className="text-slate-400">â€º</span>
                         </button>
                       ))}
@@ -2583,7 +2583,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                               </td>
                               <td>
                                 <div style={{ fontWeight: 600, fontSize: 13, color: darkMode ? "#f3f4f6" : PX.navy800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 180 }}>
-                                  {String(b.journey?.origin).split(',')[0]} â†’ {String(b.journey?.destination).split(',')[0]}
+                                  {String(b.journey?.origin).split(',')[0]} → {String(b.journey?.destination).split(',')[0]}
                                 </div>
                                 <div style={{ fontSize: 11, color: darkMode ? "#9ca3af" : PX.gray500, marginTop: 2 }}>{new Date(b.createdAt).toLocaleDateString("en-GB")} â€¢ {new Date(b.createdAt).toLocaleTimeString("en-GB", {hour: '2-digit', minute:'2-digit'})}</div>
                               </td>
@@ -2683,7 +2683,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     <div className="quotation-detail-header" style={{ padding: "11px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${darkMode ? "#1f2937" : "#eaecf0"}`, background: darkMode ? "#0b0f19" : "#fcfcfd", zIndex: 10 }}>
                       <div>
                         <h3 style={{ fontSize: 16, fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800, margin: 0 }}>Quote Details</h3>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: darkMode ? "#9ca3af" : PX.gray500, letterSpacing: 0.5, marginTop: 2 }}>REF: #{previewBooking.id} Â· {previewBooking.status ? String(previewBooking.status).toUpperCase() : "STATUS NOT SET"}</div>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: darkMode ? "#9ca3af" : PX.gray500, letterSpacing: 0.5, marginTop: 2 }}>REF: #{previewBooking.id} · {previewBooking.status ? String(previewBooking.status).toUpperCase() : "STATUS NOT SET"}</div>
                       </div>
                       <div className="flex gap-2">
                         <button type="button" onClick={() => openBookingEditor(previewBooking)} className="admin-icon-action admin-icon-edit" title="Edit quotation" aria-label="Edit quotation"><Edit3 size={12}/></button>
@@ -2716,7 +2716,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                             <div style={{ fontSize: 14, fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>{previewBooking.journey?.passengers || 0} Passengers</div>
                             <div style={{ fontSize: 12, color: darkMode ? "#d1d5db" : PX.gray600 }}>Vehicle: {previewBooking.quote?.vehicle?.name || "-"}</div>
                             <div style={{ fontSize: 12, color: darkMode ? "#d1d5db" : PX.gray600 }}>
-                              {previewBooking.journey?.handbagCount ?? 0} handbags Â· {previewBooking.journey?.suitcaseCount ?? 0} suitcases
+                              {previewBooking.journey?.handbagCount ?? 0} handbags · {previewBooking.journey?.suitcaseCount ?? 0} suitcases
                             </div>
                           </div>
                         </div>
@@ -3177,7 +3177,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         <span className="py-1 px-2 bg-orange-100 dark:bg-slate-700 text-orange-700 dark:text-slate-200 rounded text-[9px] font-extrabold uppercase tracking-wide">{s.name || "Seasonal Rule"}</span>
                         <span className="text-xl font-black text-slate-900 dark:text-slate-100">{s.multiplier}x</span>
                       </div>
-                      <div className="pricing-seasonal-date">{s.startDate ? new Date(`${s.startDate.split('T')[0]}T00:00:00`).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : 'Start date'} â€“ {s.endDate ? new Date(`${s.endDate.split('T')[0]}T00:00:00`).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : 'End date'}</div>
+                      <div className="pricing-seasonal-date">{s.startDate ? new Date(`${s.startDate.split('T')[0]}T00:00:00`).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : 'Start date'} – {s.endDate ? new Date(`${s.endDate.split('T')[0]}T00:00:00`).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : 'End date'}</div>
                       <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 leading-relaxed flex-1">Applies to {s.applicableVehicles?.join(', ')} across all zones.</div>
                       <div className="pricing-seasonal-rule-actions">
                         <button type="button" className="admin-icon-action admin-icon-edit" aria-label={`Edit ${s.name || 'seasonal rule'}`} title="Edit rule" onClick={() => { setNS(s); }}><Edit3 size={12}/></button>
@@ -3273,7 +3273,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       <div style={{ color: darkMode ? "#94A3B8" : "#64748b", fontSize: 13, textAlign: "center", padding: 20 }}>No {matrixView === 'city' ? 'city' : matrixView === 'fleet' ? 'fleet' : 'global'} matrix rules configured.</div>
                    ) : matrixRulesForView.map((m, idx) => (
                       <div key={m.id} className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr_80px] gap-4 py-3 border-t border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors px-2 -mx-2 rounded">
-                         <div style={{ fontSize: 13, fontWeight: 700, color: darkMode ? "#F3F4F6" : "#0f172a", display: "flex", alignItems: "center" }}>{matrixView === 'city' ? `${m.pickupArea || 'Any city'} â†’ ${m.dropArea || 'Any city'}` : matrixView === 'global' ? 'Global Â· All bookings' : (db.vehicles.find(v=>v.id===m.vehicleId)?.name || 'Standard Tier')}</div>
+                         <div style={{ fontSize: 13, fontWeight: 700, color: darkMode ? "#F3F4F6" : "#0f172a", display: "flex", alignItems: "center" }}>{matrixView === 'city' ? `${m.pickupArea || 'Any city'} → ${m.dropArea || 'Any city'}` : matrixView === 'global' ? 'Global · All bookings' : (db.vehicles.find(v=>v.id===m.vehicleId)?.name || 'Standard Tier')}</div>
                          {matrixBands(m).map((band, bandIndex) => <div key={bandIndex} className="text-xs font-semibold text-slate-900 dark:text-slate-100 flex items-center">£{fmt(band.rate)}/{distanceUnitShort}</div>)}
                          <div className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center">£{fmt(m.baseFare)}</div>
                          <div className="flex items-center justify-end gap-2">
@@ -3777,7 +3777,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     {[
                       ['emptyLegThresholdKm','Empty-leg threshold',20,'km'],
                       ['dualDriverThresholdHours','Two-driver threshold',13,'hr'],
-                      ['waitingWageFactor','Waiting wage factor',0.75,'Ã—'],
+                      ['waitingWageFactor','Waiting wage factor',0.75,'×'],
                       ['customerRangePct','Customer range uplift',12,'%']
                     ].map(([key,label,fallback,suffix]) => <div key={key} className="flex justify-between items-center pt-3 border-t border-outline-variant dark:border-[#1F2937]"><span className="text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span><div className="flex items-center gap-1"><input type="number" min="0" step={key==='waitingWageFactor'?0.05:1} className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))}/><span className="text-[10px] text-slate-500 dark:text-slate-400">{suffix}</span></div></div>)}
                   </div>
@@ -3971,7 +3971,7 @@ function FleetEconomicsPanel({ eco, darkMode }) {
                   {v.emoji === "minibus" ? <SvgMinibus size={18} style={{ marginRight: 6 }} /> : v.emoji === "coach" ? <SvgCoach size={18} style={{ marginRight: 6 }} /> : <SvgBus size={18} style={{ marginRight: 6 }} />}
                   {v.name}
                 </div>
-                <div style={{ fontSize:11,color: darkMode ? "#6b7280" : PX.gray400,fontWeight:600, marginLeft: 24 }}>{v.utilDays} days Â· {v.utilRate}% utilisation</div>
+                <div style={{ fontSize:11,color: darkMode ? "#6b7280" : PX.gray400,fontWeight:600, marginLeft: 24 }}>{v.utilDays} days · {v.utilRate}% utilisation</div>
               </div>
             </div>
             <div style={{ textAlign:"center" }}>
@@ -3992,7 +3992,7 @@ function FleetEconomicsPanel({ eco, darkMode }) {
       <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(200px, 1fr))",gap:12 }}>
         {[
           ["Total company overheads",fmtK(eco.companyOverheads),"annual total","#f5f3ff","#ede9fe","#5b21b6","#7c3aed"],
-          ["Overhead per unit",fmtK(eco.overheadPerUnit),`ÃƒÂ· ${eco.totalFleetUnits} total units`,"#f5f3ff","#ede9fe","#5b21b6","#7c3aed"],
+          ["Overhead per unit",fmtK(eco.overheadPerUnit),`Ãƒ· ${eco.totalFleetUnits} total units`,"#f5f3ff","#ede9fe","#5b21b6","#7c3aed"],
           ["Total fleet units",`${eco.totalFleetUnits}`,`across ${eco.vehicleBreakdown.length} tiers`,PX.gray50,PX.gray200,PX.navy800,PX.gray400],
         ].map(([l,v,sub,bg,br,tc,sc])=>(
           <div key={l} style={{ background:bg,border:`1.5px solid ${br}`,borderRadius:9,padding:"14px" }}>
@@ -4028,7 +4028,7 @@ function FleetEconomicsPanel({ eco, darkMode }) {
             Total Annual Operating Standing Fleet Cost: <strong style={{ color:"#fff" }}>{fmtK(eco.grandTotal)}</strong>
           </div>
           <div style={{ fontSize:11,color:"#7baed4",fontWeight:600 }}>
-            Allocated Overhead: {fmtK(eco.overheadPerUnit)}/unit/yr Â· {eco.totalFleetUnits} units
+            Allocated Overhead: {fmtK(eco.overheadPerUnit)}/unit/yr · {eco.totalFleetUnits} units
           </div>
         </div>
       </div>
