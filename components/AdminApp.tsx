@@ -3452,7 +3452,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                   </div>
                                   <div className="fleet-compact-field">
                                     <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">RATE/{distanceUnitShort}</label>
-                                    <input aria-label="Commercial vehicle rate per kilometre" className="hide-spinners w-16 bg-transparent border-none text-slate-900 dark:text-slate-100 text-[11px] font-extrabold outline-none text-right p-0" type="number" min="0.01" step="0.05" value={activeV.ratePerKm ?? 0} onChange={e=>updateV(activeV.id,"ratePerKm",Number(e.target.value))} />
+                                    <input aria-label="Commercial vehicle rate per kilometre" className="hide-spinners w-16 bg-transparent border-none text-slate-900 dark:text-slate-100 text-[11px] font-extrabold outline-none text-right p-0" type="number" min="0.01" step="0.05" value={activeV.ratePerKm != null ? Number(Number(activeV.ratePerKm).toFixed(4)) : 0} onChange={e=>updateV(activeV.id,"ratePerKm",Number(e.target.value))} />
                                   </div>
                                 </div>
                             </div>
