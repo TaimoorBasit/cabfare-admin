@@ -195,10 +195,10 @@ function AdminAuthGate({ onAuthenticated }) {
     }
   };
 
-  return <main className="admin-auth-screen min-h-screen flex items-center justify-center p-6"><form onSubmit={submit} className="admin-auth-card w-full max-w-sm rounded-2xl p-7"><img src="/carolean%20image.png" alt="Carolean" className="h-14 mx-auto mb-5"/><h1 className="text-xl font-extrabold text-slate-900 text-center">{mode === 'login' ? 'Admin sign in' : 'Create first administrator'}</h1><p className="text-sm text-slate-600 text-center mt-1 mb-5">Protected access to pricing and operational data.</p>{mode === 'register' && <label className="block text-xs font-bold text-slate-700 mb-3">Name<input className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={name} onChange={event=>setName(event.target.value)} required/></label>}<label className="block text-xs font-bold text-slate-700 mb-3">Email<input type="email" className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={email} onChange={event=>setEmail(event.target.value)} required/></label><label className="block text-xs font-bold text-slate-700 mb-3">Password<input type="password" minLength={10} className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={password} onChange={event=>setPassword(event.target.value)} required/></label>{error && <p className={`mb-3 text-xs ${error.startsWith('Administrator created') ? 'text-emerald-700' : 'text-red-700'}`}>{error}</p>}<button disabled={busy} className="admin-auth-submit w-full rounded-lg px-4 py-2.5 text-sm font-bold text-white disabled:opacity-60">{busy ? 'Please waitâ€¦' : mode === 'login' ? 'Sign in' : 'Create administrator'}</button></form></main>;
+  return <main className="admin-auth-screen min-h-screen flex items-center justify-center p-6"><form onSubmit={submit} className="admin-auth-card w-full max-w-sm rounded-2xl p-7"><img src="/carolean%20image.png" alt="Carolean" className="h-14 mx-auto mb-5"/><h1 className="text-xl font-extrabold text-slate-900 text-center">{mode === 'login' ? 'Admin sign in' : 'Create first administrator'}</h1><p className="text-sm text-slate-600 text-center mt-1 mb-5">Protected access to pricing and operational data.</p>{mode === 'register' && <label className="block text-xs font-bold text-slate-700 mb-3">Name<input className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={name} onChange={event=>setName(event.target.value)} required/></label>}<label className="block text-xs font-bold text-slate-700 mb-3">Email<input type="email" className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={email} onChange={event=>setEmail(event.target.value)} required/></label><label className="block text-xs font-bold text-slate-700 mb-3">Password<input type="password" minLength={10} className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={password} onChange={event=>setPassword(event.target.value)} required/></label>{error && <p className={`mb-3 text-xs ${error.startsWith('Administrator created') ? 'text-emerald-700' : 'text-red-700'}`}>{error}</p>}<button disabled={busy} className="admin-auth-submit w-full rounded-lg px-4 py-2.5 text-sm font-bold text-white disabled:opacity-60">{busy ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Create administrator'}</button></form></main>;
 }
 
-// â”€â”€ Design tokens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Design tokens ─────────────────────────────────────────────────────────────
 const PX = {
   navy800: "#0D0E48",       // Primary Navy Blue from website
   navy700: "#13155C",       // Dark Accent
@@ -221,7 +221,7 @@ const PX = {
   offWhite: "#f4f5f7",
 };
 
-// â”€â”€ Inline Vector SVG Components (Replacing Emojis) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Inline Vector SVG Components (Replacing Emojis) ───────────────────────────
 function SvgMapPinGreen({ size = 16 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle" }}>
@@ -292,7 +292,7 @@ function SvgBus({ size = 28, color = "currentColor" }) {
   );
 }
 
-// â”€â”€ Minibus drawing â”€â”€
+// ── Minibus drawing ──
 function SvgMinibus({ size = 28, color = "currentColor" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle" }}>
@@ -306,7 +306,7 @@ function SvgMinibus({ size = 28, color = "currentColor" }) {
   );
 }
 
-// â”€â”€ Coach drawing â”€â”€
+// ── Coach drawing ──
 function SvgCoach({ size = 28, color = "currentColor" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle" }}>
@@ -449,14 +449,14 @@ function makeRoadChargeKey(label, existingKeys) {
   return nextKey;
 }
 
-// â”€â”€ Global CSS & Montserrat Font loading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Global CSS & Montserrat Font loading ───────────────────────────────────────
 function GlobalStyle() {
   useEffect(() => {
     const el = document.createElement("style");
     el.textContent = `
       @import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Outfit:wght@100..900&display=swap');
 
-      /* â”€â”€ Animations â”€â”€ */
+      /* ── Animations ── */
       @keyframes fadeUp {
         from { opacity: 0; transform: translateY(12px); }
         to   { opacity: 1; transform: translateY(0); }
@@ -466,7 +466,7 @@ function GlobalStyle() {
       .fade-up { animation: fadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
       .spinning { animation: spin 1s linear infinite; display: inline-block; }
 
-      /* â”€â”€ Google Places autocomplete â”€â”€ */
+      /* ── Google Places autocomplete ── */
       .pac-container {
         border-radius: 12px !important;
         border: 1px solid #dde0e8 !important;
@@ -490,7 +490,7 @@ function GlobalStyle() {
       .pac-icon { display: none !important; }
       .pac-matched { color: #CD202C !important; font-weight: 700 !important; }
 
-      /* â”€â”€ Scrollbar â”€â”€ */
+      /* ── Scrollbar ── */
       ::-webkit-scrollbar { width: 6px; height: 6px; }
       ::-webkit-scrollbar-track { background: transparent; }
       ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
@@ -509,7 +509,7 @@ function GlobalStyle() {
   return null;
 }
 
-// â”€â”€ Google Maps loader â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Google Maps loader ────────────────────────────────────────────────────────
 function useGoogleMaps(apiKey) {
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
@@ -530,7 +530,7 @@ function useGoogleMaps(apiKey) {
   return loaded;
 }
 
-// â”€â”€ Map Picker Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Map Picker Modal ──────────────────────────────────────────────────────────
 function MapPickerModal({ isOpen, onClose, onConfirm, initialSearch }) {
   const mapRef = useRef(null);
   const searchInputRef = useRef(null);
@@ -638,7 +638,7 @@ function MapPickerModal({ isOpen, onClose, onConfirm, initialSearch }) {
         {/* Search Bar */}
         <div style={{ padding:"12px 20px", borderBottom:"1px solid #e2e8f0", background: "#f8fafc", flexShrink:0 }}>
           <div style={{ background: "#fff",padding:"10px 16px",borderRadius:8,border:`1.5px solid #fee2e2`,boxShadow:"0 2px 4px rgba(0,0,0,.02)",display:"flex",alignItems:"center",gap:8 }}>
-            {loading ? <span className="spinning" style={{color: PX.navy800}}>âŸ³</span> : <SvgMapPinRed />}
+            {loading ? <span className="spinning" style={{color: PX.navy800}}>⟳</span> : <SvgMapPinRed />}
             <input 
               ref={searchInputRef}
               type="text" 
@@ -666,7 +666,7 @@ function MapPickerModal({ isOpen, onClose, onConfirm, initialSearch }) {
   );
 }
 
-// â”€â”€ Places Autocomplete Input â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Places Autocomplete Input ─────────────────────────────────────────────────
 function PlacesInput({ value, onChange, placeholder, icon, mapsLoaded, onIconClick }) {
   const inputRef = useRef(null);
   const acRef = useRef(null);
@@ -749,7 +749,7 @@ function PlacesInput({ value, onChange, placeholder, icon, mapsLoaded, onIconCli
   );
 }
 
-// â”€â”€ UK Cities fallback geocoder â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── UK Cities fallback geocoder ───────────────────────────────────────────────
 const UK_CITIES = {
   "walsall":[52.5863,-1.9817],"london":[51.5074,-0.1278],"birmingham":[52.4862,-1.8904],
   "manchester":[53.4808,-2.2426],"liverpool":[53.4084,-2.9916],"leeds":[53.8008,-1.5491],
@@ -766,7 +766,7 @@ const UK_CITIES = {
   "milton keynes":[52.0406,-0.7594],"worcester":[52.1920,-2.2200],"gloucester":[51.8642,-2.2380],
 };
 const YARD_GEO = { lat:52.5863, lng:-1.9817, name:"Walsall Yard (Base)" };
-// â”€â”€ Default database â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Default database ──────────────────────────────────────────────────────────
 
 function Btn({ children, onClick, variant="primary", size="md", disabled, full, style:sx={} }) {
   const v = {
@@ -797,14 +797,14 @@ function Btn({ children, onClick, variant="primary", size="md", disabled, full, 
 function fmt(n)  { return Number(n).toLocaleString("en-GB",{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function fmtK(n) { return "£"+Number(n).toLocaleString("en-GB"); }
 
-// â”€â”€ Progress bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Progress bar ──────────────────────────────────────────────────────────────
 function ProgressBar({ pct, color }) {
   return <div style={{ height:6, background:PX.gray200, borderRadius:10, overflow:"hidden" }}>
     <div style={{ width:`${Math.min(100,pct)}%`, height:"100%", background:color, borderRadius:10, transition:"width .4s" }}/>
   </div>;
 }
 
-// â”€â”€ Route map â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Route map ─────────────────────────────────────────────────────────────────
 
 function DepotMapPreview({ lat, lng, darkMode }) {
   const mapRef = useRef(null);
@@ -1068,7 +1068,7 @@ function RouteMap({ result, journey, gv, height=320, minimal=false, darkMode=fal
             ? <polygon points={`${x},${y-8} ${x+8},${y} ${x},${y+8} ${x-8},${y}`} fill={p.color} stroke="#fff" strokeWidth={2}/>
             : <circle cx={x} cy={y} r={6} fill={p.color} stroke="#fff" strokeWidth={2}/>}
           <text x={x} y={above?y+17:y-11} textAnchor="middle" fontSize={9.5} fill="#374151" fontWeight="600">
-            {p.label.length>16?p.label.substring(0,14)+"â€¦":p.label}
+            {p.label.length>16?p.label.substring(0,14)+"…":p.label}
           </text>
         </g>;
       })}
@@ -1126,9 +1126,9 @@ function JourneyRouteDetails({ journey, darkMode=false }) {
   </div>;
 }
 
-// â”€â”€ Navbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// â”€â”€ VehicleCard (Step 2 equivalent) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// â”€â”€ Admin Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Navbar ────────────────────────────────────────────────────────────────────
+// ── VehicleCard (Step 2 equivalent) ──────────────────────────────────────────
+// ── Admin Dashboard ────────────────────────────────────────────────────────────
 function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) {
   const fetch = authenticatedFetch;
   const injectDefaults = (v) => {
@@ -2171,7 +2171,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
         flushAutosave();
       }
     }}>
-      {/* â”€â”€ SideNavBar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── SideNavBar ─────────────────────────────── */}
       <aside className="premium-sidebar h-screen w-64 fixed left-0 top-0 border-r border-outline-variant dark:border-[#1F2937] bg-surface dark:bg-[#111827] flex flex-col py-md px-sm z-50 transition-colors duration-300">
         <div className="mb-xl px-sm pt-4 flex flex-col items-center text-center">
           <div style={{ background: "#fff", padding: "8px", borderRadius: "12px", marginBottom: "16px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
@@ -2219,7 +2219,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
         </div>
       </aside>
 
-      {/* â”€â”€ Main area â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Main area ────────────────────────────────── */}
       <div className="ml-64 flex flex-col min-h-screen">
         {/* TopNavBar */}
         <header className="premium-header h-16 sticky top-0 z-40 bg-surface dark:bg-[#111827] border-b border-outline-variant dark:border-[#1F2937] flex justify-between items-center w-full px-gutter shadow-sm transition-colors duration-300">
@@ -2247,7 +2247,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     <button key={`${result.tab}-${result.label}`} type="button" role="option" onMouseDown={event => event.preventDefault()} onClick={() => openSearchDestination(result)}>
                       <Search size={13} />
                       <span><strong>{result.label}</strong><small>{result.description}</small></span>
-                      <span className="admin-search-arrow">â€º</span>
+                      <span className="admin-search-arrow">›</span>
                     </button>
                   )) : <div className="admin-search-empty">No matching dashboard section</div>}
                 </div>
@@ -2507,7 +2507,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         <button key={vehicle.id} onClick={() => { setActiveVehicleId(vehicle.id); setTab("fleet"); }} className="w-full flex items-center gap-3 rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50/90 dark:bg-slate-900/50 p-3 text-left hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
                           <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
                           <span className="min-w-0 flex-1"><span className="block text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{vehicle.name}</span><span className="block text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{Number(vehicle.fleetCount) || 0} units · capacity {Number(vehicle.capacity) || 0}</span></span>
-                          <span className="text-slate-400">â€º</span>
+                          <span className="text-slate-400">›</span>
                         </button>
                       ))}
                     </div>
@@ -2538,7 +2538,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 {showBookingFilters && <div className="quotation-filters adm-search-bar flex flex-wrap gap-2 items-center overflow-x-auto">
                   <input type="text" placeholder="Name / Ref ID" value={searchNameRef} onChange={e=>setSearchNameRef(e.target.value)} />
                   <input type="text" placeholder="Vehicle" value={searchVehicle} onChange={e=>setSearchVehicle(e.target.value)} />
-                  <div className="quotation-fare-filter"><span>£ Fare</span><input type="number" min="0" placeholder="From" value={searchFareFrom} onChange={e=>setSearchFareFrom(e.target.value)} /><i>â€”</i><input type="number" min="0" placeholder="To" value={searchFareTo} onChange={e=>setSearchFareTo(e.target.value)} /></div>
+                  <div className="quotation-fare-filter"><span>£ Fare</span><input type="number" min="0" placeholder="From" value={searchFareFrom} onChange={e=>setSearchFareFrom(e.target.value)} /><i>—</i><input type="number" min="0" placeholder="To" value={searchFareTo} onChange={e=>setSearchFareTo(e.target.value)} /></div>
                   <input type="text" placeholder="Route" value={searchRoute} onChange={e=>setSearchRoute(e.target.value)} />
                   <input aria-label="Quotation date" type="date" value={reportDate} onChange={e=>setReportDate(e.target.value)} />
                   {(searchNameRef||searchVehicle||searchFareFrom||searchFareTo||searchRoute||reportDate) && <button onClick={()=>{setSearchNameRef('');setSearchVehicle('');setSearchFareFrom('');setSearchFareTo('');setSearchRoute('');setReportDate('');}}>Clear</button>}
@@ -2549,7 +2549,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     <div className="adm-empty" style={{ margin: "2rem 0", color: "#b91c1c" }}>{bookingsLoadError}. The dashboard will retry automatically.</div>
                   ) : isBookingsLoading ? (
                     <div className="adm-empty" style={{ margin: "2rem 0", display: "flex", flexDirection: "column", gap: 12 }}>
-                      <span className="spinning" style={{ fontSize: 24, color: PX.brandRed }}>âŸ³</span>
+                      <span className="spinning" style={{ fontSize: 24, color: PX.brandRed }}>⟳</span>
                       <span style={{ fontSize: 13, color: darkMode ? "#9ca3af" : "#667085" }}>Loading quotation data...</span>
                     </div>
                   ) : filteredBookingsData.length === 0 ? (
@@ -2585,7 +2585,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                 <div style={{ fontWeight: 600, fontSize: 13, color: darkMode ? "#f3f4f6" : PX.navy800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 180 }}>
                                   {String(b.journey?.origin).split(',')[0]} → {String(b.journey?.destination).split(',')[0]}
                                 </div>
-                                <div style={{ fontSize: 11, color: darkMode ? "#9ca3af" : PX.gray500, marginTop: 2 }}>{new Date(b.createdAt).toLocaleDateString("en-GB")} â€¢ {new Date(b.createdAt).toLocaleTimeString("en-GB", {hour: '2-digit', minute:'2-digit'})}</div>
+                                <div style={{ fontSize: 11, color: darkMode ? "#9ca3af" : PX.gray500, marginTop: 2 }}>{new Date(b.createdAt).toLocaleDateString("en-GB")} • {new Date(b.createdAt).toLocaleTimeString("en-GB", {hour: '2-digit', minute:'2-digit'})}</div>
                               </td>
                               <td className="quotation-fleet" style={{ fontSize: 13, color: darkMode ? "#9ca3af" : PX.gray600, fontWeight: 500 }}>
                                 <span>{b.quote?.vehicle?.name || "Not assigned"}</span>
@@ -3082,7 +3082,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 <div id="pricing-availability" className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
                   <div className="flex justify-between items-center mb-5">
                     <h3 className="m-0 text-[13px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wide">Blocked Dates</h3>
-                    <button className="bg-transparent border-none cursor-pointer text-slate-900 dark:text-slate-100 text-lg hover:text-primary transition-colors" onClick={() => setShowBlockForm(v=>!v)}>âŠ•</button>
+                    <button className="bg-transparent border-none cursor-pointer text-slate-900 dark:text-slate-100 text-lg hover:text-primary transition-colors" onClick={() => setShowBlockForm(v=>!v)}>⊕</button>
                   </div>
                   {showBlockForm && <div className="grid gap-2 mb-4 p-3 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700">
                     <select value={newBlock.vehicleId} onChange={e=>setNB(x=>({...x,vehicleId:e.target.value}))} className="w-full border rounded-md p-2 text-xs bg-white dark:bg-slate-800"><option value="">All vehicles</option>{vehicles.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select>
@@ -3093,7 +3093,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   
                   <div className="flex flex-col gap-4 mb-5">
                     {blocks.length === 0 ? (
-                       <div className="pricing-empty-block"><div>â–¦</div><span>No blocked dates.</span></div>
+                       <div className="pricing-empty-block"><div>▦</div><span>No blocked dates.</span></div>
                     ) : blocks.slice(0, 3).map(block => {
                       const d = new Date(block.from);
                       const month = d.toLocaleString('default', { month: 'short' }).toUpperCase();
@@ -3511,7 +3511,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                   }} className="bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 text-xs font-semibold w-full py-1 placeholder-slate-400 dark:placeholder-slate-600" placeholder="e.g. Insurance" />
                                   
                                   <div className="flex items-center justify-end gap-1">
-                                      <span className="teyt-xs font-bold text-slate-400 dark:text-slate-500">Â³</span>
+                                      <span className="text-xs font-bold text-slate-400 dark:text-slate-500">£</span>
                                       <input className="hide-spinners w-20 bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 text-[13px] font-extrabold text-right py-1" type="number" value={fc.amount} onChange={e => {
                                         const newFc = [...(activeV.annualFixedCosts||[])];
                                         newFc[idx] = { ...newFc[idx], amount: Number(e.target.value) };
@@ -3662,7 +3662,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
               <div className={`settings-layout settings-section-${settingsSection} grid grid-cols-12 gap-4`}>
                 
-                {/* â”€â”€ CARD 1: Business Profile (Col-span 8) â”€â”€ */}
+                {/* ── CARD 1: Business Profile (Col-span 8) ── */}
                 <div className="settings-business col-span-12 lg:col-span-8 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 relative overflow-hidden shadow-sm">
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-primary-container dark:from-[#60A5FA] dark:to-[#3B82F6]" />
                   <div className="flex items-center gap-3 mb-4">
@@ -3687,7 +3687,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   </div>
                 </div>
 
-                {/* â”€â”€ CARD 2: Operations (Col-span 4) â”€â”€ */}
+                {/* ── CARD 2: Operations (Col-span 4) ── */}
                 <div className="settings-operations col-span-12 lg:col-span-4 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
                   <div className="flex items-center gap-3 mb-4">
                     <div><h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Depot Setup</h3><p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Location and mileage units</p></div>
@@ -3751,7 +3751,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   </div>
                 </div>
 
-                {/* â”€â”€ CARD 3: Margins (Col-span 4) â”€â”€ */}
+                {/* ── CARD 3: Margins (Col-span 4) ── */}
                 <div className="settings-pricing col-span-12 lg:col-span-4 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
                   <div className="flex items-center gap-3 mb-4">
                     <div><h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Margins & Driver Costs</h3><p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Defaults used when calculating quotations</p></div>
@@ -3783,7 +3783,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   </div>
                 </div>
 
-                {/* â”€â”€ CARD 4: Geospatial (Col-span 4) â”€â”€ */}
+                {/* ── CARD 4: Geospatial (Col-span 4) ── */}
                 <div className="settings-geo col-span-12 lg:col-span-4 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm flex flex-col">
                   <div className="flex items-center gap-3 mb-3">
                     <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Depot / Yard Location</h3>
@@ -3809,7 +3809,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   </div>
                 </div>
 
-                {/* â”€â”€ CARD 5: Tolls (Col-span 4) â”€â”€ */}
+                {/* ── CARD 5: Tolls (Col-span 4) ── */}
                 <div className="settings-tolls col-span-12 lg:col-span-4 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
                   <div className="flex items-center gap-3 mb-4">
                     <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Road & Zone Charges</h3>
@@ -3870,7 +3870,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   </button>
                 </div>
 
-                {/* â”€â”€ CARD 6: Overheads (Col-span 12) â”€â”€ */}
+                {/* ── CARD 6: Overheads (Col-span 12) ── */}
                 <div id="settings-overheads" className="settings-overheads col-span-12 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
@@ -3929,7 +3929,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-200 md:col-span-2">Special requests<textarea rows={4} value={bookingEditForm.specialRequests} onChange={event => setBookingEditForm(form => ({ ...form, specialRequests: event.target.value }))} className="mt-1.5 w-full resize-y rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-medium text-slate-900 outline-none focus:border-primary dark:border-slate-600 dark:bg-slate-800 dark:text-white" /></label>
                 {bookingEditError && <div className="rounded-lg bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 dark:bg-red-950/40 dark:text-red-300 md:col-span-2" role="alert">{bookingEditError}</div>}
               </div>
-              <footer className="flex justify-end gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-700 dark:bg-slate-800/50"><button type="button" onClick={closeBookingEditor} disabled={isSavingBooking} className="rounded-lg border border-slate-300 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-white disabled:opacity-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800">Cancel</button><button type="submit" disabled={isSavingBooking} className="rounded-lg bg-primary px-4 py-2 text-xs font-bold text-white shadow-sm hover:opacity-90 disabled:cursor-wait disabled:opacity-60">{isSavingBooking ? "Savingâ€¦" : "Save quotation"}</button></footer>
+              <footer className="flex justify-end gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-700 dark:bg-slate-800/50"><button type="button" onClick={closeBookingEditor} disabled={isSavingBooking} className="rounded-lg border border-slate-300 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-white disabled:opacity-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800">Cancel</button><button type="submit" disabled={isSavingBooking} className="rounded-lg bg-primary px-4 py-2 text-xs font-bold text-white shadow-sm hover:opacity-90 disabled:cursor-wait disabled:opacity-60">{isSavingBooking ? "Saving…" : "Save quotation"}</button></footer>
             </form>
           </div>,
           document.body
@@ -3944,7 +3944,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   );
 }
 
-// â”€â”€ Fleet Economics Panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Fleet Economics Panel ──────────────────────────────────────────────────────
 function FleetEconomicsPanel({ eco, darkMode }) {
   const COLORS = [PX.navy600, PX.teal700, "#64748B", PX.amber500];
   return (
@@ -3992,7 +3992,7 @@ function FleetEconomicsPanel({ eco, darkMode }) {
       <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(200px, 1fr))",gap:12 }}>
         {[
           ["Total company overheads",fmtK(eco.companyOverheads),"annual total","#f5f3ff","#ede9fe","#5b21b6","#7c3aed"],
-          ["Overhead per unit",fmtK(eco.overheadPerUnit),`Ãƒ· ${eco.totalFleetUnits} total units`,"#f5f3ff","#ede9fe","#5b21b6","#7c3aed"],
+          ["Overhead per unit",fmtK(eco.overheadPerUnit),`÷ ${eco.totalFleetUnits} total units`,"#f5f3ff","#ede9fe","#5b21b6","#7c3aed"],
           ["Total fleet units",`${eco.totalFleetUnits}`,`across ${eco.vehicleBreakdown.length} tiers`,PX.gray50,PX.gray200,PX.navy800,PX.gray400],
         ].map(([l,v,sub,bg,br,tc,sc])=>(
           <div key={l} style={{ background:bg,border:`1.5px solid ${br}`,borderRadius:9,padding:"14px" }}>
@@ -4036,7 +4036,7 @@ function FleetEconomicsPanel({ eco, darkMode }) {
   );
 }
 
-// â”€â”€ Root App â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Root App ──────────────────────────────────────────────────────────────────
 export default function AdminApp() {
   const [db, setDb] = useState({ vehicles: [], globalVars: {}, annualOverheads: [], surcharges: {}, blockedDates: [] });
   const [adminUser, setAdminUser] = useState(null);
