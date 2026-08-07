@@ -3541,14 +3541,24 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
                       {/* Variable Costs Grid (4-Column Compact Style) */}
                       <div onPointerDownCapture={() => recordFeatureUsage('fleetVariables')} className="fleet-variable-costs grid grid-cols-4 gap-3">
-                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex items-center justify-between">
-                              <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Fuel Economy</div>
-                              <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
-                              <div className="fleet-variable-value !w-auto flex items-center gap-1 shrink-0">
-                                  <input aria-label="Fuel economy" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" step="0.1" value={activeV.fuelKpl ?? 5} onChange={e=>updateV(activeV.id,"fuelKpl",Number(e.target.value))} />
-                                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5">{gv?.distanceUnit === 'miles' ? 'mpl' : 'kpl'}</span>
+                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex flex-col gap-2 justify-center">
+                              <div className="flex items-center justify-between">
+                                  <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Fuel Economy</div>
+                                  <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
+                                  <div className="fleet-variable-value !w-auto flex items-center gap-1 shrink-0">
+                                      <input aria-label="Fuel economy" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" step="0.1" value={activeV.fuelKpl ?? 5} onChange={e=>updateV(activeV.id,"fuelKpl",Number(e.target.value))} />
+                                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5">{gv?.distanceUnit === 'miles' ? 'mpl' : 'kpl'}</span>
+                                  </div>
                               </div>
-                              <div className="text-[9px] font-bold text-red-600 dark:text-red-400 ml-1.5 whitespace-nowrap shrink-0 border-l border-slate-200 dark:border-slate-700 pl-1.5">Target</div>
+                              <div className="flex items-center justify-between">
+                                  <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Fuel Price</div>
+                                  <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
+                                  <div className="fleet-variable-value !w-auto flex items-center gap-0.5 shrink-0">
+                                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5">£</span>
+                                      <input aria-label="Fuel price" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" step="0.01" value={activeV.fuelPricePerLitre ?? gv?.fuelPricePerLitre ?? 1.52} onChange={e=>updateV(activeV.id,"fuelPricePerLitre",Number(e.target.value))} />
+                                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5">/L</span>
+                                  </div>
+                              </div>
                           </div>
 
                           <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex items-center justify-between">
