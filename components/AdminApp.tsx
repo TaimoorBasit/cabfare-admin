@@ -1151,7 +1151,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     const fcSum = (newV.annualFixedCosts || []).reduce((s, x) => s + (Number(x.amount)||0), 0);
     const utilDays = newV.utilisationDays || 225;
     if (fcSum > 0) {
-      if (['fleetCount', 'utilisationDays'].includes(field)) { if (fcSum > 0) newV.standingCostPerDay = (fcSum / (Number(newV.fleetCount) || 1)) / utilDays; }
+      if (!newV.standingCostPerDay && fcSum > 0) newV.standingCostPerDay = (fcSum / (Number(newV.fleetCount) || 1)) / utilDays;
     }
 
     const fuelPrice = newV.fuelPricePerLitre ?? db?.globalVars?.fuelPricePerLitre ?? 1.52;
@@ -1166,7 +1166,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     const maintCost = Number(newV.maintenanceCostPerKm) > 0 ? Number(newV.maintenanceCostPerKm) : (maintSetCost > 0 && maintLife > 0 ? maintSetCost / maintLife : 0.15);
     const vcSum = fuelPerKm + tyrePerKm + maintCost;
     if (vcSum > 0) {
-      if (['fuelPricePerLitre', 'fuelKpl', 'tyreCostPerKm', 'tyreSetCost', 'expectedTyreLifeKm', 'maintenanceSetCost', 'expectedMaintenanceLifeKm', 'maintenanceCostPerKm'].includes(field)) { if (vcSum > 0) newV.ratePerKm = vcSum; }
+      if (!newV.ratePerKm && vcSum > 0) newV.ratePerKm = vcSum;
     }
 
     return newV;
@@ -4192,6 +4192,7 @@ export default function AdminApp() {
     </>
   );
 }
+
 
 
 
