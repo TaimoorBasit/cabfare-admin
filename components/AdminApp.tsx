@@ -1922,15 +1922,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
           }))
         : m.distanceBands
     }));
-    const nextVehicles = vehicles.map(v => ({
-      ...v,
-      maintenanceCostPerKm: convert(v.maintenanceCostPerKm, rateFactor, 2),
-      tyreCostPerKm: convert(v.tyreCostPerKm, rateFactor, 2),
-      ratePerKm: convert(v.ratePerKm, rateFactor, 2),
-      fuelKpl: convert(v.fuelKpl, distFactor, 1),
-      expectedMaintenanceLifeKm: convert(v.expectedMaintenanceLifeKm, distFactor, 0),
-      expectedTyreLifeKm: convert(v.expectedTyreLifeKm, distFactor, 0)
-    }));
+    const nextVehicles = vehicles;
 
     setGv(nextGlobalVars);
     setTemplatesData(nextTemplates);
