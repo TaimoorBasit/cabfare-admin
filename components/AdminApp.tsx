@@ -3544,7 +3544,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                 <input aria-label="Fuel economy" className="variable-cost-input hide-spinners w-[26px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" step="0.1" value={activeV.fuelKpl ?? 5} onChange={e=>updateV(activeV.id,"fuelKpl",Number(e.target.value))} />
                                 <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{gv?.distanceUnit === 'miles' ? 'mpl' : 'kpl'}</span>
                               </div>
-                              <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5">
+                              <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5 h-[36px]">
                                   = £{((activeV.fuelPricePerLitre ?? gv?.fuelPricePerLitre ?? 1.52) / (activeV.fuelKpl || 1)).toFixed(3)}/{distanceUnitShort}
                               </div>
                           </div>
@@ -3565,7 +3565,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                 }}/>
                                 <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{distanceUnitShort}</span>
                               </div>
-                              <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5">
+                              <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5 h-[36px]">
                                   = £{((activeV.maintenanceSetCost || 0) / (activeV.expectedMaintenanceLifeKm || 1)).toFixed(3)}/{distanceUnitShort}
                               </div>
                           </div>
@@ -3586,7 +3586,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                 }}/>
                                 <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{distanceUnitShort}</span>
                               </div>
-                              <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5">
+                              <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5 h-[36px]">
                                   = £{((activeV.tyreSetCost || 0) / (activeV.expectedTyreLifeKm || 1)).toFixed(3)}/{distanceUnitShort}
                               </div>
                           </div>
