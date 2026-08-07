@@ -795,7 +795,7 @@ function Btn({ children, onClick, variant="primary", size="md", disabled, full, 
 }
 
 function fmt(n)  { return Number(n).toLocaleString("en-GB",{minimumFractionDigits:2,maximumFractionDigits:2}); }
-function fmtK(n) { return "Â£"+Number(n).toLocaleString("en-GB"); }
+function fmtK(n) { return "£"+Number(n).toLocaleString("en-GB"); }
 
 // â”€â”€ Progress bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ProgressBar({ pct, color }) {
@@ -1583,19 +1583,19 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
       "Handbags", "Suitcases 23kg", "Distance Unit",
       `Live Mileage (${unit}s)`, `Dead Mileage (${unit}s)`, `Total Mileage (${unit}s)`,
       "Est. Driving Hours", "Waiting Time (mins)", "Total Shift Hours", "Dual Crew?", "Operation Days",
-      "Base Standing Cost (Â£/day)", "Total Standing Cost (Â£)",
-      "Overhead Allocation (Â£/day)", "Total Overhead Cost (Â£)",
-      "Min Daily Hire Charge (Â£/day)", "Total Min Hire (Â£)",
-      "Fuel Price (Â£/litre)", "Fuel Consumption (kpl)", "Total Fuel Cost (Â£)",
-      `Tyre Cost (Â£/${unit})`, "Total Tyre Cost (Â£)",
-      `Maintenance Cost (Â£/${unit})`, "Total Maintenance Cost (Â£)",
-      "Total Variable Cost (Â£)", "Driver Hourly Wage (Â£/hr)", "Holiday Pay (%)", "Total Driver Cost (Â£)",
-      "London ULEZ Surcharge (Â£)", "Birmingham CAZ Surcharge (Â£)",
-      "Dartford Crossing Surcharge (Â£)", "M6 Toll Surcharge (Â£)", "Driver Subsistence (Â£)",
-      "Total Surcharges (Â£)", "Target Profit Margin (%)", "Target Profit Margin (Â£)", "Seasonal Multiplier",
-      "Subtotal (Â£)", "Total Fare (Â£)",
-      "Gross Profit (Â£)", "Gross Margin (%)",
-      "Net Profit (Â£)", "Net Margin (%)"
+      "Base Standing Cost (£/day)", "Total Standing Cost (£)",
+      "Overhead Allocation (£/day)", "Total Overhead Cost (£)",
+      "Min Daily Hire Charge (£/day)", "Total Min Hire (£)",
+      "Fuel Price (£/litre)", "Fuel Consumption (kpl)", "Total Fuel Cost (£)",
+      `Tyre Cost (£/${unit})`, "Total Tyre Cost (£)",
+      `Maintenance Cost (£/${unit})`, "Total Maintenance Cost (£)",
+      "Total Variable Cost (£)", "Driver Hourly Wage (£/hr)", "Holiday Pay (%)", "Total Driver Cost (£)",
+      "London ULEZ Surcharge (£)", "Birmingham CAZ Surcharge (£)",
+      "Dartford Crossing Surcharge (£)", "M6 Toll Surcharge (£)", "Driver Subsistence (£)",
+      "Total Surcharges (£)", "Target Profit Margin (%)", "Target Profit Margin (£)", "Seasonal Multiplier",
+      "Subtotal (£)", "Total Fare (£)",
+      "Gross Profit (£)", "Gross Margin (%)",
+      "Net Profit (£)", "Net Margin (%)"
     ];
 
     const rows = filteredBookingsData.map((b, index) => {
@@ -1732,8 +1732,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
     headers.forEach((header, colIndex) => {
       const col = sheet.getColumn(colIndex + 1);
-      if (header.includes('(Â£)')) {
-        col.numFmt = '"Â£"#,##0.00';
+      if (header.includes('(£)')) {
+        col.numFmt = '"£"#,##0.00';
       } else if (header.includes('(%)')) {
         col.numFmt = '0.0"%"';
       }
@@ -2332,7 +2332,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-1">Total Quotation Value</div>
-                    <div className="text-3xl font-extrabold text-slate-900 dark:text-white">Â£{fmt(dashboardMetrics.allQuoteValue)}</div>
+                    <div className="text-3xl font-extrabold text-slate-900 dark:text-white">£{fmt(dashboardMetrics.allQuoteValue)}</div>
                   </div>
                 </div>
 
@@ -2427,7 +2427,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     {/* Simple CSS Donut representation */}
                     <div className="financial-donut w-36 h-36 rounded-full relative flex items-center justify-center">
                       <div className="financial-donut-center rounded-full text-center flex flex-col items-center justify-center">
-                        <div className="text-[16px] leading-none whitespace-nowrap font-extrabold text-slate-900 dark:text-white">Â£{fmt(dashboardMetrics.allQuoteValue)}</div>
+                        <div className="text-[16px] leading-none whitespace-nowrap font-extrabold text-slate-900 dark:text-white">£{fmt(dashboardMetrics.allQuoteValue)}</div>
                         <div className="text-[9px] text-slate-500 dark:text-slate-400 uppercase tracking-wide font-semibold">Saved Quote Value</div>
                       </div>
                     </div>
@@ -2439,7 +2439,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     ) : dashboardMetrics.revenueByVehicle.map(([name, value]: any, index) => (
                       <div key={name} className="flex justify-between items-center text-sm">
                         <div className="flex items-center gap-2 min-w-0"><span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: ["#294F73", "#A22D3A", "#5F8A82", "#7C3AED", "#D97706"][index] }}></span><span className="text-slate-600 dark:text-slate-300 font-semibold truncate">{name}</span></div>
-                        <span className="font-bold text-slate-900 dark:text-white ml-3">Â£{fmt(value)}</span>
+                        <span className="font-bold text-slate-900 dark:text-white ml-3">£{fmt(value)}</span>
                       </div>
                     ))}
                   </div>
@@ -2538,7 +2538,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 {showBookingFilters && <div className="quotation-filters adm-search-bar flex flex-wrap gap-2 items-center overflow-x-auto">
                   <input type="text" placeholder="Name / Ref ID" value={searchNameRef} onChange={e=>setSearchNameRef(e.target.value)} />
                   <input type="text" placeholder="Vehicle" value={searchVehicle} onChange={e=>setSearchVehicle(e.target.value)} />
-                  <div className="quotation-fare-filter"><span>Â£ Fare</span><input type="number" min="0" placeholder="From" value={searchFareFrom} onChange={e=>setSearchFareFrom(e.target.value)} /><i>â€”</i><input type="number" min="0" placeholder="To" value={searchFareTo} onChange={e=>setSearchFareTo(e.target.value)} /></div>
+                  <div className="quotation-fare-filter"><span>£ Fare</span><input type="number" min="0" placeholder="From" value={searchFareFrom} onChange={e=>setSearchFareFrom(e.target.value)} /><i>â€”</i><input type="number" min="0" placeholder="To" value={searchFareTo} onChange={e=>setSearchFareTo(e.target.value)} /></div>
                   <input type="text" placeholder="Route" value={searchRoute} onChange={e=>setSearchRoute(e.target.value)} />
                   <input aria-label="Quotation date" type="date" value={reportDate} onChange={e=>setReportDate(e.target.value)} />
                   {(searchNameRef||searchVehicle||searchFareFrom||searchFareTo||searchRoute||reportDate) && <button onClick={()=>{setSearchNameRef('');setSearchVehicle('');setSearchFareFrom('');setSearchFareTo('');setSearchRoute('');setReportDate('');}}>Clear</button>}
@@ -2591,7 +2591,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                 <span>{b.quote?.vehicle?.name || "Not assigned"}</span>
                               </td>
                               <td className="quotation-fare" style={{ fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800, fontSize: 14 }}>
-                                Â£{fmt(b.quote?.result?.finalPrice || b.quote?.result?.finalFare || 0)}
+                                £{fmt(b.quote?.result?.finalPrice || b.quote?.result?.finalFare || 0)}
                               </td>
                               <td className="quotation-margins" style={{ fontSize: 12 }}>
                                 {(() => {
@@ -2640,7 +2640,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                         <span style={{ fontSize: 11, color: darkMode ? "#9ca3af" : "#64748b", fontWeight: 600 }}>Total Profit</span>
                                         <span style={{ fontSize: 12, fontWeight: 800, color: profitMargin > 0 ? (darkMode ? "#10b981" : "#059669") : (darkMode ? "#ef4444" : "#dc2626") }}>
-                                          {profitMargin > 0 ? "+" : ""}Â£{fmt(netProfit)}
+                                          {profitMargin > 0 ? "+" : ""}£{fmt(netProfit)}
                                         </span>
                                       </div>
                                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -2759,24 +2759,24 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24, fontSize: 13 }}>
                         <div style={{ display: "flex", justifyContent: "space-between", color: darkMode ? "#d1d5db" : PX.gray600 }}>
                           <span>Base Rate ({previewBooking.quote?.vehicle?.name})</span>
-                          <span style={{ fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>Â£{fmt(previewBooking.quote?.result?.baseFare || previewBooking.quote?.result?.subtotal || 0)}</span>
+                          <span style={{ fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(previewBooking.quote?.result?.baseFare || previewBooking.quote?.result?.subtotal || 0)}</span>
                         </div>
                         {(previewBooking.quote?.result?.tolls > 0) && (
                           <div style={{ display: "flex", justifyContent: "space-between", color: darkMode ? "#d1d5db" : PX.gray600 }}>
                             <span>Congestion & Toll Charges</span>
-                            <span style={{ fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>Â£{fmt(previewBooking.quote?.result?.tolls)}</span>
+                            <span style={{ fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(previewBooking.quote?.result?.tolls)}</span>
                           </div>
                         )}
                         {(previewBooking.quote?.result?.parking > 0) && (
                           <div style={{ display: "flex", justifyContent: "space-between", color: darkMode ? "#d1d5db" : PX.gray600 }}>
                             <span>Parking & Airport Meet</span>
-                            <span style={{ fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>Â£{fmt(previewBooking.quote?.result?.parking)}</span>
+                            <span style={{ fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(previewBooking.quote?.result?.parking)}</span>
                           </div>
                         )}
                         {(previewBooking.quote?.result?.surcharges > 0) && (
                           <div style={{ display: "flex", justifyContent: "space-between", color: darkMode ? "#d1d5db" : PX.gray600 }}>
                             <span>Multiplier Surcharges</span>
-                            <span style={{ fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>Â£{fmt(previewBooking.quote?.result?.surcharges)}</span>
+                            <span style={{ fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(previewBooking.quote?.result?.surcharges)}</span>
                           </div>
                         )}
                         
@@ -2785,11 +2785,11 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                           <div>
                             <div style={{ fontSize: 11, fontWeight: 800, color: darkMode ? "#9ca3af" : PX.gray500, textTransform: "uppercase" }}>Total Net Fare</div>
-                            <div style={{ fontSize: 28, fontWeight: 900, color: darkMode ? "#f3f4f6" : PX.navy800, lineHeight: 1 }}>Â£{fmt(previewBooking.quote?.result?.finalPrice || previewBooking.quote?.result?.finalFare || 0)}</div>
+                            <div style={{ fontSize: 28, fontWeight: 900, color: darkMode ? "#f3f4f6" : PX.navy800, lineHeight: 1 }}>£{fmt(previewBooking.quote?.result?.finalPrice || previewBooking.quote?.result?.finalFare || 0)}</div>
                           </div>
                           <div className="text-right">
                             <div style={{ fontSize: 10, fontWeight: 600, color: darkMode ? "#6b7280" : PX.gray400 }}>INC. VAT (20%)</div>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: darkMode ? "#d1d5db" : PX.gray600 }}>Â£{fmt((previewBooking.quote?.result?.finalPrice || previewBooking.quote?.result?.finalFare || 0) * 1.2)}</div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: darkMode ? "#d1d5db" : PX.gray600 }}>£{fmt((previewBooking.quote?.result?.finalPrice || previewBooking.quote?.result?.finalFare || 0) * 1.2)}</div>
                           </div>
                         </div>
                       </div>
@@ -2847,21 +2847,21 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                               <thead>
                                 <tr style={{ borderBottom: `1px solid ${darkMode ? "#374151" : "#e2e8f0"}`, color: darkMode ? "#9ca3af" : PX.gray500, fontSize: 11 }}>
                                   <th style={{ textAlign: "left", paddingBottom: 8, fontWeight: 700 }}>METRIC</th>
-                                  <th style={{ textAlign: "right", paddingBottom: 8, fontWeight: 700 }}>AMOUNT (Â£)</th>
+                                  <th style={{ textAlign: "right", paddingBottom: 8, fontWeight: 700 }}>AMOUNT (£)</th>
                                   <th style={{ textAlign: "right", paddingBottom: 8, fontWeight: 700 }}>MARGIN (%)</th>
                                 </tr>
                               </thead>
                               <tbody>
                                 <tr style={{ borderBottom: `1px solid ${darkMode ? "#1f2937" : "#f1f5f9"}` }}>
                                   <td style={{ padding: "12px 0", color: darkMode ? "#d1d5db" : PX.gray700 }}><strong>Gross Profit</strong> <span style={{ fontSize: 10, color: darkMode ? "#6b7280" : PX.gray400, display: "block", marginTop: 2 }}>(Revenue minus direct trip costs)</span></td>
-                                  <td style={{ padding: "12px 0", textAlign: "right", fontWeight: 800, fontSize: 14, color: grossProfit > 0 ? (darkMode ? "#34d399" : "#16a34a") : (darkMode ? "#f87171" : "#dc2626") }}>Â£{fmt(grossProfit)}</td>
+                                  <td style={{ padding: "12px 0", textAlign: "right", fontWeight: 800, fontSize: 14, color: grossProfit > 0 ? (darkMode ? "#34d399" : "#16a34a") : (darkMode ? "#f87171" : "#dc2626") }}>£{fmt(grossProfit)}</td>
                                   <td style={{ padding: "12px 0", textAlign: "right" }}>
                                     <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 12, fontSize: 12, fontWeight: 800, background: grossProfit > 0 ? (darkMode ? "rgba(52, 211, 153, 0.15)" : "rgba(22, 163, 74, 0.1)") : (darkMode ? "rgba(248, 113, 113, 0.15)" : "rgba(220, 38, 38, 0.1)"), color: grossProfit > 0 ? (darkMode ? "#34d399" : "#16a34a") : (darkMode ? "#f87171" : "#dc2626") }}>{grossMargin.toFixed(1)}%</span>
                                   </td>
                                 </tr>
                                 <tr style={{ borderBottom: `1px solid ${darkMode ? "#1f2937" : "#f1f5f9"}` }}>
                                   <td style={{ padding: "12px 0", color: darkMode ? "#d1d5db" : PX.gray700 }}><strong>Net Profit</strong> <span style={{ fontSize: 10, color: darkMode ? "#6b7280" : PX.gray400, display: "block", marginTop: 2 }}>(After daily fleet overheads & fixed costs)</span></td>
-                                  <td style={{ padding: "12px 0", textAlign: "right", fontWeight: 800, fontSize: 14, color: netProfit > 0 ? (darkMode ? "#34d399" : "#16a34a") : (darkMode ? "#f87171" : "#dc2626") }}>Â£{fmt(netProfit)}</td>
+                                  <td style={{ padding: "12px 0", textAlign: "right", fontWeight: 800, fontSize: 14, color: netProfit > 0 ? (darkMode ? "#34d399" : "#16a34a") : (darkMode ? "#f87171" : "#dc2626") }}>£{fmt(netProfit)}</td>
                                   <td style={{ padding: "12px 0", textAlign: "right" }}>
                                     <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 12, fontSize: 12, fontWeight: 800, background: netProfit > 0 ? (darkMode ? "rgba(52, 211, 153, 0.15)" : "rgba(22, 163, 74, 0.1)") : (darkMode ? "rgba(248, 113, 113, 0.15)" : "rgba(220, 38, 38, 0.1)"), color: netProfit > 0 ? (darkMode ? "#34d399" : "#16a34a") : (darkMode ? "#f87171" : "#dc2626") }}>{profitMargin.toFixed(1)}%</span>
                                   </td>
@@ -2962,7 +2962,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
                 <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-4 shadow-sm">
                   <div className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">Global Base Fare</div>
-                  <div className="text-3xl font-black text-primary dark:text-primary-fixed leading-none">Â£{gv?.baseRate || 45}</div>
+                  <div className="text-3xl font-black text-primary dark:text-primary-fixed leading-none">£{gv?.baseRate || 45}</div>
                   <div className="text-[11px] font-bold text-primary dark:text-primary-fixed mt-2">Optimized current fleet</div>
                 </div>
 
@@ -3010,7 +3010,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           </select>
                         </div>
                         <div>
-                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Fixed Price (Â£)</label>
+                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Fixed Price (£)</label>
                           <input type="number" className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none" value={newTemplate.price||0} onChange={e=>setNT(x=>({...x,price:Number(e.target.value)}))} />
                         </div>
                         <div>
@@ -3018,7 +3018,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           <input type="number" min="0" step="1" className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none" value={newTemplate.radiusKm ?? 15} onChange={e=>setNT(x=>({...x,radiusKm:Number(e.target.value)}))} />
                         </div>
                         <div>
-                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Waiting Charge (Â£/hr)</label>
+                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Waiting Charge (£/hr)</label>
                           <input type="number" min="0" step="0.5" className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none" value={newTemplate.waitingChargePerHour ?? 0} onChange={e=>setNT(x=>({...x,waitingChargePerHour:Number(e.target.value)}))} />
                         </div>
                       </div>
@@ -3058,7 +3058,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                             <span className="py-1 px-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-[9px] font-extrabold uppercase tracking-wide">{t.tripType === 'return' ? 'GLOBAL' : 'PREMIUM'}</span>
                           </td>
                           <td className="py-2.5 px-5 text-xs font-bold text-slate-900 dark:text-slate-100">
-                            Â£{fmt(t.price)}
+                            £{fmt(t.price)}
                           </td>
                           <td className="py-2.5 px-5">
                             <div className="flex items-center gap-1.5 text-[10px] font-bold text-primary dark:text-primary-fixed">
@@ -3155,7 +3155,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       </div>
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Start Date & Time</label><input type="datetime-local" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={(newSeasonal.startDate||'').slice(0,16)} onChange={e=>setNS(x=>({...x,startDate:e.target.value}))}/></div>
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">End Date & Time</label><input type="datetime-local" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={(newSeasonal.endDate||'').slice(0,16)} onChange={e=>setNS(x=>({...x,endDate:e.target.value}))}/></div>
-                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Override Fare (Â£, optional)</label><input type="number" min="0" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={newSeasonal.overrideFare ?? ''} onChange={e=>setNS(x=>({...x,overrideFare:e.target.value===''?null:Number(e.target.value),multiplier:e.target.value===''?(x.multiplier??1.2):undefined}))}/></div>
+                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Override Fare (£, optional)</label><input type="number" min="0" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={newSeasonal.overrideFare ?? ''} onChange={e=>setNS(x=>({...x,overrideFare:e.target.value===''?null:Number(e.target.value),multiplier:e.target.value===''?(x.multiplier??1.2):undefined}))}/></div>
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Priority</label><input type="number" min="1" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={newSeasonal.priority ?? 1} onChange={e=>setNS(x=>({...x,priority:Number(e.target.value)}))}/></div>
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Applicable Routes</label><input type="text" placeholder="Any or route IDs" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={newSeasonal.applicableRoutes?.join(', ')||'Any'} onChange={e=>setNS(x=>({...x,applicableRoutes:e.target.value.split(',').map(s=>s.trim()).filter(Boolean)}))}/></div>
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Status</label><select className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={newSeasonal.enabled===false?'inactive':'active'} onChange={e=>setNS(x=>({...x,enabled:e.target.value==='active',status:e.target.value}))}><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
@@ -3220,13 +3220,13 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                          </select>
                       </div>
                       <div>
-                         <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Base Fare Drop (Â£)</label>
+                         <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Base Fare Drop (£)</label>
                          <input type="number" value={newMatrix.baseFare||0} onChange={e=>setNM(x=>({...x,baseFare:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none" placeholder="e.g. 50" />
                       </div>
                       {matrixBands(newMatrix).map((band, bandIndex) => (
                         <div key={bandIndex}>
                           <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">
-                            {band.max == null ? `${band.min}${distanceUnitShort}+` : `${band.min}-${band.max}${distanceUnitShort}`} Rate (Â£/{distanceUnitShort})
+                            {band.max == null ? `${band.min}${distanceUnitShort}+` : `${band.min}-${band.max}${distanceUnitShort}`} Rate (£/{distanceUnitShort})
                           </label>
                           <input
                             type="number"
@@ -3249,7 +3249,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Trip Type</label><select value={newMatrix.tripType||'one-way'} onChange={e=>setNM(x=>({...x,tripType:e.target.value}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"><option value="one-way">One Way</option><option value="return">Return</option></select></div>
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Included Live {distanceUnitShort}</label><input type="number" min="0" value={newMatrix.includedLiveMileage??0} onChange={e=>setNM(x=>({...x,includedLiveMileage:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Included Dead {distanceUnitShort}</label><input type="number" min="0" value={newMatrix.includedDeadMileage??0} onChange={e=>setNM(x=>({...x,includedDeadMileage:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
-                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Waiting Charge (Â£/hr)</label><input type="number" min="0" step="0.5" value={newMatrix.waitingChargePerHour??0} onChange={e=>setNM(x=>({...x,waitingChargePerHour:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
+                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Waiting Charge (£/hr)</label><input type="number" min="0" step="0.5" value={newMatrix.waitingChargePerHour??0} onChange={e=>setNM(x=>({...x,waitingChargePerHour:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Night Multiplier</label><input type="number" min="0" step="0.1" value={newMatrix.nightRateMultiplier??1} onChange={e=>setNM(x=>({...x,nightRateMultiplier:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Weekend Multiplier</label><input type="number" min="0" step="0.1" value={newMatrix.weekendRateMultiplier??1} onChange={e=>setNM(x=>({...x,weekendRateMultiplier:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Rule Status</label><select value={newMatrix.status||'active'} onChange={e=>setNM(x=>({...x,status:e.target.value}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
@@ -3274,8 +3274,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                    ) : matrixRulesForView.map((m, idx) => (
                       <div key={m.id} className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr_80px] gap-4 py-3 border-t border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors px-2 -mx-2 rounded">
                          <div style={{ fontSize: 13, fontWeight: 700, color: darkMode ? "#F3F4F6" : "#0f172a", display: "flex", alignItems: "center" }}>{matrixView === 'city' ? `${m.pickupArea || 'Any city'} â†’ ${m.dropArea || 'Any city'}` : matrixView === 'global' ? 'Global Â· All bookings' : (db.vehicles.find(v=>v.id===m.vehicleId)?.name || 'Standard Tier')}</div>
-                         {matrixBands(m).map((band, bandIndex) => <div key={bandIndex} className="text-xs font-semibold text-slate-900 dark:text-slate-100 flex items-center">Â£{fmt(band.rate)}/{distanceUnitShort}</div>)}
-                         <div className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center">Â£{fmt(m.baseFare)}</div>
+                         {matrixBands(m).map((band, bandIndex) => <div key={bandIndex} className="text-xs font-semibold text-slate-900 dark:text-slate-100 flex items-center">£{fmt(band.rate)}/{distanceUnitShort}</div>)}
+                         <div className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center">£{fmt(m.baseFare)}</div>
                          <div className="flex items-center justify-end gap-2">
                            <button type="button" className="admin-icon-action admin-icon-edit" aria-label="Edit matrix rule" title="Edit rule" onClick={() => { setNM(m); setShowMatrixForm(true); }}><Edit3 size={12}/></button>
                            <button type="button" className="admin-icon-action admin-icon-delete" aria-label="Delete matrix rule" title="Delete rule" onClick={async () => { if(window.confirm("Delete this matrix rule?")) { await saveApi('matrix', m, true); setMatrixData(d=>d.filter(x=>x.id!==m.id)); } }}><SvgTrash size={12}/></button>
@@ -3344,9 +3344,9 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   const selectedEconomics = eco.vehicleBreakdown.find(v => v.id === selectedVehicle?.id);
                   return <div className="fleet-top-breakeven">
                     <div className="fleet-top-breakeven-grid">
-                      <div className="fleet-top-breakeven-primary"><strong>Â£{selectedEconomics?.minHirePerDay.toFixed(2) || "0.00"}</strong><span>Minimum hire per day</span></div>
-                      <div><span>Overhead</span><strong>Â£{selectedEconomics?.dailyOverhead.toFixed(2) || "0.00"}</strong></div>
-                      <div><span>Standing</span><strong>Â£{selectedEconomics?.dailyStanding.toFixed(2) || "0.00"}</strong></div>
+                      <div className="fleet-top-breakeven-primary"><strong>£{selectedEconomics?.minHirePerDay.toFixed(2) || "0.00"}</strong><span>Minimum hire per day</span></div>
+                      <div><span>Overhead</span><strong>£{selectedEconomics?.dailyOverhead.toFixed(2) || "0.00"}</strong></div>
+                      <div><span>Standing</span><strong>£{selectedEconomics?.dailyStanding.toFixed(2) || "0.00"}</strong></div>
                     </div>
                   </div>;
                 })()}
@@ -3390,17 +3390,17 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         {/* Minimum Target Hire Box (Ultra Dense) */}
                         <div className="fleet-inline-breakeven bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
                           <div className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">Breakeven Target</div>
-                          <div className="text-4xl font-black text-slate-900 dark:text-slate-100 leading-none">Â£{ecoV?.minHirePerDay.toFixed(2) || "0.00"}</div>
+                          <div className="text-4xl font-black text-slate-900 dark:text-slate-100 leading-none">£{ecoV?.minHirePerDay.toFixed(2) || "0.00"}</div>
                           <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1">Minimum Hire per Day</div>
                           <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg py-2.5 px-3 mt-4 flex justify-between">
                               <div>
                                 <div className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase">Overhead</div>
-                                <div className="text-[13px] text-primary dark:text-primary-fixed font-extrabold">Â£{ecoV?.dailyOverhead.toFixed(2) || "0.00"}</div>
+                                <div className="text-[13px] text-primary dark:text-primary-fixed font-extrabold">£{ecoV?.dailyOverhead.toFixed(2) || "0.00"}</div>
                               </div>
                               <div className="w-[1px] bg-slate-200 dark:bg-slate-700"></div>
                               <div>
                                 <div className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase">Standing</div>
-                                <div className="text-[13px] text-slate-900 dark:text-slate-100 font-extrabold">Â£{ecoV?.dailyStanding.toFixed(2) || "0.00"}</div>
+                                <div className="text-[13px] text-slate-900 dark:text-slate-100 font-extrabold">£{ecoV?.dailyStanding.toFixed(2) || "0.00"}</div>
                               </div>
                           </div>
                         </div>
@@ -3462,11 +3462,11 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                               <div className="grid grid-cols-2 gap-2">
                                 <div className="fleet-operational-summary-item">
                                   <span>Per vehicle / year</span>
-                                  <strong>Â£{Math.round(((activeV.annualFixedCosts||[]).reduce((sum, item)=>sum+(Number(item.amount)||0),0)) / Math.max(1, Number(activeV.fleetCount)||1)).toLocaleString()}</strong>
+                                  <strong>£{Math.round(((activeV.annualFixedCosts||[]).reduce((sum, item)=>sum+(Number(item.amount)||0),0)) / Math.max(1, Number(activeV.fleetCount)||1)).toLocaleString()}</strong>
                                 </div>
                                 <div className="fleet-operational-summary-item">
                                   <span>Per operating day</span>
-                                  <strong>Â£{((((activeV.annualFixedCosts||[]).reduce((sum, item)=>sum+(Number(item.amount)||0),0)) / Math.max(1, Number(activeV.fleetCount)||1)) / Math.max(1, Number(activeV.utilisationDays)||225)).toFixed(2)}</strong>
+                                  <strong>£{((((activeV.annualFixedCosts||[]).reduce((sum, item)=>sum+(Number(item.amount)||0),0)) / Math.max(1, Number(activeV.fleetCount)||1)) / Math.max(1, Number(activeV.utilisationDays)||225)).toFixed(2)}</strong>
                                 </div>
                               </div>
                             </div>
@@ -3534,7 +3534,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           </div>
                           <div className="fleet-cost-total flex justify-between items-center py-4 px-5 bg-primary/5 dark:bg-primary/10">
                               <span className="text-[10px] font-extrabold text-primary dark:text-primary-fixed uppercase tracking-wide">Gross Standing Total</span>
-                              <span className="text-lg font-black text-primary dark:text-primary-fixed">Â£{((activeV.annualFixedCosts||[]).reduce((s,x)=>s+(Number(x.amount)||0),0)).toLocaleString()}</span>
+                              <span className="text-lg font-black text-primary dark:text-primary-fixed">£{((activeV.annualFixedCosts||[]).reduce((s,x)=>s+(Number(x.amount)||0),0)).toLocaleString()}</span>
                           </div>
                         </div>
                       </div>
@@ -3555,7 +3555,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                               <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Maint. Lifecycle</div>
                               <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
                               <div className="fleet-variable-value !w-auto flex items-center shrink-0">
-                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">Â£</span>
+                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">£</span>
                                 <input aria-label="Maintenance set cost" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="0" value={activeV.maintenanceSetCost??0} onChange={e=>{
                                   const val = Number(e.target.value);
                                   setV(vs=>vs.map(v=>v.id===activeV.id?{...v, maintenanceSetCost: val, maintenanceCostPerKm: 0}:v));
@@ -3568,7 +3568,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                 <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{distanceUnitShort}</span>
                               </div>
                               <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5">
-                                  = Â£{((activeV.maintenanceSetCost || 0) / (activeV.expectedMaintenanceLifeKm || 1)).toFixed(3)}
+                                  = £{((activeV.maintenanceSetCost || 0) / (activeV.expectedMaintenanceLifeKm || 1)).toFixed(3)}
                               </div>
                           </div>
 
@@ -3576,7 +3576,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                               <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Tyre Lifecycle</div>
                               <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
                               <div className="fleet-variable-value !w-auto flex items-center shrink-0">
-                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">Â£</span>
+                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">£</span>
                                 <input aria-label="Tyre set cost" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="0" value={activeV.tyreSetCost??0} onChange={e=>{
                                   const val = Number(e.target.value);
                                   setV(vs=>vs.map(v=>v.id===activeV.id?{...v, tyreSetCost: val, tyreCostPerKm: 0}:v));
@@ -3589,7 +3589,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                 <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{distanceUnitShort}</span>
                               </div>
                               <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5">
-                                  = Â£{((activeV.tyreSetCost || 0) / (activeV.expectedTyreLifeKm || 1)).toFixed(3)}
+                                  = £{((activeV.tyreSetCost || 0) / (activeV.expectedTyreLifeKm || 1)).toFixed(3)}
                               </div>
                           </div>
 
@@ -3612,13 +3612,13 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           </div>
                           <div className="text-right">
                              <div className="text-[9px] font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide mb-0.5">Target Daily Revenue</div>
-                             <div className="text-2xl font-black text-slate-900 dark:text-slate-100">Â£{(ecoV?.minHirePerDay * (1 + (gv.marginWeekday ?? gv.profitMarginPct ?? 20)/100)).toFixed(2) || "0.00"}</div>
+                             <div className="text-2xl font-black text-slate-900 dark:text-slate-100">£{(ecoV?.minHirePerDay * (1 + (gv.marginWeekday ?? gv.profitMarginPct ?? 20)/100)).toFixed(2) || "0.00"}</div>
                           </div>
                           <div className="fleet-profit-kpis">
-                            <div><span>Daily revenue target</span><strong>Â£{dailyRevenueTarget.toFixed(2)}</strong></div>
+                            <div><span>Daily revenue target</span><strong>£{dailyRevenueTarget.toFixed(2)}</strong></div>
                             <div><span>Gross margin</span><strong>{marginPct.toFixed(1)}%</strong></div>
-                            <div><span>Annual revenue target</span><strong>Â£{Math.round(annualRevenueTarget).toLocaleString()}</strong></div>
-                            <div><span>Annual profit target</span><strong>Â£{Math.round(annualProfitTarget).toLocaleString()}</strong></div>
+                            <div><span>Annual revenue target</span><strong>£{Math.round(annualRevenueTarget).toLocaleString()}</strong></div>
+                            <div><span>Annual profit target</span><strong>£{Math.round(annualProfitTarget).toLocaleString()}</strong></div>
                           </div>
                           <div className="fleet-margin-progress">
                             <div className="fleet-margin-label"><span>Margin progress</span><strong>{marginPct.toFixed(0)}%</strong></div>
@@ -3628,11 +3628,11 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           <div className="fleet-revenue-chart">
                             <div className="fleet-revenue-chart-title">Revenue vs costs (annual)</div>
                             <div className="fleet-revenue-chart-body">
-                              <div className="fleet-profit-donut" style={{ background: `conic-gradient(#A73746 0 ${annualCostShare}%, #2F6F67 ${annualCostShare}% 100%)` }}><div><strong>Â£{Math.round(annualRevenueTarget).toLocaleString()}</strong><span>Revenue</span></div></div>
+                              <div className="fleet-profit-donut" style={{ background: `conic-gradient(#A73746 0 ${annualCostShare}%, #2F6F67 ${annualCostShare}% 100%)` }}><div><strong>£{Math.round(annualRevenueTarget).toLocaleString()}</strong><span>Revenue</span></div></div>
                               <dl>
-                                <div><dt><i className="revenue-dot" />Revenue</dt><dd>Â£{Math.round(annualRevenueTarget).toLocaleString()}</dd></div>
-                                <div><dt><i className="cost-dot" />Costs</dt><dd>Â£{Math.round(annualCostTarget).toLocaleString()}</dd></div>
-                                <div><dt><i className="profit-dot" />Profit</dt><dd>Â£{Math.round(annualProfitTarget).toLocaleString()}</dd></div>
+                                <div><dt><i className="revenue-dot" />Revenue</dt><dd>£{Math.round(annualRevenueTarget).toLocaleString()}</dd></div>
+                                <div><dt><i className="cost-dot" />Costs</dt><dd>£{Math.round(annualCostTarget).toLocaleString()}</dd></div>
+                                <div><dt><i className="profit-dot" />Profit</dt><dd>£{Math.round(annualProfitTarget).toLocaleString()}</dd></div>
                               </dl>
                             </div>
                           </div>
@@ -3706,7 +3706,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           <div className="flex items-center gap-1">
-                            <span className="text-slate-500 dark:text-slate-400">Â£</span>
+                            <span className="text-slate-500 dark:text-slate-400">£</span>
                             <input
                               type="number"
                               step="0.5"
@@ -3773,7 +3773,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       ['driverWageWeekday','Driver wage - weekday',18],
                       ['driverWageWeekend','Driver wage - weekend',22],
                       ['driverWageHoliday','Driver wage - holiday',25]
-                    ].map(([key,label,fallback]) => <div key={key} className="flex justify-between items-center pt-3 border-t border-outline-variant dark:border-[#1F2937]"><span className="text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span><div className="flex items-center gap-1"><span className="text-slate-500 dark:text-slate-400">Â£</span><input type="number" step="0.5" className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))}/><span className="text-[10px] text-slate-500 dark:text-slate-400">/hr</span></div></div>)}
+                    ].map(([key,label,fallback]) => <div key={key} className="flex justify-between items-center pt-3 border-t border-outline-variant dark:border-[#1F2937]"><span className="text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span><div className="flex items-center gap-1"><span className="text-slate-500 dark:text-slate-400">£</span><input type="number" step="0.5" className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))}/><span className="text-[10px] text-slate-500 dark:text-slate-400">/hr</span></div></div>)}
                     {[
                       ['emptyLegThresholdKm','Empty-leg threshold',20,'km'],
                       ['dualDriverThresholdHours','Two-driver threshold',13,'hr'],
@@ -3827,7 +3827,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           <span className="text-xs font-bold text-slate-900 dark:text-slate-100">{l}</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <span className="text-slate-500 dark:text-slate-400">Â£</span>
+                          <span className="text-slate-500 dark:text-slate-400">£</span>
                           <input type="number" step="0.5" className="w-12 bg-transparent text-right outline-none focus:border-b focus:border-primary dark:focus:border-[#60A5FA] text-on-surface dark:text-white" value={sr[k] ?? 0} onChange={e=>setRoadCharges(rows => rows.map(row => row.key === k ? { ...row, amount: Number(e.target.value) } : row))} />
                         </div>
                       </div>
@@ -3848,7 +3848,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         </div>
                         <div className="flex shrink-0 items-center gap-2">
                           <div className="flex items-center gap-1">
-                            <span className="text-slate-500 dark:text-slate-400">Â£</span>
+                            <span className="text-slate-500 dark:text-slate-400">£</span>
                             <input
                               type="number"
                               step="0.5"
@@ -3881,7 +3881,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     </div>
                     <div className="text-right bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3 border border-slate-200 dark:border-slate-700">
                       <span className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-0.5">Total Fleet Overheads</span>
-                      <span className="text-lg font-black text-primary dark:text-primary-fixed leading-none">Â£{totalOverheads.toLocaleString()}</span>
+                      <span className="text-lg font-black text-primary dark:text-primary-fixed leading-none">£{totalOverheads.toLocaleString()}</span>
                     </div>
                   </div>
 
@@ -3891,7 +3891,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         <div className="w-6 h-6 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center text-[10px] font-extrabold shrink-0">{index + 1}</div>
                         <input type="text" className="flex-1 bg-transparent text-xs outline-none border-b border-transparent focus:border-primary text-slate-900 dark:text-slate-100 font-bold" placeholder="Cost Name" value={oh.label} onChange={e => setOH(os => os.map(x => x.id === oh.id ? {...x, label: e.target.value} : x))} />
                         <div className="flex items-center bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 px-2 py-1 shrink-0">
-                          <span className="text-slate-500 dark:text-slate-400 text-[10px] font-bold mr-1">Â£</span>
+                          <span className="text-slate-500 dark:text-slate-400 text-[10px] font-bold mr-1">£</span>
                           <input type="number" className="w-16 bg-transparent text-xs font-bold outline-none text-right text-slate-900 dark:text-slate-100" value={oh.cost} onChange={e => setOH(os => os.map(x => x.id === oh.id ? {...x, cost: Number(e.target.value)} : x))} />
                         </div>
                         <button type="button" onClick={() => setOH(os => os.filter(x => x.id !== oh.id))} className="admin-icon-action admin-icon-delete shrink-0" title="Remove overhead" aria-label="Remove overhead">
@@ -3979,10 +3979,10 @@ function FleetEconomicsPanel({ eco, darkMode }) {
                 background:PX.gray100,padding:"4px 10px",borderRadius:6 }}>{v.count}</span>
             </div>
             <div style={{ textAlign:"right",fontSize:13,color: darkMode ? "#9ca3af" : PX.gray600,fontWeight:600 }}>{fmtK(v.annualFixed)}</div>
-            <div style={{ textAlign:"right",fontSize:13,fontWeight:700,color: darkMode ? "#f3f4f6" : PX.navy800 }}>Â£{v.dailyStanding.toFixed(2)}</div>
-            <div style={{ textAlign:"right",fontSize:13,color:"#5b21b6",fontWeight:600 }}>Â£{v.dailyOverhead.toFixed(2)}</div>
+            <div style={{ textAlign:"right",fontSize:13,fontWeight:700,color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{v.dailyStanding.toFixed(2)}</div>
+            <div style={{ textAlign:"right",fontSize:13,color:"#5b21b6",fontWeight:600 }}>£{v.dailyOverhead.toFixed(2)}</div>
             <div style={{ textAlign:"right" }}>
-              <span style={{ fontSize:15,fontWeight:800,color:PX.amber500 }}>Â£{v.minHirePerDay.toFixed(2)}</span>
+              <span style={{ fontSize:15,fontWeight:800,color:PX.amber500 }}>£{v.minHirePerDay.toFixed(2)}</span>
             </div>
           </div>
         ))}
@@ -4015,9 +4015,9 @@ function FleetEconomicsPanel({ eco, darkMode }) {
                 {v.emoji === "minibus" ? <SvgMinibus size={22} color="#fff" /> : v.emoji === "coach" ? <SvgCoach size={22} color="#fff" /> : <SvgBus size={22} color="#fff" />}
               </div>
               <div style={{ fontSize:11,color:"#7baed4",marginBottom:6,fontWeight:600 }}>{v.name}</div>
-              <div style={{ fontSize:20,fontWeight:800,color:PX.amber400 }}>Â£{v.minHirePerDay.toFixed(2)}</div>
+              <div style={{ fontSize:20,fontWeight:800,color:PX.amber400 }}>£{v.minHirePerDay.toFixed(2)}</div>
               <div style={{ fontSize:10,color:"rgba(255,255,255,.35)",marginTop:4 }}>
-                Â£{v.dailyStanding.toFixed(2)} + Â£{v.dailyOverhead.toFixed(2)}
+                £{v.dailyStanding.toFixed(2)} + £{v.dailyOverhead.toFixed(2)}
               </div>
             </div>
           ))}
@@ -4192,6 +4192,7 @@ export default function AdminApp() {
     </>
   );
 }
+
 
 
 
