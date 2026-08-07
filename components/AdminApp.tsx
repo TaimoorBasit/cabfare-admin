@@ -1,4 +1,4 @@
-
+﻿
 // @ts-nocheck
 'use client';
 import { API_BASE_URL } from '../lib/api';
@@ -195,10 +195,10 @@ function AdminAuthGate({ onAuthenticated }) {
     }
   };
 
-  return <main className="admin-auth-screen min-h-screen flex items-center justify-center p-6"><form onSubmit={submit} className="admin-auth-card w-full max-w-sm rounded-2xl p-7"><img src="/carolean%20image.png" alt="Carolean" className="h-14 mx-auto mb-5"/><h1 className="text-xl font-extrabold text-slate-900 text-center">{mode === 'login' ? 'Admin sign in' : 'Create first administrator'}</h1><p className="text-sm text-slate-600 text-center mt-1 mb-5">Protected access to pricing and operational data.</p>{mode === 'register' && <label className="block text-xs font-bold text-slate-700 mb-3">Name<input className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={name} onChange={event=>setName(event.target.value)} required/></label>}<label className="block text-xs font-bold text-slate-700 mb-3">Email<input type="email" className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={email} onChange={event=>setEmail(event.target.value)} required/></label><label className="block text-xs font-bold text-slate-700 mb-3">Password<input type="password" minLength={10} className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={password} onChange={event=>setPassword(event.target.value)} required/></label>{error && <p className={`mb-3 text-xs ${error.startsWith('Administrator created') ? 'text-emerald-700' : 'text-red-700'}`}>{error}</p>}<button disabled={busy} className="admin-auth-submit w-full rounded-lg px-4 py-2.5 text-sm font-bold text-white disabled:opacity-60">{busy ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Create administrator'}</button></form></main>;
+  return <main className="admin-auth-screen min-h-screen flex items-center justify-center p-6"><form onSubmit={submit} className="admin-auth-card w-full max-w-sm rounded-2xl p-7"><img src="/carolean%20image.png" alt="Carolean" className="h-14 mx-auto mb-5"/><h1 className="text-xl font-extrabold text-slate-900 text-center">{mode === 'login' ? 'Admin sign in' : 'Create first administrator'}</h1><p className="text-sm text-slate-600 text-center mt-1 mb-5">Protected access to pricing and operational data.</p>{mode === 'register' && <label className="block text-xs font-bold text-slate-700 mb-3">Name<input className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={name} onChange={event=>setName(event.target.value)} required/></label>}<label className="block text-xs font-bold text-slate-700 mb-3">Email<input type="email" className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={email} onChange={event=>setEmail(event.target.value)} required/></label><label className="block text-xs font-bold text-slate-700 mb-3">Password<input type="password" minLength={10} className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={password} onChange={event=>setPassword(event.target.value)} required/></label>{error && <p className={`mb-3 text-xs ${error.startsWith('Administrator created') ? 'text-emerald-700' : 'text-red-700'}`}>{error}</p>}<button disabled={busy} className="admin-auth-submit w-full rounded-lg px-4 py-2.5 text-sm font-bold text-white disabled:opacity-60">{busy ? 'Please waitâ€¦' : mode === 'login' ? 'Sign in' : 'Create administrator'}</button></form></main>;
 }
 
-// ── Design tokens ─────────────────────────────────────────────────────────────
+// â”€â”€ Design tokens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const PX = {
   navy800: "#0D0E48",       // Primary Navy Blue from website
   navy700: "#13155C",       // Dark Accent
@@ -221,7 +221,7 @@ const PX = {
   offWhite: "#f4f5f7",
 };
 
-// ── Inline Vector SVG Components (Replacing Emojis) ───────────────────────────
+// â”€â”€ Inline Vector SVG Components (Replacing Emojis) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function SvgMapPinGreen({ size = 16 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle" }}>
@@ -292,7 +292,7 @@ function SvgBus({ size = 28, color = "currentColor" }) {
   );
 }
 
-// ── Minibus drawing ──
+// â”€â”€ Minibus drawing â”€â”€
 function SvgMinibus({ size = 28, color = "currentColor" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle" }}>
@@ -306,7 +306,7 @@ function SvgMinibus({ size = 28, color = "currentColor" }) {
   );
 }
 
-// ── Coach drawing ──
+// â”€â”€ Coach drawing â”€â”€
 function SvgCoach({ size = 28, color = "currentColor" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle" }}>
@@ -449,14 +449,14 @@ function makeRoadChargeKey(label, existingKeys) {
   return nextKey;
 }
 
-// ── Global CSS & Montserrat Font loading ───────────────────────────────────────
+// â”€â”€ Global CSS & Montserrat Font loading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function GlobalStyle() {
   useEffect(() => {
     const el = document.createElement("style");
     el.textContent = `
       @import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Outfit:wght@100..900&display=swap');
 
-      /* ── Animations ── */
+      /* â”€â”€ Animations â”€â”€ */
       @keyframes fadeUp {
         from { opacity: 0; transform: translateY(12px); }
         to   { opacity: 1; transform: translateY(0); }
@@ -466,7 +466,7 @@ function GlobalStyle() {
       .fade-up { animation: fadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
       .spinning { animation: spin 1s linear infinite; display: inline-block; }
 
-      /* ── Google Places autocomplete ── */
+      /* â”€â”€ Google Places autocomplete â”€â”€ */
       .pac-container {
         border-radius: 12px !important;
         border: 1px solid #dde0e8 !important;
@@ -490,7 +490,7 @@ function GlobalStyle() {
       .pac-icon { display: none !important; }
       .pac-matched { color: #CD202C !important; font-weight: 700 !important; }
 
-      /* ── Scrollbar ── */
+      /* â”€â”€ Scrollbar â”€â”€ */
       ::-webkit-scrollbar { width: 6px; height: 6px; }
       ::-webkit-scrollbar-track { background: transparent; }
       ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
@@ -509,7 +509,7 @@ function GlobalStyle() {
   return null;
 }
 
-// ── Google Maps loader ────────────────────────────────────────────────────────
+// â”€â”€ Google Maps loader â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function useGoogleMaps(apiKey) {
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
@@ -530,7 +530,7 @@ function useGoogleMaps(apiKey) {
   return loaded;
 }
 
-// ── Map Picker Modal ──────────────────────────────────────────────────────────
+// â”€â”€ Map Picker Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function MapPickerModal({ isOpen, onClose, onConfirm, initialSearch }) {
   const mapRef = useRef(null);
   const searchInputRef = useRef(null);
@@ -573,14 +573,14 @@ function MapPickerModal({ isOpen, onClose, onConfirm, initialSearch }) {
             if (status === "OK" && results[0]) {
               const isUK = results[0].address_components.some(c => c.short_name === "GB" || c.long_name === "United Kingdom");
               if (!isUK) {
-                setSelectedAddr("❌ Service is exclusively available in the UK");
+                setSelectedAddr("âŒ Service is exclusively available in the UK");
                 setSelectedGeo(null);
                 return;
               }
               setSelectedAddr(results[0].formatted_address);
               setSelectedGeo({ lat: latLng.lat(), lng: latLng.lng(), name: results[0].formatted_address });
             } else {
-              setSelectedAddr("❌ Unknown location");
+              setSelectedAddr("âŒ Unknown location");
               setSelectedGeo(null);
             }
           });
@@ -638,7 +638,7 @@ function MapPickerModal({ isOpen, onClose, onConfirm, initialSearch }) {
         {/* Search Bar */}
         <div style={{ padding:"12px 20px", borderBottom:"1px solid #e2e8f0", background: "#f8fafc", flexShrink:0 }}>
           <div style={{ background: "#fff",padding:"10px 16px",borderRadius:8,border:`1.5px solid #fee2e2`,boxShadow:"0 2px 4px rgba(0,0,0,.02)",display:"flex",alignItems:"center",gap:8 }}>
-            {loading ? <span className="spinning" style={{color: PX.navy800}}>⟳</span> : <SvgMapPinRed />}
+            {loading ? <span className="spinning" style={{color: PX.navy800}}>âŸ³</span> : <SvgMapPinRed />}
             <input 
               ref={searchInputRef}
               type="text" 
@@ -666,7 +666,7 @@ function MapPickerModal({ isOpen, onClose, onConfirm, initialSearch }) {
   );
 }
 
-// ── Places Autocomplete Input ─────────────────────────────────────────────────
+// â”€â”€ Places Autocomplete Input â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function PlacesInput({ value, onChange, placeholder, icon, mapsLoaded, onIconClick }) {
   const inputRef = useRef(null);
   const acRef = useRef(null);
@@ -749,7 +749,7 @@ function PlacesInput({ value, onChange, placeholder, icon, mapsLoaded, onIconCli
   );
 }
 
-// ── UK Cities fallback geocoder ───────────────────────────────────────────────
+// â”€â”€ UK Cities fallback geocoder â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const UK_CITIES = {
   "walsall":[52.5863,-1.9817],"london":[51.5074,-0.1278],"birmingham":[52.4862,-1.8904],
   "manchester":[53.4808,-2.2426],"liverpool":[53.4084,-2.9916],"leeds":[53.8008,-1.5491],
@@ -766,7 +766,7 @@ const UK_CITIES = {
   "milton keynes":[52.0406,-0.7594],"worcester":[52.1920,-2.2200],"gloucester":[51.8642,-2.2380],
 };
 const YARD_GEO = { lat:52.5863, lng:-1.9817, name:"Walsall Yard (Base)" };
-// ── Default database ──────────────────────────────────────────────────────────
+// â”€â”€ Default database â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function Btn({ children, onClick, variant="primary", size="md", disabled, full, style:sx={} }) {
   const v = {
@@ -795,16 +795,16 @@ function Btn({ children, onClick, variant="primary", size="md", disabled, full, 
 }
 
 function fmt(n)  { return Number(n).toLocaleString("en-GB",{minimumFractionDigits:2,maximumFractionDigits:2}); }
-function fmtK(n) { return "£"+Number(n).toLocaleString("en-GB"); }
+function fmtK(n) { return "Â£"+Number(n).toLocaleString("en-GB"); }
 
-// ── Progress bar ──────────────────────────────────────────────────────────────
+// â”€â”€ Progress bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ProgressBar({ pct, color }) {
   return <div style={{ height:6, background:PX.gray200, borderRadius:10, overflow:"hidden" }}>
     <div style={{ width:`${Math.min(100,pct)}%`, height:"100%", background:color, borderRadius:10, transition:"width .4s" }}/>
   </div>;
 }
 
-// ── Route map ─────────────────────────────────────────────────────────────────
+// â”€â”€ Route map â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function DepotMapPreview({ lat, lng, darkMode }) {
   const mapRef = useRef(null);
@@ -1068,7 +1068,7 @@ function RouteMap({ result, journey, gv, height=320, minimal=false, darkMode=fal
             ? <polygon points={`${x},${y-8} ${x+8},${y} ${x},${y+8} ${x-8},${y}`} fill={p.color} stroke="#fff" strokeWidth={2}/>
             : <circle cx={x} cy={y} r={6} fill={p.color} stroke="#fff" strokeWidth={2}/>}
           <text x={x} y={above?y+17:y-11} textAnchor="middle" fontSize={9.5} fill="#374151" fontWeight="600">
-            {p.label.length>16?p.label.substring(0,14)+"…":p.label}
+            {p.label.length>16?p.label.substring(0,14)+"â€¦":p.label}
           </text>
         </g>;
       })}
@@ -1126,9 +1126,9 @@ function JourneyRouteDetails({ journey, darkMode=false }) {
   </div>;
 }
 
-// ── Navbar ────────────────────────────────────────────────────────────────────
-// ── VehicleCard (Step 2 equivalent) ──────────────────────────────────────────
-// ── Admin Dashboard ────────────────────────────────────────────────────────────
+// â”€â”€ Navbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â”€â”€ VehicleCard (Step 2 equivalent) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â”€â”€ Admin Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) {
   const fetch = authenticatedFetch;
   const injectDefaults = (v) => {
@@ -1151,7 +1151,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     const fcSum = (newV.annualFixedCosts || []).reduce((s, x) => s + (Number(x.amount)||0), 0);
     const utilDays = newV.utilisationDays || 225;
     if (fcSum > 0) {
-      newV.standingCostPerDay = (fcSum / (Number(newV.fleetCount) || 1)) / utilDays;
+      if (['fleetCount', 'utilisationDays'].includes(field)) { if (fcSum > 0) newV.standingCostPerDay = (fcSum / (Number(newV.fleetCount) || 1)) / utilDays; }
     }
 
     const fuelPrice = newV.fuelPricePerLitre ?? db?.globalVars?.fuelPricePerLitre ?? 1.52;
@@ -1166,7 +1166,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     const maintCost = Number(newV.maintenanceCostPerKm) > 0 ? Number(newV.maintenanceCostPerKm) : (maintSetCost > 0 && maintLife > 0 ? maintSetCost / maintLife : 0.15);
     const vcSum = fuelPerKm + tyrePerKm + maintCost;
     if (vcSum > 0) {
-      newV.ratePerKm = vcSum;
+      if (['fuelPricePerLitre', 'fuelKpl', 'tyreCostPerKm', 'tyreSetCost', 'expectedTyreLifeKm', 'maintenanceSetCost', 'expectedMaintenanceLifeKm', 'maintenanceCostPerKm'].includes(field)) { if (vcSum > 0) newV.ratePerKm = vcSum; }
     }
 
     return newV;
@@ -1583,19 +1583,19 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
       "Handbags", "Suitcases 23kg", "Distance Unit",
       `Live Mileage (${unit}s)`, `Dead Mileage (${unit}s)`, `Total Mileage (${unit}s)`,
       "Est. Driving Hours", "Waiting Time (mins)", "Total Shift Hours", "Dual Crew?", "Operation Days",
-      "Base Standing Cost (£/day)", "Total Standing Cost (£)",
-      "Overhead Allocation (£/day)", "Total Overhead Cost (£)",
-      "Min Daily Hire Charge (£/day)", "Total Min Hire (£)",
-      "Fuel Price (£/litre)", "Fuel Consumption (kpl)", "Total Fuel Cost (£)",
-      `Tyre Cost (£/${unit})`, "Total Tyre Cost (£)",
-      `Maintenance Cost (£/${unit})`, "Total Maintenance Cost (£)",
-      "Total Variable Cost (£)", "Driver Hourly Wage (£/hr)", "Holiday Pay (%)", "Total Driver Cost (£)",
-      "London ULEZ Surcharge (£)", "Birmingham CAZ Surcharge (£)",
-      "Dartford Crossing Surcharge (£)", "M6 Toll Surcharge (£)", "Driver Subsistence (£)",
-      "Total Surcharges (£)", "Target Profit Margin (%)", "Target Profit Margin (£)", "Seasonal Multiplier",
-      "Subtotal (£)", "Total Fare (£)",
-      "Gross Profit (£)", "Gross Margin (%)",
-      "Net Profit (£)", "Net Margin (%)"
+      "Base Standing Cost (Â£/day)", "Total Standing Cost (Â£)",
+      "Overhead Allocation (Â£/day)", "Total Overhead Cost (Â£)",
+      "Min Daily Hire Charge (Â£/day)", "Total Min Hire (Â£)",
+      "Fuel Price (Â£/litre)", "Fuel Consumption (kpl)", "Total Fuel Cost (Â£)",
+      `Tyre Cost (Â£/${unit})`, "Total Tyre Cost (Â£)",
+      `Maintenance Cost (Â£/${unit})`, "Total Maintenance Cost (Â£)",
+      "Total Variable Cost (Â£)", "Driver Hourly Wage (Â£/hr)", "Holiday Pay (%)", "Total Driver Cost (Â£)",
+      "London ULEZ Surcharge (Â£)", "Birmingham CAZ Surcharge (Â£)",
+      "Dartford Crossing Surcharge (Â£)", "M6 Toll Surcharge (Â£)", "Driver Subsistence (Â£)",
+      "Total Surcharges (Â£)", "Target Profit Margin (%)", "Target Profit Margin (Â£)", "Seasonal Multiplier",
+      "Subtotal (Â£)", "Total Fare (Â£)",
+      "Gross Profit (Â£)", "Gross Margin (%)",
+      "Net Profit (Â£)", "Net Margin (%)"
     ];
 
     const rows = filteredBookingsData.map((b, index) => {
@@ -1732,8 +1732,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
     headers.forEach((header, colIndex) => {
       const col = sheet.getColumn(colIndex + 1);
-      if (header.includes('(£)')) {
-        col.numFmt = '"£"#,##0.00';
+      if (header.includes('(Â£)')) {
+        col.numFmt = '"Â£"#,##0.00';
       } else if (header.includes('(%)')) {
         col.numFmt = '0.0"%"';
       }
@@ -1829,7 +1829,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        const responsePayload = await response.json().catch(() => ({}));
+        const responsePayload = await response.json().catch(() => ({})); if (!response.ok) console.error('AutoSave failed:', responsePayload);
         if (!response.ok) throw new Error(responsePayload.error || 'Failed to auto-save configuration');
         autosaveSavedRevisionRef.current = revision;
       }
@@ -1849,9 +1849,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     autosaveTimerRef.current = setTimeout(flushAutosave, 300);
   }, [configurationSnapshot, backendOnline, flushAutosave]);
 
-  useEffect(() => {
-    return () => { if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current); };
-  }, []);
+  useEffect(() => { const handleBeforeUnload = () => { if (autosaveTimerRef.current) { clearTimeout(autosaveTimerRef.current); flushAutosave(); } }; window.addEventListener('beforeunload', handleBeforeUnload); return () => { window.removeEventListener('beforeunload', handleBeforeUnload); if (autosaveTimerRef.current) { clearTimeout(autosaveTimerRef.current); flushAutosave(); } }; }, [flushAutosave]);
 
   const updateDepotLocation = async (address, coords) => {
     const hasCoordinates = Number.isFinite(coords?.lat) && Number.isFinite(coords?.lng);
@@ -2089,7 +2087,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     const monthly = Array.isArray(dashboardData?.activity?.monthly) ? dashboardData.activity.monthly : [];
     const activity = activityPeriod === "daily"
       ? {
-          labels: ["00–03", "04–07", "08–11", "12–15", "16–19", "20–23"],
+          labels: ["00â€“03", "04â€“07", "08â€“11", "12â€“15", "16â€“19", "20â€“23"],
           counts: Array.from({ length: 6 }, (_, bucket) => daily
             .slice(bucket * 4, bucket * 4 + 4)
             .reduce((sum, item) => sum + Number(item.bookingCount || 0), 0))
@@ -2173,7 +2171,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
         flushAutosave();
       }
     }}>
-      {/* ── SideNavBar ─────────────────────────────── */}
+      {/* â”€â”€ SideNavBar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <aside className="premium-sidebar h-screen w-64 fixed left-0 top-0 border-r border-outline-variant dark:border-[#1F2937] bg-surface dark:bg-[#111827] flex flex-col py-md px-sm z-50 transition-colors duration-300">
         <div className="mb-xl px-sm pt-4 flex flex-col items-center text-center">
           <div style={{ background: "#fff", padding: "8px", borderRadius: "12px", marginBottom: "16px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
@@ -2221,7 +2219,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
         </div>
       </aside>
 
-      {/* ── Main area ────────────────────────────────── */}
+      {/* â”€â”€ Main area â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="ml-64 flex flex-col min-h-screen">
         {/* TopNavBar */}
         <header className="premium-header h-16 sticky top-0 z-40 bg-surface dark:bg-[#111827] border-b border-outline-variant dark:border-[#1F2937] flex justify-between items-center w-full px-gutter shadow-sm transition-colors duration-300">
@@ -2249,7 +2247,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     <button key={`${result.tab}-${result.label}`} type="button" role="option" onMouseDown={event => event.preventDefault()} onClick={() => openSearchDestination(result)}>
                       <Search size={13} />
                       <span><strong>{result.label}</strong><small>{result.description}</small></span>
-                      <span className="admin-search-arrow">›</span>
+                      <span className="admin-search-arrow">â€º</span>
                     </button>
                   )) : <div className="admin-search-empty">No matching dashboard section</div>}
                 </div>
@@ -2307,7 +2305,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
           <div style={{ display: backendOnline ? "flex" : "none", flexDirection: "column", gap: tab === "bookings" ? 0 : 16, flex: 1, minHeight: 0 }}>
           
-                    {/* ════════════════════════ DASHBOARD ════════════════════════ */}
+                    {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• DASHBOARD â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
           {tab === "dashboard" && (
             <div className="dashboard-premium flex flex-col gap-6 flex-1 min-h-0 overflow-y-auto p-7 bg-slate-50 dark:bg-slate-900/50">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 px-6 py-5 shadow-sm">
@@ -2318,7 +2316,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 </div>
                 <div className="flex items-center gap-3">
                   {dashboardLoadError ? (
-                    <button type="button" onClick={refreshDashboardData} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-bold border-0"><RefreshCw size={13}/> Metrics unavailable · Retry</button>
+                    <button type="button" onClick={refreshDashboardData} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-bold border-0"><RefreshCw size={13}/> Metrics unavailable Â· Retry</button>
                   ) : !dashboardData ? (
                     <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-500 text-xs font-bold">Loading data...</div>
                   ) : null}
@@ -2334,7 +2332,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-1">Total Quotation Value</div>
-                    <div className="text-3xl font-extrabold text-slate-900 dark:text-white">£{fmt(dashboardMetrics.allQuoteValue)}</div>
+                    <div className="text-3xl font-extrabold text-slate-900 dark:text-white">Â£{fmt(dashboardMetrics.allQuoteValue)}</div>
                   </div>
                 </div>
 
@@ -2378,7 +2376,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   <div className="flex justify-between items-start mb-6">
                     <div>
                       <h3 className="text-lg font-bold text-slate-900 dark:text-white">Scheduled Journey Activity</h3>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">Persisted journeys by departure · {activityPeriod === "daily" ? "today by time" : activityPeriod === "weekly" ? "last 7 days" : "last 12 months"}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Persisted journeys by departure Â· {activityPeriod === "daily" ? "today by time" : activityPeriod === "weekly" ? "last 7 days" : "last 12 months"}</p>
                     </div>
                     <div className="fleet-period-toggle flex bg-slate-100 dark:bg-slate-700 rounded-lg p-1">
                       <button onClick={() => setActivityPeriod("daily")} className={`px-3 py-1 text-xs font-semibold rounded shadow-sm transition-colors ${activityPeriod === "daily" ? "analytics-toggle-active bg-white dark:bg-slate-600 text-slate-800 dark:text-white" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"}`}>Daily</button>
@@ -2429,7 +2427,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     {/* Simple CSS Donut representation */}
                     <div className="financial-donut w-36 h-36 rounded-full relative flex items-center justify-center">
                       <div className="financial-donut-center rounded-full text-center flex flex-col items-center justify-center">
-                        <div className="text-[16px] leading-none whitespace-nowrap font-extrabold text-slate-900 dark:text-white">£{fmt(dashboardMetrics.allQuoteValue)}</div>
+                        <div className="text-[16px] leading-none whitespace-nowrap font-extrabold text-slate-900 dark:text-white">Â£{fmt(dashboardMetrics.allQuoteValue)}</div>
                         <div className="text-[9px] text-slate-500 dark:text-slate-400 uppercase tracking-wide font-semibold">Saved Quote Value</div>
                       </div>
                     </div>
@@ -2441,7 +2439,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     ) : dashboardMetrics.revenueByVehicle.map(([name, value]: any, index) => (
                       <div key={name} className="flex justify-between items-center text-sm">
                         <div className="flex items-center gap-2 min-w-0"><span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: ["#294F73", "#A22D3A", "#5F8A82", "#7C3AED", "#D97706"][index] }}></span><span className="text-slate-600 dark:text-slate-300 font-semibold truncate">{name}</span></div>
-                        <span className="font-bold text-slate-900 dark:text-white ml-3">£{fmt(value)}</span>
+                        <span className="font-bold text-slate-900 dark:text-white ml-3">Â£{fmt(value)}</span>
                       </div>
                     ))}
                   </div>
@@ -2462,10 +2460,10 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       <button key={booking.id} type="button" onClick={() => { setPreviewBooking(booking); setTab("bookings"); }} className="w-full flex items-start gap-4 p-5 border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors text-left">
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start mb-1">
-                            <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">#{booking.id} · {booking.customer?.name || "Unnamed customer"}</h4>
+                            <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">#{booking.id} Â· {booking.customer?.name || "Unnamed customer"}</h4>
                             <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 whitespace-nowrap ml-2">{formatRelativeTime(booking.createdAt)}</span>
                           </div>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{booking.journey?.origin || "Origin not set"} → {booking.journey?.destination || "Destination not set"}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{booking.journey?.origin || "Origin not set"} â†’ {booking.journey?.destination || "Destination not set"}</p>
                         </div>
                       </button>
                     ))}
@@ -2484,7 +2482,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         <div className="mt-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Saved vehicle and availability data</div>
                       </div>
                       <button onClick={() => setTab("fleet")} className="px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors">
-                        View fleet →
+                        View fleet â†’
                       </button>
                     </div>
 
@@ -2508,8 +2506,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       {vehicles.length === 0 ? <div className="text-xs text-slate-500 dark:text-slate-400">No vehicle tiers configured.</div> : vehicles.slice(0, 3).map(vehicle => (
                         <button key={vehicle.id} onClick={() => { setActiveVehicleId(vehicle.id); setTab("fleet"); }} className="w-full flex items-center gap-3 rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50/90 dark:bg-slate-900/50 p-3 text-left hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
                           <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
-                          <span className="min-w-0 flex-1"><span className="block text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{vehicle.name}</span><span className="block text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{Number(vehicle.fleetCount) || 0} units · capacity {Number(vehicle.capacity) || 0}</span></span>
-                          <span className="text-slate-400">›</span>
+                          <span className="min-w-0 flex-1"><span className="block text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{vehicle.name}</span><span className="block text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{Number(vehicle.fleetCount) || 0} units Â· capacity {Number(vehicle.capacity) || 0}</span></span>
+                          <span className="text-slate-400">â€º</span>
                         </button>
                       ))}
                     </div>
@@ -2519,7 +2517,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
             </div>
           )}
 
-          {/* ════════════════════════ BOOKINGS ════════════════════════ */}
+          {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• BOOKINGS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
           {tab === "bookings" && (
             <div id="quotation-workspace" onPointerDownCapture={() => recordFeatureUsage('quotations')} className="quotations-page grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(350px,420px)] gap-3 bg-slate-50 dark:bg-[#0B0F19] p-3 flex-1 min-h-0 overflow-y-auto lg:overflow-hidden">
               
@@ -2540,7 +2538,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 {showBookingFilters && <div className="quotation-filters adm-search-bar flex flex-wrap gap-2 items-center overflow-x-auto">
                   <input type="text" placeholder="Name / Ref ID" value={searchNameRef} onChange={e=>setSearchNameRef(e.target.value)} />
                   <input type="text" placeholder="Vehicle" value={searchVehicle} onChange={e=>setSearchVehicle(e.target.value)} />
-                  <div className="quotation-fare-filter"><span>£ Fare</span><input type="number" min="0" placeholder="From" value={searchFareFrom} onChange={e=>setSearchFareFrom(e.target.value)} /><i>—</i><input type="number" min="0" placeholder="To" value={searchFareTo} onChange={e=>setSearchFareTo(e.target.value)} /></div>
+                  <div className="quotation-fare-filter"><span>Â£ Fare</span><input type="number" min="0" placeholder="From" value={searchFareFrom} onChange={e=>setSearchFareFrom(e.target.value)} /><i>â€”</i><input type="number" min="0" placeholder="To" value={searchFareTo} onChange={e=>setSearchFareTo(e.target.value)} /></div>
                   <input type="text" placeholder="Route" value={searchRoute} onChange={e=>setSearchRoute(e.target.value)} />
                   <input aria-label="Quotation date" type="date" value={reportDate} onChange={e=>setReportDate(e.target.value)} />
                   {(searchNameRef||searchVehicle||searchFareFrom||searchFareTo||searchRoute||reportDate) && <button onClick={()=>{setSearchNameRef('');setSearchVehicle('');setSearchFareFrom('');setSearchFareTo('');setSearchRoute('');setReportDate('');}}>Clear</button>}
@@ -2551,7 +2549,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     <div className="adm-empty" style={{ margin: "2rem 0", color: "#b91c1c" }}>{bookingsLoadError}. The dashboard will retry automatically.</div>
                   ) : isBookingsLoading ? (
                     <div className="adm-empty" style={{ margin: "2rem 0", display: "flex", flexDirection: "column", gap: 12 }}>
-                      <span className="spinning" style={{ fontSize: 24, color: PX.brandRed }}>⟳</span>
+                      <span className="spinning" style={{ fontSize: 24, color: PX.brandRed }}>âŸ³</span>
                       <span style={{ fontSize: 13, color: darkMode ? "#9ca3af" : "#667085" }}>Loading quotation data...</span>
                     </div>
                   ) : filteredBookingsData.length === 0 ? (
@@ -2585,15 +2583,15 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                               </td>
                               <td>
                                 <div style={{ fontWeight: 600, fontSize: 13, color: darkMode ? "#f3f4f6" : PX.navy800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 180 }}>
-                                  {String(b.journey?.origin).split(',')[0]} → {String(b.journey?.destination).split(',')[0]}
+                                  {String(b.journey?.origin).split(',')[0]} â†’ {String(b.journey?.destination).split(',')[0]}
                                 </div>
-                                <div style={{ fontSize: 11, color: darkMode ? "#9ca3af" : PX.gray500, marginTop: 2 }}>{new Date(b.createdAt).toLocaleDateString("en-GB")} • {new Date(b.createdAt).toLocaleTimeString("en-GB", {hour: '2-digit', minute:'2-digit'})}</div>
+                                <div style={{ fontSize: 11, color: darkMode ? "#9ca3af" : PX.gray500, marginTop: 2 }}>{new Date(b.createdAt).toLocaleDateString("en-GB")} â€¢ {new Date(b.createdAt).toLocaleTimeString("en-GB", {hour: '2-digit', minute:'2-digit'})}</div>
                               </td>
                               <td className="quotation-fleet" style={{ fontSize: 13, color: darkMode ? "#9ca3af" : PX.gray600, fontWeight: 500 }}>
                                 <span>{b.quote?.vehicle?.name || "Not assigned"}</span>
                               </td>
                               <td className="quotation-fare" style={{ fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800, fontSize: 14 }}>
-                                £{fmt(b.quote?.result?.finalPrice || b.quote?.result?.finalFare || 0)}
+                                Â£{fmt(b.quote?.result?.finalPrice || b.quote?.result?.finalFare || 0)}
                               </td>
                               <td className="quotation-margins" style={{ fontSize: 12 }}>
                                 {(() => {
@@ -2642,7 +2640,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                         <span style={{ fontSize: 11, color: darkMode ? "#9ca3af" : "#64748b", fontWeight: 600 }}>Total Profit</span>
                                         <span style={{ fontSize: 12, fontWeight: 800, color: profitMargin > 0 ? (darkMode ? "#10b981" : "#059669") : (darkMode ? "#ef4444" : "#dc2626") }}>
-                                          {profitMargin > 0 ? "+" : ""}£{fmt(netProfit)}
+                                          {profitMargin > 0 ? "+" : ""}Â£{fmt(netProfit)}
                                         </span>
                                       </div>
                                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -2685,7 +2683,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     <div className="quotation-detail-header" style={{ padding: "11px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${darkMode ? "#1f2937" : "#eaecf0"}`, background: darkMode ? "#0b0f19" : "#fcfcfd", zIndex: 10 }}>
                       <div>
                         <h3 style={{ fontSize: 16, fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800, margin: 0 }}>Quote Details</h3>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: darkMode ? "#9ca3af" : PX.gray500, letterSpacing: 0.5, marginTop: 2 }}>REF: #{previewBooking.id} · {previewBooking.status ? String(previewBooking.status).toUpperCase() : "STATUS NOT SET"}</div>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: darkMode ? "#9ca3af" : PX.gray500, letterSpacing: 0.5, marginTop: 2 }}>REF: #{previewBooking.id} Â· {previewBooking.status ? String(previewBooking.status).toUpperCase() : "STATUS NOT SET"}</div>
                       </div>
                       <div className="flex gap-2">
                         <button type="button" onClick={() => openBookingEditor(previewBooking)} className="admin-icon-action admin-icon-edit" title="Edit quotation" aria-label="Edit quotation"><Edit3 size={12}/></button>
@@ -2718,7 +2716,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                             <div style={{ fontSize: 14, fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>{previewBooking.journey?.passengers || 0} Passengers</div>
                             <div style={{ fontSize: 12, color: darkMode ? "#d1d5db" : PX.gray600 }}>Vehicle: {previewBooking.quote?.vehicle?.name || "-"}</div>
                             <div style={{ fontSize: 12, color: darkMode ? "#d1d5db" : PX.gray600 }}>
-                              {previewBooking.journey?.handbagCount ?? 0} handbags · {previewBooking.journey?.suitcaseCount ?? 0} suitcases
+                              {previewBooking.journey?.handbagCount ?? 0} handbags Â· {previewBooking.journey?.suitcaseCount ?? 0} suitcases
                             </div>
                           </div>
                         </div>
@@ -2761,24 +2759,24 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24, fontSize: 13 }}>
                         <div style={{ display: "flex", justifyContent: "space-between", color: darkMode ? "#d1d5db" : PX.gray600 }}>
                           <span>Base Rate ({previewBooking.quote?.vehicle?.name})</span>
-                          <span style={{ fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(previewBooking.quote?.result?.baseFare || previewBooking.quote?.result?.subtotal || 0)}</span>
+                          <span style={{ fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>Â£{fmt(previewBooking.quote?.result?.baseFare || previewBooking.quote?.result?.subtotal || 0)}</span>
                         </div>
                         {(previewBooking.quote?.result?.tolls > 0) && (
                           <div style={{ display: "flex", justifyContent: "space-between", color: darkMode ? "#d1d5db" : PX.gray600 }}>
                             <span>Congestion & Toll Charges</span>
-                            <span style={{ fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(previewBooking.quote?.result?.tolls)}</span>
+                            <span style={{ fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>Â£{fmt(previewBooking.quote?.result?.tolls)}</span>
                           </div>
                         )}
                         {(previewBooking.quote?.result?.parking > 0) && (
                           <div style={{ display: "flex", justifyContent: "space-between", color: darkMode ? "#d1d5db" : PX.gray600 }}>
                             <span>Parking & Airport Meet</span>
-                            <span style={{ fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(previewBooking.quote?.result?.parking)}</span>
+                            <span style={{ fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>Â£{fmt(previewBooking.quote?.result?.parking)}</span>
                           </div>
                         )}
                         {(previewBooking.quote?.result?.surcharges > 0) && (
                           <div style={{ display: "flex", justifyContent: "space-between", color: darkMode ? "#d1d5db" : PX.gray600 }}>
                             <span>Multiplier Surcharges</span>
-                            <span style={{ fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(previewBooking.quote?.result?.surcharges)}</span>
+                            <span style={{ fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>Â£{fmt(previewBooking.quote?.result?.surcharges)}</span>
                           </div>
                         )}
                         
@@ -2787,11 +2785,11 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                           <div>
                             <div style={{ fontSize: 11, fontWeight: 800, color: darkMode ? "#9ca3af" : PX.gray500, textTransform: "uppercase" }}>Total Net Fare</div>
-                            <div style={{ fontSize: 28, fontWeight: 900, color: darkMode ? "#f3f4f6" : PX.navy800, lineHeight: 1 }}>£{fmt(previewBooking.quote?.result?.finalPrice || previewBooking.quote?.result?.finalFare || 0)}</div>
+                            <div style={{ fontSize: 28, fontWeight: 900, color: darkMode ? "#f3f4f6" : PX.navy800, lineHeight: 1 }}>Â£{fmt(previewBooking.quote?.result?.finalPrice || previewBooking.quote?.result?.finalFare || 0)}</div>
                           </div>
                           <div className="text-right">
                             <div style={{ fontSize: 10, fontWeight: 600, color: darkMode ? "#6b7280" : PX.gray400 }}>INC. VAT (20%)</div>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: darkMode ? "#d1d5db" : PX.gray600 }}>£{fmt((previewBooking.quote?.result?.finalPrice || previewBooking.quote?.result?.finalFare || 0) * 1.2)}</div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: darkMode ? "#d1d5db" : PX.gray600 }}>Â£{fmt((previewBooking.quote?.result?.finalPrice || previewBooking.quote?.result?.finalFare || 0) * 1.2)}</div>
                           </div>
                         </div>
                       </div>
@@ -2849,21 +2847,21 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                               <thead>
                                 <tr style={{ borderBottom: `1px solid ${darkMode ? "#374151" : "#e2e8f0"}`, color: darkMode ? "#9ca3af" : PX.gray500, fontSize: 11 }}>
                                   <th style={{ textAlign: "left", paddingBottom: 8, fontWeight: 700 }}>METRIC</th>
-                                  <th style={{ textAlign: "right", paddingBottom: 8, fontWeight: 700 }}>AMOUNT (£)</th>
+                                  <th style={{ textAlign: "right", paddingBottom: 8, fontWeight: 700 }}>AMOUNT (Â£)</th>
                                   <th style={{ textAlign: "right", paddingBottom: 8, fontWeight: 700 }}>MARGIN (%)</th>
                                 </tr>
                               </thead>
                               <tbody>
                                 <tr style={{ borderBottom: `1px solid ${darkMode ? "#1f2937" : "#f1f5f9"}` }}>
                                   <td style={{ padding: "12px 0", color: darkMode ? "#d1d5db" : PX.gray700 }}><strong>Gross Profit</strong> <span style={{ fontSize: 10, color: darkMode ? "#6b7280" : PX.gray400, display: "block", marginTop: 2 }}>(Revenue minus direct trip costs)</span></td>
-                                  <td style={{ padding: "12px 0", textAlign: "right", fontWeight: 800, fontSize: 14, color: grossProfit > 0 ? (darkMode ? "#34d399" : "#16a34a") : (darkMode ? "#f87171" : "#dc2626") }}>£{fmt(grossProfit)}</td>
+                                  <td style={{ padding: "12px 0", textAlign: "right", fontWeight: 800, fontSize: 14, color: grossProfit > 0 ? (darkMode ? "#34d399" : "#16a34a") : (darkMode ? "#f87171" : "#dc2626") }}>Â£{fmt(grossProfit)}</td>
                                   <td style={{ padding: "12px 0", textAlign: "right" }}>
                                     <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 12, fontSize: 12, fontWeight: 800, background: grossProfit > 0 ? (darkMode ? "rgba(52, 211, 153, 0.15)" : "rgba(22, 163, 74, 0.1)") : (darkMode ? "rgba(248, 113, 113, 0.15)" : "rgba(220, 38, 38, 0.1)"), color: grossProfit > 0 ? (darkMode ? "#34d399" : "#16a34a") : (darkMode ? "#f87171" : "#dc2626") }}>{grossMargin.toFixed(1)}%</span>
                                   </td>
                                 </tr>
                                 <tr style={{ borderBottom: `1px solid ${darkMode ? "#1f2937" : "#f1f5f9"}` }}>
                                   <td style={{ padding: "12px 0", color: darkMode ? "#d1d5db" : PX.gray700 }}><strong>Net Profit</strong> <span style={{ fontSize: 10, color: darkMode ? "#6b7280" : PX.gray400, display: "block", marginTop: 2 }}>(After daily fleet overheads & fixed costs)</span></td>
-                                  <td style={{ padding: "12px 0", textAlign: "right", fontWeight: 800, fontSize: 14, color: netProfit > 0 ? (darkMode ? "#34d399" : "#16a34a") : (darkMode ? "#f87171" : "#dc2626") }}>£{fmt(netProfit)}</td>
+                                  <td style={{ padding: "12px 0", textAlign: "right", fontWeight: 800, fontSize: 14, color: netProfit > 0 ? (darkMode ? "#34d399" : "#16a34a") : (darkMode ? "#f87171" : "#dc2626") }}>Â£{fmt(netProfit)}</td>
                                   <td style={{ padding: "12px 0", textAlign: "right" }}>
                                     <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 12, fontSize: 12, fontWeight: 800, background: netProfit > 0 ? (darkMode ? "rgba(52, 211, 153, 0.15)" : "rgba(22, 163, 74, 0.1)") : (darkMode ? "rgba(248, 113, 113, 0.15)" : "rgba(220, 38, 38, 0.1)"), color: netProfit > 0 ? (darkMode ? "#34d399" : "#16a34a") : (darkMode ? "#f87171" : "#dc2626") }}>{profitMargin.toFixed(1)}%</span>
                                   </td>
@@ -2931,7 +2929,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
           )}
 
 
-          {/* ════════════════════════ PRICING & ROUTES ════════════════════════ */}
+          {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• PRICING & ROUTES â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
           {tab === "pricing" && (
             <div className="pricing-rules-page flex flex-col gap-5 flex-1 min-h-0 overflow-y-auto p-5 bg-slate-50 dark:bg-slate-900/50">
               
@@ -2964,7 +2962,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
                 <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-4 shadow-sm">
                   <div className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">Global Base Fare</div>
-                  <div className="text-3xl font-black text-primary dark:text-primary-fixed leading-none">£{gv?.baseRate || 45}</div>
+                  <div className="text-3xl font-black text-primary dark:text-primary-fixed leading-none">Â£{gv?.baseRate || 45}</div>
                   <div className="text-[11px] font-bold text-primary dark:text-primary-fixed mt-2">Optimized current fleet</div>
                 </div>
 
@@ -3012,7 +3010,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           </select>
                         </div>
                         <div>
-                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Fixed Price (£)</label>
+                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Fixed Price (Â£)</label>
                           <input type="number" className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none" value={newTemplate.price||0} onChange={e=>setNT(x=>({...x,price:Number(e.target.value)}))} />
                         </div>
                         <div>
@@ -3020,7 +3018,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           <input type="number" min="0" step="1" className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none" value={newTemplate.radiusKm ?? 15} onChange={e=>setNT(x=>({...x,radiusKm:Number(e.target.value)}))} />
                         </div>
                         <div>
-                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Waiting Charge (£/hr)</label>
+                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Waiting Charge (Â£/hr)</label>
                           <input type="number" min="0" step="0.5" className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none" value={newTemplate.waitingChargePerHour ?? 0} onChange={e=>setNT(x=>({...x,waitingChargePerHour:Number(e.target.value)}))} />
                         </div>
                       </div>
@@ -3060,7 +3058,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                             <span className="py-1 px-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-[9px] font-extrabold uppercase tracking-wide">{t.tripType === 'return' ? 'GLOBAL' : 'PREMIUM'}</span>
                           </td>
                           <td className="py-2.5 px-5 text-xs font-bold text-slate-900 dark:text-slate-100">
-                            £{fmt(t.price)}
+                            Â£{fmt(t.price)}
                           </td>
                           <td className="py-2.5 px-5">
                             <div className="flex items-center gap-1.5 text-[10px] font-bold text-primary dark:text-primary-fixed">
@@ -3084,7 +3082,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 <div id="pricing-availability" className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
                   <div className="flex justify-between items-center mb-5">
                     <h3 className="m-0 text-[13px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wide">Blocked Dates</h3>
-                    <button className="bg-transparent border-none cursor-pointer text-slate-900 dark:text-slate-100 text-lg hover:text-primary transition-colors" onClick={() => setShowBlockForm(v=>!v)}>⊕</button>
+                    <button className="bg-transparent border-none cursor-pointer text-slate-900 dark:text-slate-100 text-lg hover:text-primary transition-colors" onClick={() => setShowBlockForm(v=>!v)}>âŠ•</button>
                   </div>
                   {showBlockForm && <div className="grid gap-2 mb-4 p-3 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700">
                     <select value={newBlock.vehicleId} onChange={e=>setNB(x=>({...x,vehicleId:e.target.value}))} className="w-full border rounded-md p-2 text-xs bg-white dark:bg-slate-800"><option value="">All vehicles</option>{vehicles.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select>
@@ -3095,7 +3093,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   
                   <div className="flex flex-col gap-4 mb-5">
                     {blocks.length === 0 ? (
-                       <div className="pricing-empty-block"><div>▦</div><span>No blocked dates.</span></div>
+                       <div className="pricing-empty-block"><div>â–¦</div><span>No blocked dates.</span></div>
                     ) : blocks.slice(0, 3).map(block => {
                       const d = new Date(block.from);
                       const month = d.toLocaleString('default', { month: 'short' }).toUpperCase();
@@ -3157,7 +3155,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       </div>
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Start Date & Time</label><input type="datetime-local" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={(newSeasonal.startDate||'').slice(0,16)} onChange={e=>setNS(x=>({...x,startDate:e.target.value}))}/></div>
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">End Date & Time</label><input type="datetime-local" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={(newSeasonal.endDate||'').slice(0,16)} onChange={e=>setNS(x=>({...x,endDate:e.target.value}))}/></div>
-                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Override Fare (£, optional)</label><input type="number" min="0" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={newSeasonal.overrideFare ?? ''} onChange={e=>setNS(x=>({...x,overrideFare:e.target.value===''?null:Number(e.target.value),multiplier:e.target.value===''?(x.multiplier??1.2):undefined}))}/></div>
+                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Override Fare (Â£, optional)</label><input type="number" min="0" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={newSeasonal.overrideFare ?? ''} onChange={e=>setNS(x=>({...x,overrideFare:e.target.value===''?null:Number(e.target.value),multiplier:e.target.value===''?(x.multiplier??1.2):undefined}))}/></div>
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Priority</label><input type="number" min="1" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={newSeasonal.priority ?? 1} onChange={e=>setNS(x=>({...x,priority:Number(e.target.value)}))}/></div>
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Applicable Routes</label><input type="text" placeholder="Any or route IDs" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={newSeasonal.applicableRoutes?.join(', ')||'Any'} onChange={e=>setNS(x=>({...x,applicableRoutes:e.target.value.split(',').map(s=>s.trim()).filter(Boolean)}))}/></div>
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Status</label><select className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={newSeasonal.enabled===false?'inactive':'active'} onChange={e=>setNS(x=>({...x,enabled:e.target.value==='active',status:e.target.value}))}><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
@@ -3179,7 +3177,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         <span className="py-1 px-2 bg-orange-100 dark:bg-slate-700 text-orange-700 dark:text-slate-200 rounded text-[9px] font-extrabold uppercase tracking-wide">{s.name || "Seasonal Rule"}</span>
                         <span className="text-xl font-black text-slate-900 dark:text-slate-100">{s.multiplier}x</span>
                       </div>
-                      <div className="pricing-seasonal-date">{s.startDate ? new Date(`${s.startDate.split('T')[0]}T00:00:00`).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : 'Start date'} – {s.endDate ? new Date(`${s.endDate.split('T')[0]}T00:00:00`).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : 'End date'}</div>
+                      <div className="pricing-seasonal-date">{s.startDate ? new Date(`${s.startDate.split('T')[0]}T00:00:00`).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : 'Start date'} â€“ {s.endDate ? new Date(`${s.endDate.split('T')[0]}T00:00:00`).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : 'End date'}</div>
                       <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 leading-relaxed flex-1">Applies to {s.applicableVehicles?.join(', ')} across all zones.</div>
                       <div className="pricing-seasonal-rule-actions">
                         <button type="button" className="admin-icon-action admin-icon-edit" aria-label={`Edit ${s.name || 'seasonal rule'}`} title="Edit rule" onClick={() => { setNS(s); }}><Edit3 size={12}/></button>
@@ -3222,13 +3220,13 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                          </select>
                       </div>
                       <div>
-                         <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Base Fare Drop (£)</label>
+                         <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Base Fare Drop (Â£)</label>
                          <input type="number" value={newMatrix.baseFare||0} onChange={e=>setNM(x=>({...x,baseFare:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none" placeholder="e.g. 50" />
                       </div>
                       {matrixBands(newMatrix).map((band, bandIndex) => (
                         <div key={bandIndex}>
                           <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">
-                            {band.max == null ? `${band.min}${distanceUnitShort}+` : `${band.min}-${band.max}${distanceUnitShort}`} Rate (£/{distanceUnitShort})
+                            {band.max == null ? `${band.min}${distanceUnitShort}+` : `${band.min}-${band.max}${distanceUnitShort}`} Rate (Â£/{distanceUnitShort})
                           </label>
                           <input
                             type="number"
@@ -3251,7 +3249,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Trip Type</label><select value={newMatrix.tripType||'one-way'} onChange={e=>setNM(x=>({...x,tripType:e.target.value}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"><option value="one-way">One Way</option><option value="return">Return</option></select></div>
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Included Live {distanceUnitShort}</label><input type="number" min="0" value={newMatrix.includedLiveMileage??0} onChange={e=>setNM(x=>({...x,includedLiveMileage:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Included Dead {distanceUnitShort}</label><input type="number" min="0" value={newMatrix.includedDeadMileage??0} onChange={e=>setNM(x=>({...x,includedDeadMileage:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
-                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Waiting Charge (£/hr)</label><input type="number" min="0" step="0.5" value={newMatrix.waitingChargePerHour??0} onChange={e=>setNM(x=>({...x,waitingChargePerHour:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
+                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Waiting Charge (Â£/hr)</label><input type="number" min="0" step="0.5" value={newMatrix.waitingChargePerHour??0} onChange={e=>setNM(x=>({...x,waitingChargePerHour:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Night Multiplier</label><input type="number" min="0" step="0.1" value={newMatrix.nightRateMultiplier??1} onChange={e=>setNM(x=>({...x,nightRateMultiplier:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Weekend Multiplier</label><input type="number" min="0" step="0.1" value={newMatrix.weekendRateMultiplier??1} onChange={e=>setNM(x=>({...x,weekendRateMultiplier:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
                       <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Rule Status</label><select value={newMatrix.status||'active'} onChange={e=>setNM(x=>({...x,status:e.target.value}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
@@ -3275,9 +3273,9 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       <div style={{ color: darkMode ? "#94A3B8" : "#64748b", fontSize: 13, textAlign: "center", padding: 20 }}>No {matrixView === 'city' ? 'city' : matrixView === 'fleet' ? 'fleet' : 'global'} matrix rules configured.</div>
                    ) : matrixRulesForView.map((m, idx) => (
                       <div key={m.id} className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr_80px] gap-4 py-3 border-t border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors px-2 -mx-2 rounded">
-                         <div style={{ fontSize: 13, fontWeight: 700, color: darkMode ? "#F3F4F6" : "#0f172a", display: "flex", alignItems: "center" }}>{matrixView === 'city' ? `${m.pickupArea || 'Any city'} → ${m.dropArea || 'Any city'}` : matrixView === 'global' ? 'Global · All bookings' : (db.vehicles.find(v=>v.id===m.vehicleId)?.name || 'Standard Tier')}</div>
-                         {matrixBands(m).map((band, bandIndex) => <div key={bandIndex} className="text-xs font-semibold text-slate-900 dark:text-slate-100 flex items-center">£{fmt(band.rate)}/{distanceUnitShort}</div>)}
-                         <div className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center">£{fmt(m.baseFare)}</div>
+                         <div style={{ fontSize: 13, fontWeight: 700, color: darkMode ? "#F3F4F6" : "#0f172a", display: "flex", alignItems: "center" }}>{matrixView === 'city' ? `${m.pickupArea || 'Any city'} â†’ ${m.dropArea || 'Any city'}` : matrixView === 'global' ? 'Global Â· All bookings' : (db.vehicles.find(v=>v.id===m.vehicleId)?.name || 'Standard Tier')}</div>
+                         {matrixBands(m).map((band, bandIndex) => <div key={bandIndex} className="text-xs font-semibold text-slate-900 dark:text-slate-100 flex items-center">Â£{fmt(band.rate)}/{distanceUnitShort}</div>)}
+                         <div className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center">Â£{fmt(m.baseFare)}</div>
                          <div className="flex items-center justify-end gap-2">
                            <button type="button" className="admin-icon-action admin-icon-edit" aria-label="Edit matrix rule" title="Edit rule" onClick={() => { setNM(m); setShowMatrixForm(true); }}><Edit3 size={12}/></button>
                            <button type="button" className="admin-icon-action admin-icon-delete" aria-label="Delete matrix rule" title="Delete rule" onClick={async () => { if(window.confirm("Delete this matrix rule?")) { await saveApi('matrix', m, true); setMatrixData(d=>d.filter(x=>x.id!==m.id)); } }}><SvgTrash size={12}/></button>
@@ -3292,7 +3290,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
             </div>
           )}
-{/* ════════════════════════ FLEET & AVAILABILITY ════════════════════════ */}
+{/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• FLEET & AVAILABILITY â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
           {tab === "fleet" && (
             <div className="fleet-economics-page flex flex-col gap-4 flex-1 min-h-0 overflow-y-auto p-5 bg-slate-50 dark:bg-slate-900/50">
               
@@ -3346,9 +3344,9 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   const selectedEconomics = eco.vehicleBreakdown.find(v => v.id === selectedVehicle?.id);
                   return <div className="fleet-top-breakeven">
                     <div className="fleet-top-breakeven-grid">
-                      <div className="fleet-top-breakeven-primary"><strong>£{selectedEconomics?.minHirePerDay.toFixed(2) || "0.00"}</strong><span>Minimum hire per day</span></div>
-                      <div><span>Overhead</span><strong>£{selectedEconomics?.dailyOverhead.toFixed(2) || "0.00"}</strong></div>
-                      <div><span>Standing</span><strong>£{selectedEconomics?.dailyStanding.toFixed(2) || "0.00"}</strong></div>
+                      <div className="fleet-top-breakeven-primary"><strong>Â£{selectedEconomics?.minHirePerDay.toFixed(2) || "0.00"}</strong><span>Minimum hire per day</span></div>
+                      <div><span>Overhead</span><strong>Â£{selectedEconomics?.dailyOverhead.toFixed(2) || "0.00"}</strong></div>
+                      <div><span>Standing</span><strong>Â£{selectedEconomics?.dailyStanding.toFixed(2) || "0.00"}</strong></div>
                     </div>
                   </div>;
                 })()}
@@ -3392,17 +3390,17 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         {/* Minimum Target Hire Box (Ultra Dense) */}
                         <div className="fleet-inline-breakeven bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
                           <div className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">Breakeven Target</div>
-                          <div className="text-4xl font-black text-slate-900 dark:text-slate-100 leading-none">£{ecoV?.minHirePerDay.toFixed(2) || "0.00"}</div>
+                          <div className="text-4xl font-black text-slate-900 dark:text-slate-100 leading-none">Â£{ecoV?.minHirePerDay.toFixed(2) || "0.00"}</div>
                           <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1">Minimum Hire per Day</div>
                           <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg py-2.5 px-3 mt-4 flex justify-between">
                               <div>
                                 <div className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase">Overhead</div>
-                                <div className="text-[13px] text-primary dark:text-primary-fixed font-extrabold">£{ecoV?.dailyOverhead.toFixed(2) || "0.00"}</div>
+                                <div className="text-[13px] text-primary dark:text-primary-fixed font-extrabold">Â£{ecoV?.dailyOverhead.toFixed(2) || "0.00"}</div>
                               </div>
                               <div className="w-[1px] bg-slate-200 dark:bg-slate-700"></div>
                               <div>
                                 <div className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase">Standing</div>
-                                <div className="text-[13px] text-slate-900 dark:text-slate-100 font-extrabold">£{ecoV?.dailyStanding.toFixed(2) || "0.00"}</div>
+                                <div className="text-[13px] text-slate-900 dark:text-slate-100 font-extrabold">Â£{ecoV?.dailyStanding.toFixed(2) || "0.00"}</div>
                               </div>
                           </div>
                         </div>
@@ -3464,11 +3462,11 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                               <div className="grid grid-cols-2 gap-2">
                                 <div className="fleet-operational-summary-item">
                                   <span>Per vehicle / year</span>
-                                  <strong>£{Math.round(((activeV.annualFixedCosts||[]).reduce((sum, item)=>sum+(Number(item.amount)||0),0)) / Math.max(1, Number(activeV.fleetCount)||1)).toLocaleString()}</strong>
+                                  <strong>Â£{Math.round(((activeV.annualFixedCosts||[]).reduce((sum, item)=>sum+(Number(item.amount)||0),0)) / Math.max(1, Number(activeV.fleetCount)||1)).toLocaleString()}</strong>
                                 </div>
                                 <div className="fleet-operational-summary-item">
                                   <span>Per operating day</span>
-                                  <strong>£{((((activeV.annualFixedCosts||[]).reduce((sum, item)=>sum+(Number(item.amount)||0),0)) / Math.max(1, Number(activeV.fleetCount)||1)) / Math.max(1, Number(activeV.utilisationDays)||225)).toFixed(2)}</strong>
+                                  <strong>Â£{((((activeV.annualFixedCosts||[]).reduce((sum, item)=>sum+(Number(item.amount)||0),0)) / Math.max(1, Number(activeV.fleetCount)||1)) / Math.max(1, Number(activeV.utilisationDays)||225)).toFixed(2)}</strong>
                                 </div>
                               </div>
                             </div>
@@ -3513,7 +3511,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                   }} className="bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 text-xs font-semibold w-full py-1 placeholder-slate-400 dark:placeholder-slate-600" placeholder="e.g. Insurance" />
                                   
                                   <div className="flex items-center justify-end gap-1">
-                                      <span className="teyt-xs font-bold text-slate-400 dark:text-slate-500">³</span>
+                                      <span className="teyt-xs font-bold text-slate-400 dark:text-slate-500">Â³</span>
                                       <input className="hide-spinners w-20 bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 text-[13px] font-extrabold text-right py-1" type="number" value={fc.amount} onChange={e => {
                                         const newFc = [...(activeV.annualFixedCosts||[])];
                                         newFc[idx] = { ...newFc[idx], amount: Number(e.target.value) };
@@ -3528,7 +3526,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                       const newFc = (activeV.annualFixedCosts||[]).filter((_, i) => i !== idx);
                                       const sum = newFc.reduce((s, x) => s + (Number(x.amount)||0), 0);
                                       const utilDays = activeV.utilisationDays || 225;
-                                      const vs = vehicles.map(vx => vx.id === activeV.id ? { ...vx, annualFixedCosts: newFc, standingCostPerDay: (sum / (activeV.fleetCount||1)) / utilDays } : vx);
+                                      const vs = vehicles.map(vx => vx.id === activeV.id ? { ...vx, annualFixedCosts: newFc,  } : vx);
                                       setV(vs);
                                   }} className="admin-icon-action admin-icon-delete"><SvgTrash size={12}/></button>
                               </div>
@@ -3536,7 +3534,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           </div>
                           <div className="fleet-cost-total flex justify-between items-center py-4 px-5 bg-primary/5 dark:bg-primary/10">
                               <span className="text-[10px] font-extrabold text-primary dark:text-primary-fixed uppercase tracking-wide">Gross Standing Total</span>
-                              <span className="text-lg font-black text-primary dark:text-primary-fixed">£{((activeV.annualFixedCosts||[]).reduce((s,x)=>s+(Number(x.amount)||0),0)).toLocaleString()}</span>
+                              <span className="text-lg font-black text-primary dark:text-primary-fixed">Â£{((activeV.annualFixedCosts||[]).reduce((s,x)=>s+(Number(x.amount)||0),0)).toLocaleString()}</span>
                           </div>
                         </div>
                       </div>
@@ -3557,7 +3555,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                               <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Maint. Lifecycle</div>
                               <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
                               <div className="fleet-variable-value !w-auto flex items-center shrink-0">
-                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">£</span>
+                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">Â£</span>
                                 <input aria-label="Maintenance set cost" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="0" value={activeV.maintenanceSetCost??0} onChange={e=>{
                                   const val = Number(e.target.value);
                                   setV(vs=>vs.map(v=>v.id===activeV.id?{...v, maintenanceSetCost: val, maintenanceCostPerKm: 0}:v));
@@ -3570,7 +3568,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                 <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{distanceUnitShort}</span>
                               </div>
                               <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5">
-                                  = £{((activeV.maintenanceSetCost || 0) / (activeV.expectedMaintenanceLifeKm || 1)).toFixed(3)}
+                                  = Â£{((activeV.maintenanceSetCost || 0) / (activeV.expectedMaintenanceLifeKm || 1)).toFixed(3)}
                               </div>
                           </div>
 
@@ -3578,7 +3576,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                               <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Tyre Lifecycle</div>
                               <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
                               <div className="fleet-variable-value !w-auto flex items-center shrink-0">
-                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">£</span>
+                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">Â£</span>
                                 <input aria-label="Tyre set cost" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="0" value={activeV.tyreSetCost??0} onChange={e=>{
                                   const val = Number(e.target.value);
                                   setV(vs=>vs.map(v=>v.id===activeV.id?{...v, tyreSetCost: val, tyreCostPerKm: 0}:v));
@@ -3591,7 +3589,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                 <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{distanceUnitShort}</span>
                               </div>
                               <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5">
-                                  = £{((activeV.tyreSetCost || 0) / (activeV.expectedTyreLifeKm || 1)).toFixed(3)}
+                                  = Â£{((activeV.tyreSetCost || 0) / (activeV.expectedTyreLifeKm || 1)).toFixed(3)}
                               </div>
                           </div>
 
@@ -3614,13 +3612,13 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           </div>
                           <div className="text-right">
                              <div className="text-[9px] font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide mb-0.5">Target Daily Revenue</div>
-                             <div className="text-2xl font-black text-slate-900 dark:text-slate-100">£{(ecoV?.minHirePerDay * (1 + (gv.marginWeekday ?? gv.profitMarginPct ?? 20)/100)).toFixed(2) || "0.00"}</div>
+                             <div className="text-2xl font-black text-slate-900 dark:text-slate-100">Â£{(ecoV?.minHirePerDay * (1 + (gv.marginWeekday ?? gv.profitMarginPct ?? 20)/100)).toFixed(2) || "0.00"}</div>
                           </div>
                           <div className="fleet-profit-kpis">
-                            <div><span>Daily revenue target</span><strong>£{dailyRevenueTarget.toFixed(2)}</strong></div>
+                            <div><span>Daily revenue target</span><strong>Â£{dailyRevenueTarget.toFixed(2)}</strong></div>
                             <div><span>Gross margin</span><strong>{marginPct.toFixed(1)}%</strong></div>
-                            <div><span>Annual revenue target</span><strong>£{Math.round(annualRevenueTarget).toLocaleString()}</strong></div>
-                            <div><span>Annual profit target</span><strong>£{Math.round(annualProfitTarget).toLocaleString()}</strong></div>
+                            <div><span>Annual revenue target</span><strong>Â£{Math.round(annualRevenueTarget).toLocaleString()}</strong></div>
+                            <div><span>Annual profit target</span><strong>Â£{Math.round(annualProfitTarget).toLocaleString()}</strong></div>
                           </div>
                           <div className="fleet-margin-progress">
                             <div className="fleet-margin-label"><span>Margin progress</span><strong>{marginPct.toFixed(0)}%</strong></div>
@@ -3630,11 +3628,11 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           <div className="fleet-revenue-chart">
                             <div className="fleet-revenue-chart-title">Revenue vs costs (annual)</div>
                             <div className="fleet-revenue-chart-body">
-                              <div className="fleet-profit-donut" style={{ background: `conic-gradient(#A73746 0 ${annualCostShare}%, #2F6F67 ${annualCostShare}% 100%)` }}><div><strong>£{Math.round(annualRevenueTarget).toLocaleString()}</strong><span>Revenue</span></div></div>
+                              <div className="fleet-profit-donut" style={{ background: `conic-gradient(#A73746 0 ${annualCostShare}%, #2F6F67 ${annualCostShare}% 100%)` }}><div><strong>Â£{Math.round(annualRevenueTarget).toLocaleString()}</strong><span>Revenue</span></div></div>
                               <dl>
-                                <div><dt><i className="revenue-dot" />Revenue</dt><dd>£{Math.round(annualRevenueTarget).toLocaleString()}</dd></div>
-                                <div><dt><i className="cost-dot" />Costs</dt><dd>£{Math.round(annualCostTarget).toLocaleString()}</dd></div>
-                                <div><dt><i className="profit-dot" />Profit</dt><dd>£{Math.round(annualProfitTarget).toLocaleString()}</dd></div>
+                                <div><dt><i className="revenue-dot" />Revenue</dt><dd>Â£{Math.round(annualRevenueTarget).toLocaleString()}</dd></div>
+                                <div><dt><i className="cost-dot" />Costs</dt><dd>Â£{Math.round(annualCostTarget).toLocaleString()}</dd></div>
+                                <div><dt><i className="profit-dot" />Profit</dt><dd>Â£{Math.round(annualProfitTarget).toLocaleString()}</dd></div>
                               </dl>
                             </div>
                           </div>
@@ -3646,7 +3644,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
               })()}
             </div>
           )}
-{/* ════════════════════════ SYSTEM SETTINGS ════════════════════════ */}
+{/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• SYSTEM SETTINGS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
           {tab === "settings" && (
             <div className="settings-page bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-slate-100 rounded-xl p-6 transition-colors flex-1 overflow-y-auto">
               <style>{`
@@ -3664,7 +3662,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
               <div className={`settings-layout settings-section-${settingsSection} grid grid-cols-12 gap-4`}>
                 
-                {/* ── CARD 1: Business Profile (Col-span 8) ── */}
+                {/* â”€â”€ CARD 1: Business Profile (Col-span 8) â”€â”€ */}
                 <div className="settings-business col-span-12 lg:col-span-8 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 relative overflow-hidden shadow-sm">
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-primary-container dark:from-[#60A5FA] dark:to-[#3B82F6]" />
                   <div className="flex items-center gap-3 mb-4">
@@ -3689,7 +3687,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   </div>
                 </div>
 
-                {/* ── CARD 2: Operations (Col-span 4) ── */}
+                {/* â”€â”€ CARD 2: Operations (Col-span 4) â”€â”€ */}
                 <div className="settings-operations col-span-12 lg:col-span-4 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
                   <div className="flex items-center gap-3 mb-4">
                     <div><h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Depot Setup</h3><p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Location and mileage units</p></div>
@@ -3708,7 +3706,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           <div className="flex items-center gap-1">
-                            <span className="text-slate-500 dark:text-slate-400">£</span>
+                            <span className="text-slate-500 dark:text-slate-400">Â£</span>
                             <input
                               type="number"
                               step="0.5"
@@ -3753,7 +3751,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   </div>
                 </div>
 
-                {/* ── CARD 3: Margins (Col-span 4) ── */}
+                {/* â”€â”€ CARD 3: Margins (Col-span 4) â”€â”€ */}
                 <div className="settings-pricing col-span-12 lg:col-span-4 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
                   <div className="flex items-center gap-3 mb-4">
                     <div><h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Margins & Driver Costs</h3><p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Defaults used when calculating quotations</p></div>
@@ -3775,17 +3773,17 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       ['driverWageWeekday','Driver wage - weekday',18],
                       ['driverWageWeekend','Driver wage - weekend',22],
                       ['driverWageHoliday','Driver wage - holiday',25]
-                    ].map(([key,label,fallback]) => <div key={key} className="flex justify-between items-center pt-3 border-t border-outline-variant dark:border-[#1F2937]"><span className="text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span><div className="flex items-center gap-1"><span className="text-slate-500 dark:text-slate-400">£</span><input type="number" step="0.5" className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))}/><span className="text-[10px] text-slate-500 dark:text-slate-400">/hr</span></div></div>)}
+                    ].map(([key,label,fallback]) => <div key={key} className="flex justify-between items-center pt-3 border-t border-outline-variant dark:border-[#1F2937]"><span className="text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span><div className="flex items-center gap-1"><span className="text-slate-500 dark:text-slate-400">Â£</span><input type="number" step="0.5" className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))}/><span className="text-[10px] text-slate-500 dark:text-slate-400">/hr</span></div></div>)}
                     {[
                       ['emptyLegThresholdKm','Empty-leg threshold',20,'km'],
                       ['dualDriverThresholdHours','Two-driver threshold',13,'hr'],
-                      ['waitingWageFactor','Waiting wage factor',0.75,'×'],
+                      ['waitingWageFactor','Waiting wage factor',0.75,'Ã—'],
                       ['customerRangePct','Customer range uplift',12,'%']
                     ].map(([key,label,fallback,suffix]) => <div key={key} className="flex justify-between items-center pt-3 border-t border-outline-variant dark:border-[#1F2937]"><span className="text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span><div className="flex items-center gap-1"><input type="number" min="0" step={key==='waitingWageFactor'?0.05:1} className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))}/><span className="text-[10px] text-slate-500 dark:text-slate-400">{suffix}</span></div></div>)}
                   </div>
                 </div>
 
-                {/* ── CARD 4: Geospatial (Col-span 4) ── */}
+                {/* â”€â”€ CARD 4: Geospatial (Col-span 4) â”€â”€ */}
                 <div className="settings-geo col-span-12 lg:col-span-4 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm flex flex-col">
                   <div className="flex items-center gap-3 mb-3">
                     <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Depot / Yard Location</h3>
@@ -3811,7 +3809,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   </div>
                 </div>
 
-                {/* ── CARD 5: Tolls (Col-span 4) ── */}
+                {/* â”€â”€ CARD 5: Tolls (Col-span 4) â”€â”€ */}
                 <div className="settings-tolls col-span-12 lg:col-span-4 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
                   <div className="flex items-center gap-3 mb-4">
                     <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Road & Zone Charges</h3>
@@ -3829,7 +3827,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           <span className="text-xs font-bold text-slate-900 dark:text-slate-100">{l}</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <span className="text-slate-500 dark:text-slate-400">£</span>
+                          <span className="text-slate-500 dark:text-slate-400">Â£</span>
                           <input type="number" step="0.5" className="w-12 bg-transparent text-right outline-none focus:border-b focus:border-primary dark:focus:border-[#60A5FA] text-on-surface dark:text-white" value={sr[k] ?? 0} onChange={e=>setRoadCharges(rows => rows.map(row => row.key === k ? { ...row, amount: Number(e.target.value) } : row))} />
                         </div>
                       </div>
@@ -3850,7 +3848,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         </div>
                         <div className="flex shrink-0 items-center gap-2">
                           <div className="flex items-center gap-1">
-                            <span className="text-slate-500 dark:text-slate-400">£</span>
+                            <span className="text-slate-500 dark:text-slate-400">Â£</span>
                             <input
                               type="number"
                               step="0.5"
@@ -3872,7 +3870,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   </button>
                 </div>
 
-                {/* ── CARD 6: Overheads (Col-span 12) ── */}
+                {/* â”€â”€ CARD 6: Overheads (Col-span 12) â”€â”€ */}
                 <div id="settings-overheads" className="settings-overheads col-span-12 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
@@ -3883,7 +3881,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     </div>
                     <div className="text-right bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3 border border-slate-200 dark:border-slate-700">
                       <span className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-0.5">Total Fleet Overheads</span>
-                      <span className="text-lg font-black text-primary dark:text-primary-fixed leading-none">£{totalOverheads.toLocaleString()}</span>
+                      <span className="text-lg font-black text-primary dark:text-primary-fixed leading-none">Â£{totalOverheads.toLocaleString()}</span>
                     </div>
                   </div>
 
@@ -3893,7 +3891,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         <div className="w-6 h-6 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center text-[10px] font-extrabold shrink-0">{index + 1}</div>
                         <input type="text" className="flex-1 bg-transparent text-xs outline-none border-b border-transparent focus:border-primary text-slate-900 dark:text-slate-100 font-bold" placeholder="Cost Name" value={oh.label} onChange={e => setOH(os => os.map(x => x.id === oh.id ? {...x, label: e.target.value} : x))} />
                         <div className="flex items-center bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 px-2 py-1 shrink-0">
-                          <span className="text-slate-500 dark:text-slate-400 text-[10px] font-bold mr-1">£</span>
+                          <span className="text-slate-500 dark:text-slate-400 text-[10px] font-bold mr-1">Â£</span>
                           <input type="number" className="w-16 bg-transparent text-xs font-bold outline-none text-right text-slate-900 dark:text-slate-100" value={oh.cost} onChange={e => setOH(os => os.map(x => x.id === oh.id ? {...x, cost: Number(e.target.value)} : x))} />
                         </div>
                         <button type="button" onClick={() => setOH(os => os.filter(x => x.id !== oh.id))} className="admin-icon-action admin-icon-delete shrink-0" title="Remove overhead" aria-label="Remove overhead">
@@ -3931,7 +3929,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-200 md:col-span-2">Special requests<textarea rows={4} value={bookingEditForm.specialRequests} onChange={event => setBookingEditForm(form => ({ ...form, specialRequests: event.target.value }))} className="mt-1.5 w-full resize-y rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-medium text-slate-900 outline-none focus:border-primary dark:border-slate-600 dark:bg-slate-800 dark:text-white" /></label>
                 {bookingEditError && <div className="rounded-lg bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 dark:bg-red-950/40 dark:text-red-300 md:col-span-2" role="alert">{bookingEditError}</div>}
               </div>
-              <footer className="flex justify-end gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-700 dark:bg-slate-800/50"><button type="button" onClick={closeBookingEditor} disabled={isSavingBooking} className="rounded-lg border border-slate-300 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-white disabled:opacity-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800">Cancel</button><button type="submit" disabled={isSavingBooking} className="rounded-lg bg-primary px-4 py-2 text-xs font-bold text-white shadow-sm hover:opacity-90 disabled:cursor-wait disabled:opacity-60">{isSavingBooking ? "Saving…" : "Save quotation"}</button></footer>
+              <footer className="flex justify-end gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-700 dark:bg-slate-800/50"><button type="button" onClick={closeBookingEditor} disabled={isSavingBooking} className="rounded-lg border border-slate-300 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-white disabled:opacity-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800">Cancel</button><button type="submit" disabled={isSavingBooking} className="rounded-lg bg-primary px-4 py-2 text-xs font-bold text-white shadow-sm hover:opacity-90 disabled:cursor-wait disabled:opacity-60">{isSavingBooking ? "Savingâ€¦" : "Save quotation"}</button></footer>
             </form>
           </div>,
           document.body
@@ -3946,7 +3944,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   );
 }
 
-// ── Fleet Economics Panel ──────────────────────────────────────────────────────
+// â”€â”€ Fleet Economics Panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function FleetEconomicsPanel({ eco, darkMode }) {
   const COLORS = [PX.navy600, PX.teal700, "#64748B", PX.amber500];
   return (
@@ -3973,7 +3971,7 @@ function FleetEconomicsPanel({ eco, darkMode }) {
                   {v.emoji === "minibus" ? <SvgMinibus size={18} style={{ marginRight: 6 }} /> : v.emoji === "coach" ? <SvgCoach size={18} style={{ marginRight: 6 }} /> : <SvgBus size={18} style={{ marginRight: 6 }} />}
                   {v.name}
                 </div>
-                <div style={{ fontSize:11,color: darkMode ? "#6b7280" : PX.gray400,fontWeight:600, marginLeft: 24 }}>{v.utilDays} days · {v.utilRate}% utilisation</div>
+                <div style={{ fontSize:11,color: darkMode ? "#6b7280" : PX.gray400,fontWeight:600, marginLeft: 24 }}>{v.utilDays} days Â· {v.utilRate}% utilisation</div>
               </div>
             </div>
             <div style={{ textAlign:"center" }}>
@@ -3981,10 +3979,10 @@ function FleetEconomicsPanel({ eco, darkMode }) {
                 background:PX.gray100,padding:"4px 10px",borderRadius:6 }}>{v.count}</span>
             </div>
             <div style={{ textAlign:"right",fontSize:13,color: darkMode ? "#9ca3af" : PX.gray600,fontWeight:600 }}>{fmtK(v.annualFixed)}</div>
-            <div style={{ textAlign:"right",fontSize:13,fontWeight:700,color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{v.dailyStanding.toFixed(2)}</div>
-            <div style={{ textAlign:"right",fontSize:13,color:"#5b21b6",fontWeight:600 }}>£{v.dailyOverhead.toFixed(2)}</div>
+            <div style={{ textAlign:"right",fontSize:13,fontWeight:700,color: darkMode ? "#f3f4f6" : PX.navy800 }}>Â£{v.dailyStanding.toFixed(2)}</div>
+            <div style={{ textAlign:"right",fontSize:13,color:"#5b21b6",fontWeight:600 }}>Â£{v.dailyOverhead.toFixed(2)}</div>
             <div style={{ textAlign:"right" }}>
-              <span style={{ fontSize:15,fontWeight:800,color:PX.amber500 }}>£{v.minHirePerDay.toFixed(2)}</span>
+              <span style={{ fontSize:15,fontWeight:800,color:PX.amber500 }}>Â£{v.minHirePerDay.toFixed(2)}</span>
             </div>
           </div>
         ))}
@@ -3994,7 +3992,7 @@ function FleetEconomicsPanel({ eco, darkMode }) {
       <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(200px, 1fr))",gap:12 }}>
         {[
           ["Total company overheads",fmtK(eco.companyOverheads),"annual total","#f5f3ff","#ede9fe","#5b21b6","#7c3aed"],
-          ["Overhead per unit",fmtK(eco.overheadPerUnit),`Ã· ${eco.totalFleetUnits} total units`,"#f5f3ff","#ede9fe","#5b21b6","#7c3aed"],
+          ["Overhead per unit",fmtK(eco.overheadPerUnit),`ÃƒÂ· ${eco.totalFleetUnits} total units`,"#f5f3ff","#ede9fe","#5b21b6","#7c3aed"],
           ["Total fleet units",`${eco.totalFleetUnits}`,`across ${eco.vehicleBreakdown.length} tiers`,PX.gray50,PX.gray200,PX.navy800,PX.gray400],
         ].map(([l,v,sub,bg,br,tc,sc])=>(
           <div key={l} style={{ background:bg,border:`1.5px solid ${br}`,borderRadius:9,padding:"14px" }}>
@@ -4017,9 +4015,9 @@ function FleetEconomicsPanel({ eco, darkMode }) {
                 {v.emoji === "minibus" ? <SvgMinibus size={22} color="#fff" /> : v.emoji === "coach" ? <SvgCoach size={22} color="#fff" /> : <SvgBus size={22} color="#fff" />}
               </div>
               <div style={{ fontSize:11,color:"#7baed4",marginBottom:6,fontWeight:600 }}>{v.name}</div>
-              <div style={{ fontSize:20,fontWeight:800,color:PX.amber400 }}>£{v.minHirePerDay.toFixed(2)}</div>
+              <div style={{ fontSize:20,fontWeight:800,color:PX.amber400 }}>Â£{v.minHirePerDay.toFixed(2)}</div>
               <div style={{ fontSize:10,color:"rgba(255,255,255,.35)",marginTop:4 }}>
-                £{v.dailyStanding.toFixed(2)} + £{v.dailyOverhead.toFixed(2)}
+                Â£{v.dailyStanding.toFixed(2)} + Â£{v.dailyOverhead.toFixed(2)}
               </div>
             </div>
           ))}
@@ -4030,7 +4028,7 @@ function FleetEconomicsPanel({ eco, darkMode }) {
             Total Annual Operating Standing Fleet Cost: <strong style={{ color:"#fff" }}>{fmtK(eco.grandTotal)}</strong>
           </div>
           <div style={{ fontSize:11,color:"#7baed4",fontWeight:600 }}>
-            Allocated Overhead: {fmtK(eco.overheadPerUnit)}/unit/yr · {eco.totalFleetUnits} units
+            Allocated Overhead: {fmtK(eco.overheadPerUnit)}/unit/yr Â· {eco.totalFleetUnits} units
           </div>
         </div>
       </div>
@@ -4038,7 +4036,7 @@ function FleetEconomicsPanel({ eco, darkMode }) {
   );
 }
 
-// ── Root App ──────────────────────────────────────────────────────────────────
+// â”€â”€ Root App â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function AdminApp() {
   const [db, setDb] = useState({ vehicles: [], globalVars: {}, annualOverheads: [], surcharges: {}, blockedDates: [] });
   const [adminUser, setAdminUser] = useState(null);
@@ -4194,4 +4192,10 @@ export default function AdminApp() {
     </>
   );
 }
+
+
+
+
+
+
 
