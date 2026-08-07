@@ -3433,7 +3433,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                     }} className="w-full h-1 accent-primary" />
                                 </div>
                                 
-                                <div className="grid grid-cols-3 gap-3 mt-1">
+                                <div className="grid grid-cols-[1fr_1.2fr_1.5fr] gap-2 mt-1">
                                   <div className="fleet-compact-field">
                                     <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">Seats</label>
                                     <input className="hide-spinners w-8 bg-transparent border-none text-slate-900 dark:text-slate-100 text-[11px] font-extrabold outline-none text-right p-0" type="number" value={activeV.capacity} onChange={e=>updateV(activeV.id,"capacity",Number(e.target.value))} />
@@ -3444,7 +3444,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                   </div>
                                   <div className="fleet-compact-field">
                                     <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">RATE/{distanceUnitShort}</label>
-                                    <input aria-label="Commercial vehicle rate per kilometre" className="hide-spinners w-16 bg-transparent border-none text-slate-900 dark:text-slate-100 text-[11px] font-extrabold outline-none text-right p-0 cursor-default" type="number" readOnly value={Number((((activeV.fuelPricePerLitre ?? gv?.fuelPricePerLitre ?? 1.52) / (activeV.fuelKpl || 1)) + ((activeV.maintenanceSetCost || 0) / (activeV.expectedMaintenanceLifeKm || 1)) + ((activeV.tyreSetCost || 0) / (activeV.expectedTyreLifeKm || 1))).toFixed(4))} title="Calculated automatically from variable costs" />
+                                    <input aria-label="Commercial vehicle rate per kilometre" className="hide-spinners w-full bg-transparent border-none text-slate-900 dark:text-slate-100 text-[11px] font-extrabold outline-none text-right p-0 cursor-default" type="number" readOnly value={Number((((activeV.fuelPricePerLitre ?? gv?.fuelPricePerLitre ?? 1.52) / (activeV.fuelKpl || 1)) + ((activeV.maintenanceSetCost || 0) / (activeV.expectedMaintenanceLifeKm || 1)) + ((activeV.tyreSetCost || 0) / (activeV.expectedTyreLifeKm || 1))).toFixed(4))} title="Calculated automatically from variable costs" />
                                   </div>
                                 </div>
                             </div>
