@@ -50,7 +50,7 @@ const RECOVERY_CONFIGURATION = {
     fuelPricePerLitre: 1.52, driverHourlyWage: 18, holidayPayPct: 12.07,
     profitMarginPct: 20, driverWageWeekday: 15, driverWageWeekend: 20,
     driverWageHoliday: 22, marginWeekday: 20, marginWeekend: 25,
-    marginHoliday: 30, overnightCost: 200, waitingChargePerHour: 35,
+    marginHoliday: 30, netMarginPct: 0, netProfitTarget: 0, overnightCost: 200, waitingChargePerHour: 35,
     emptyLegThresholdKm: 20, dualDriverThresholdHours: 13,
     waitingWageFactor: 0.75, customerRangePct: 12,
     distanceUnit: 'miles',
@@ -3752,20 +3752,27 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 {/* ── CARD 3: Margins (Col-span 4) ── */}
                 <div className="settings-pricing col-span-12 lg:col-span-4 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
                   <div className="flex items-center gap-3 mb-4">
-                    <div><h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Margins & Driver Costs</h3><p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Defaults used when calculating quotations</p></div>
+                    <div><h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Profit & Margin Controls</h3><p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Admin targets applied automatically to quotations</p></div>
                   </div>
                   <div className="space-y-4">
-                    <div>
-                      <label className="flex justify-between text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2"><span>Target Margin (Weekday)</span><span>{gv.marginWeekday ?? 30}%</span></label>
-                      <input type="range" min="0" max="100" value={gv.marginWeekday ?? 30} onChange={e=>setGv(g=>({...g, marginWeekday: Number(e.target.value)}))} className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary" />
-                    </div>
-                    <div>
-                      <label className="flex justify-between text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2"><span>Target Margin (Weekend)</span><span>{gv.marginWeekend ?? 30}%</span></label>
-                      <input type="range" min="0" max="100" value={gv.marginWeekend ?? 30} onChange={e=>setGv(g=>({...g, marginWeekend: Number(e.target.value)}))} className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary" />
-                    </div>
-                    <div>
-                      <label className="flex justify-between text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2"><span>Target Margin (Holiday)</span><span>{gv.marginHoliday ?? 30}%</span></label>
-                      <input type="range" min="0" max="100" value={gv.marginHoliday ?? 30} onChange={e=>setGv(g=>({...g, marginHoliday: Number(e.target.value)}))} className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary" />
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
+                      {[
+                        ['marginWeekday','Gross margin','Weekday',30,'%'],
+                        ['marginWeekend','Gross margin','Weekend',30,'%'],
+                        ['marginHoliday','Gross margin','Holiday',30,'%'],
+                        ['netMarginPct','Net margin','Minimum',0,'%'],
+                        ['netProfitTarget','Net profit','Minimum',0,'£']
+                      ].map(([key,label,context,fallback,suffix]) => (
+                        <label key={key} className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50">
+                          <span className="block text-[9px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">{label}</span>
+                          <span className="mt-0.5 block text-[9px] font-semibold text-slate-400 dark:text-slate-500">{context}</span>
+                          <span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600">
+                            {suffix === '£' && <span className="mr-1 text-[11px] font-bold text-slate-400">£</span>}
+                            <input aria-label={`${label} ${context}`} type="number" min="0" max={key === 'netProfitTarget' ? undefined : 95} step={key === 'netProfitTarget' ? 5 : 0.5} value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/>
+                            {suffix === '%' && <span className="ml-1 text-[10px] font-bold text-slate-400">%</span>}
+                          </span>
+                        </label>
+                      ))}
                     </div>
                     {[
                       ['driverWageWeekday','Driver wage - weekday',18],
