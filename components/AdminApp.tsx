@@ -5,8 +5,6 @@ import { API_BASE_URL } from '../lib/api';
 
 import { Fragment, useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
-import ExcelJS from "exceljs";
-import { saveAs } from "file-saver";
 import { Search, Sun, Moon, TrendingUp, Plus, Edit3, MoreVertical, Pause, History, CalendarDays, SlidersHorizontal, Download, CircleDollarSign, Target, RefreshCw, Activity, MapPinned } from "lucide-react";
 
 const ADMIN_TOKEN_KEY = 'caroleanAdminToken';
@@ -16,7 +14,7 @@ const RECOVERY_CONFIGURATION = {
   vehicles: {
     minibus: {
       capacity: 16, fleetCount: 2, utilisationDays: 225, fuelKpl: 9.5,
-      ratePerKm: 1.2, commercialWeight: 1, standingCostPerDay: 150,
+      ratePerKm: 0.26, sellingRateOneWay: 1.2, sellingRateReturn: 0.65, minimumHire: 175, includedKmOneWay: 20, includedKmReturn: 40, commercialWeight: 1, standingCostPerDay: 150,
       maintenanceCostPerKm: 0, maintenanceSetCost: 4800, expectedMaintenanceLifeKm: 60000, tyreSetCost: 1200, expectedTyreLifeKm: 60000,
       annualCosts: [
         { id: 1, label: 'Vehicle Excise Duty (VED)', cost: 600 },
@@ -26,7 +24,7 @@ const RECOVERY_CONFIGURATION = {
     },
     bus: {
       capacity: 33, fleetCount: 2, utilisationDays: 225, fuelKpl: 7.2,
-      ratePerKm: 1.65, commercialWeight: 1.08, standingCostPerDay: 200,
+      ratePerKm: 0.29, sellingRateOneWay: 1.65, sellingRateReturn: 0.85, minimumHire: 275, includedKmOneWay: 20, includedKmReturn: 50, commercialWeight: 1.08, standingCostPerDay: 200,
       maintenanceCostPerKm: 0, maintenanceSetCost: 9600, expectedMaintenanceLifeKm: 80000, tyreSetCost: 2800, expectedTyreLifeKm: 80000,
       annualCosts: [
         { id: 1, label: 'Vehicle Excise Duty (VED)', cost: 850 },
@@ -38,7 +36,7 @@ const RECOVERY_CONFIGURATION = {
       capacity: 49, fleetCount: 1, utilisationDays: 260, fuelKpl: 3.6,
       maintenanceCostPerKm: 0, maintenanceSetCost: 22400, expectedMaintenanceLifeKm: 80000, tyreCostPerKm: 0.09, tyreSetCost: 2400,
       expectedTyreLifeKm: 80000, profitMarginPct: 30, fuelPricePerLitre: 1.52,
-      ratePerKm: 2.6, commercialWeight: 1.12, standingCostPerDay: 260,
+      ratePerKm: 0.79, sellingRateOneWay: 2.2, sellingRateReturn: 1, minimumHire: 450, includedKmOneWay: 0, includedKmReturn: 75, commercialWeight: 1.12, standingCostPerDay: 260,
       annualCosts: [
         { id: 1, label: 'Vehicle Excise Duty (VED)', cost: 1650 },
         { id: 2, label: 'Annual Insurance', cost: 7800 },
@@ -1583,7 +1581,11 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     return sortedList;
   }, [bookingsData, bookingLast30Days, reportDate, searchNameRef, searchVehicle, searchFareFrom, searchFareTo, searchRoute]);
 
-  const exportBookingsToCSV = () => {
+  const exportBookingsToCSV = async () => {
+    const [{ default: ExcelJS }, { saveAs }] = await Promise.all([
+      import('exceljs'),
+      import('file-saver')
+    ]);
     const unit = gv?.distanceUnit === 'miles' ? 'mile' : 'km';
     const headers = [
       "Booking ID", "Date", "Customer Name", "Email", "Phone", "Company",
@@ -1757,10 +1759,9 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
       col.width = Math.max(header.length, 12);
     });
 
-    workbook.xlsx.writeBuffer().then(buffer => {
-      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      saveAs(blob, `bookings_${new Date().toISOString().split('T')[0]}.xlsx`);
-    });
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, `bookings_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   const saveApi = useCallback(async (type, item, isDelete=false) => {
