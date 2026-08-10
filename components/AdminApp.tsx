@@ -50,8 +50,8 @@ const RECOVERY_CONFIGURATION = {
     fuelPricePerLitre: 1.52, driverHourlyWage: 18, holidayPayPct: 12.07,
     profitMarginPct: 20, driverWageWeekday: 15, driverWageWeekend: 20,
     driverWageHoliday: 22, marginWeekday: 20, marginWeekend: 25,
-    marginHoliday: 30, netMarginPct: 0, netProfitTarget: 0, overnightCost: 200, waitingChargePerHour: 35,
-    emptyLegThresholdKm: 20, dualDriverThresholdHours: 13,
+    marginHoliday: 30, netMarginPct: 5, netProfitTarget: 0, overnightCost: 200, waitingChargePerHour: 35,
+    emptyLegThresholdKm: 20, dualDriverThresholdHours: 9,
     waitingWageFactor: 0.75, customerRangePct: 12,
     distanceUnit: 'miles',
     yardAddress: 'Unit 1, Carolean Coaches, Bentley Lane, Walsall WS2 8TL, UK',
@@ -108,6 +108,14 @@ function restoreMissingConfiguration(source) {
     const current = data.globalVars[field];
     const isMissing = typeof value === 'number' ? !Number.isFinite(Number(current)) : !String(current || '').trim();
     if (isMissing) { data.globalVars[field] = value; changed = true; }
+  }
+  if (Number(data.globalVars.netMarginPct) < 5) {
+    data.globalVars.netMarginPct = 5;
+    changed = true;
+  }
+  if (Number(data.globalVars.dualDriverThresholdHours) <= 0 || Number(data.globalVars.dualDriverThresholdHours) > 9) {
+    data.globalVars.dualDriverThresholdHours = 9;
+    changed = true;
   }
   if (!String(data.globalVars.yardAddress || '').toLowerCase().includes('bentley lane')) {
     data.globalVars.yardAddress = RECOVERY_CONFIGURATION.globalVars.yardAddress;
@@ -2614,9 +2622,10 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                   const annualFixed = vehicle?.annualFixedCosts?.reduce((sum, c) => sum + Number(c.amount || 0), 0) 
                                       || vehicle?.annualCosts?.reduce((sum, c) => sum + Number(c.cost || 0), 0) || 0;
                                   const utilDays = Number(vehicle?.utilisationDays) || 225;
+                                  const fleetCount = Number(vehicle?.fleetCount) || 1;
                                   
-                                  const dailyOverhead = overheadPerUnit / utilDays;
-                                  const dailyStanding = annualFixed / utilDays;
+                                  const dailyOverhead = Number.isFinite(Number(bd.allocatedOverhead)) ? Number(bd.allocatedOverhead) : overheadPerUnit / utilDays;
+                                  const dailyStanding = Number.isFinite(Number(bd.allocatedStanding)) ? Number(bd.allocatedStanding) : annualFixed / fleetCount / utilDays;
                                   
                                   const grossProfit = rev - surcharges - distCost - drvCost - overnightCost;
                                   const netProfit = grossProfit - dailyStanding - dailyOverhead;
@@ -2815,9 +2824,10 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         const annualFixed = vehicle?.annualFixedCosts?.reduce((sum, c) => sum + Number(c.amount || 0), 0) 
                             || vehicle?.annualCosts?.reduce((sum, c) => sum + Number(c.cost || 0), 0) || 0;
                         const utilDays = Number(vehicle?.utilisationDays) || 225;
+                        const fleetCount = Number(vehicle?.fleetCount) || 1;
                         
-                        const dailyOverhead = overheadPerUnit / utilDays;
-                        const dailyStanding = annualFixed / utilDays;
+                        const dailyOverhead = Number.isFinite(Number(bd.allocatedOverhead)) ? Number(bd.allocatedOverhead) : overheadPerUnit / utilDays;
+                        const dailyStanding = Number.isFinite(Number(bd.allocatedStanding)) ? Number(bd.allocatedStanding) : annualFixed / fleetCount / utilDays;
                         
                         const grossProfit = rev - surcharges - distCost - drvCost - overnightCost;
                         const netProfit = grossProfit - dailyStanding - dailyOverhead;
@@ -3760,7 +3770,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         ['marginWeekday','Gross margin','Weekday',30,'%'],
                         ['marginWeekend','Gross margin','Weekend',30,'%'],
                         ['marginHoliday','Gross margin','Holiday',30,'%'],
-                        ['netMarginPct','Net margin','Minimum',0,'%'],
+                        ['netMarginPct','Net margin','Minimum',5,'%'],
                         ['netProfitTarget','Net profit','Minimum',0,'£']
                       ].map(([key,label,context,fallback,suffix]) => (
                         <label key={key} className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50">
@@ -3768,7 +3778,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           <span className="mt-0.5 block text-[9px] font-semibold text-slate-400 dark:text-slate-500">{context}</span>
                           <span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600">
                             {suffix === '£' && <span className="mr-1 text-[11px] font-bold text-slate-400">£</span>}
-                            <input aria-label={`${label} ${context}`} type="number" min="0" max={key === 'netProfitTarget' ? undefined : 95} step={key === 'netProfitTarget' ? 5 : 0.5} value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/>
+                            <input aria-label={`${label} ${context}`} type="number" min={key === 'netMarginPct' ? 5 : 0} max={key === 'netProfitTarget' ? undefined : 95} step={key === 'netProfitTarget' ? 5 : 0.5} value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/>
                             {suffix === '%' && <span className="ml-1 text-[10px] font-bold text-slate-400">%</span>}
                           </span>
                         </label>
@@ -3781,7 +3791,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     ].map(([key,label,fallback]) => <div key={key} className="flex justify-between items-center pt-3 border-t border-outline-variant dark:border-[#1F2937]"><span className="text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span><div className="flex items-center gap-1"><span className="text-slate-500 dark:text-slate-400">£</span><input type="number" step="0.5" className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))}/><span className="text-[10px] text-slate-500 dark:text-slate-400">/hr</span></div></div>)}
                     {[
                       ['emptyLegThresholdKm','Empty-leg threshold',20,'km'],
-                      ['dualDriverThresholdHours','Two-driver threshold',13,'hr'],
+                      ['dualDriverThresholdHours','Daily driving limit',9,'hr'],
                       ['waitingWageFactor','Waiting wage factor',0.75,'×'],
                       ['customerRangePct','Customer range uplift',12,'%']
                     ].map(([key,label,fallback,suffix]) => <div key={key} className="flex justify-between items-center pt-3 border-t border-outline-variant dark:border-[#1F2937]"><span className="text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span><div className="flex items-center gap-1"><input type="number" min="0" step={key==='waitingWageFactor'?0.05:1} className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))}/><span className="text-[10px] text-slate-500 dark:text-slate-400">{suffix}</span></div></div>)}
