@@ -3079,6 +3079,8 @@ table {
 .admin-premium-shell .settings-layout > .settings-geo,
 .admin-premium-shell .settings-layout > .settings-tolls,
 .admin-premium-shell .settings-layout > .settings-overheads { display: none !important; }
+.admin-premium-shell .settings-layout > .settings-staff { display: none !important; }
+.admin-premium-shell .settings-section-staff > .settings-staff { display: block !important; grid-column: 1 / 13 !important; }
 .admin-premium-shell .settings-section-company > .settings-business,
 .admin-premium-shell .settings-section-pricing > .settings-overheads { display: block !important; grid-column: 1 / 13 !important; grid-row: auto !important; }
 .admin-premium-shell .settings-section-company > .settings-business { width: 100%; justify-self: stretch; }

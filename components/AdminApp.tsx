@@ -146,8 +146,11 @@ const authenticatedFetch = (input, init = {}) => {
   return fetch(input, { ...init, headers });
 };
 
-function AdminAuthGate({ onAuthenticated }) {
-  const [mode, setMode] = useState('login');
+function LegacyAdminAuthGate({ onAuthenticated }) {
+  const accessParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const accessMode = accessParams?.get('access');
+  const accessToken = accessParams?.get('token') || '';
+  const [mode, setMode] = useState(accessToken && ['invite', 'reset'].includes(accessMode) ? accessMode : 'login');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -177,17 +180,20 @@ function AdminAuthGate({ onAuthenticated }) {
     event.preventDefault();
     setBusy(true); clearAuthError();
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/${mode}`, {
+      const accessSetup = mode === 'invite' || mode === 'reset';
+      const endpoint = accessSetup ? (mode === 'invite' ? 'complete-invite' : 'reset-password') : mode;
+      const response = await fetch(`${API_BASE_URL}/api/auth/${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password })
+        body: JSON.stringify(accessSetup ? { token: accessToken, password } : { name, email, password })
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.error || 'Authentication failed');
-      if (mode === 'register') {
+      if (mode === 'register' || accessSetup) {
+        if (accessSetup) window.history.replaceState({}, '', window.location.pathname);
         setMode('login');
         setPassword('');
-        setError('Administrator created. Sign in to continue.');
+        setError(accessSetup ? 'Password saved. Sign in to continue.' : 'Administrator created. Sign in to continue.');
       } else {
         clearAuthError();
         window.localStorage.setItem(ADMIN_TOKEN_KEY, payload.token);
@@ -205,6 +211,41 @@ function AdminAuthGate({ onAuthenticated }) {
 }
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
+function AdminAuthGate({ onAuthenticated }) {
+  const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const access = params?.get('access');
+  const token = params?.get('token') || '';
+  const [mode, setMode] = useState(token && ['invite', 'reset'].includes(access) ? access : 'login');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
+  const [busy, setBusy] = useState(false);
+  const accessSetup = mode === 'invite' || mode === 'reset';
+
+  const submit = async event => {
+    event.preventDefault(); setBusy(true); setMessage('');
+    try {
+      const endpoint = accessSetup ? (mode === 'invite' ? 'complete-invite' : 'reset-password') : mode;
+      const response = await fetch(`${API_BASE_URL}/api/auth/${endpoint}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(accessSetup ? {token,password} : {name,email,password}) });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || 'Authentication failed');
+      if (mode === 'register' || accessSetup) {
+        if (accessSetup) window.history.replaceState({}, '', window.location.pathname);
+        setMode('login'); setPassword(''); setMessage('Password saved. Sign in to continue.');
+      } else {
+        window.localStorage.setItem(ADMIN_TOKEN_KEY, payload.token);
+        if (payload.user) window.localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(payload.user));
+        onAuthenticated(payload.user || null);
+      }
+    } catch (error) { setMessage(error.message || 'Authentication failed'); }
+    finally { setBusy(false); }
+  };
+
+  const title = accessSetup ? (mode === 'invite' ? 'Set up your account' : 'Create a new password') : mode === 'login' ? 'Admin sign in' : 'Create first administrator';
+  return <main className="admin-auth-screen min-h-screen flex items-center justify-center p-6"><form onSubmit={submit} className="admin-auth-card w-full max-w-sm rounded-2xl p-7"><img src="/carolean%20image.png" alt="Carolean" className="h-14 mx-auto mb-5"/><h1 className="text-xl font-extrabold text-slate-900 text-center">{title}</h1><p className="text-sm text-slate-600 text-center mt-1 mb-5">{accessSetup ? 'Choose a secure password with at least 10 characters.' : 'Protected access to pricing and operational data.'}</p>{mode === 'register' && <label className="block text-xs font-bold text-slate-700 mb-3">Name<input className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={name} onChange={event=>setName(event.target.value)} required/></label>}{!accessSetup && <label className="block text-xs font-bold text-slate-700 mb-3">Email<input type="email" className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={email} onChange={event=>setEmail(event.target.value)} required/></label>}<label className="block text-xs font-bold text-slate-700 mb-3">{accessSetup ? 'New password' : 'Password'}<input type="password" minLength={10} className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={password} onChange={event=>setPassword(event.target.value)} required/></label>{message && <p className={`mb-3 text-xs ${message.includes('Sign in to continue') ? 'text-emerald-700' : 'text-red-700'}`}>{message}</p>}<button disabled={busy} className="admin-auth-submit w-full rounded-lg px-4 py-2.5 text-sm font-bold text-white disabled:opacity-60">{busy ? 'Please wait…' : accessSetup ? 'Save password' : mode === 'login' ? 'Sign in' : 'Create administrator'}</button></form></main>;
+}
+
 const PX = {
   navy800: "#0D0E48",       // Primary Navy Blue from website
   navy700: "#13155C",       // Dark Accent
@@ -405,6 +446,7 @@ const ADMIN_SEARCH_DESTINATIONS = [
   { label: 'Pricing settings', description: 'Wages, margins and operating rates', tab: 'settings', settingsSection: 'pricing', keywords: 'wage margin waiting overnight pricing' },
   { label: 'Surcharges', description: 'Road charges and additional fees', tab: 'settings', settingsSection: 'pricing', keywords: 'ulez caz dartford m6 toll surcharge' },
   { label: 'Overheads', description: 'Annual business overheads', tab: 'settings', settingsSection: 'pricing', target: 'settings-overheads', keywords: 'overhead annual company cost' },
+  { label: 'Staff access', description: 'Invitations, permissions and activity', tab: 'settings', settingsSection: 'staff', keywords: 'staff member invite role permission password activity usage' },
   { label: 'Availability', description: 'Blocked dates and unavailable units', tab: 'pricing', target: 'pricing-availability', keywords: 'availability blocked dates vehicle units' },
 ];
 
@@ -1135,8 +1177,83 @@ function JourneyRouteDetails({ journey, darkMode=false }) {
 // ── Navbar ────────────────────────────────────────────────────────────────────
 // ── VehicleCard (Step 2 equivalent) ──────────────────────────────────────────
 // ── Admin Dashboard ────────────────────────────────────────────────────────────
+const STAFF_PERMISSION_LABELS = {
+  dashboard:'Dashboard', quotes:'Quotations', bookings:'Bookings', fleet:'Fleet',
+  pricing:'Pricing', reports:'Reports', settings:'Settings'
+};
+const STAFF_PERMISSIONS = Object.keys(STAFF_PERMISSION_LABELS);
+
+function StaffAccessPanel({ setToast }) {
+  const [staff, setStaff] = useState([]);
+  const [permissions, setPermissions] = useState(STAFF_PERMISSIONS);
+  const [selected, setSelected] = useState(null);
+  const [showInvite, setShowInvite] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [form, setForm] = useState({ name:'', email:'', role:'quotes', permissions:['dashboard','quotes','bookings'] });
+
+  const loadStaff = useCallback(async () => {
+    const response = await authenticatedFetch(`${API_BASE_URL}/api/admin/staff`, { cache:'no-store' });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || 'Unable to load staff access');
+    setStaff(payload.staff || []); setPermissions((payload.permissions || STAFF_PERMISSIONS).filter(item => item !== 'staff'));
+    setSelected(current => current ? (payload.staff || []).find(item => item.id === current.id) || null : null);
+  }, []);
+
+  useEffect(() => { loadStaff().catch(error => setToast(error.message)); }, [loadStaff, setToast]);
+
+  const sendAccessEmail = async (member, link, kind) => {
+    const token = window.localStorage.getItem(ADMIN_TOKEN_KEY) || '';
+    const response = await fetch('/api/staff-access-email', { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`}, body:JSON.stringify({ email:member.email, name:member.name, link, kind }) });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || 'Access was created, but the email could not be sent');
+  };
+
+  const invite = async event => {
+    event.preventDefault(); setBusy(true);
+    try {
+      const response = await authenticatedFetch(`${API_BASE_URL}/api/admin/staff/invite`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({...form,baseUrl:window.location.origin}) });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || 'Unable to invite this member');
+      setForm({name:'',email:'',role:'quotes',permissions:['dashboard','quotes','bookings']}); setShowInvite(false);
+      await loadStaff();
+      try { await sendAccessEmail(payload.staff, payload.link, 'invite'); setToast('Invitation sent'); }
+      catch (emailError) { setToast(`Invitation saved and shown below, but email failed: ${emailError.message}`); }
+    } catch (error) { setToast(error.message); }
+    finally { setBusy(false); setTimeout(() => setToast(''), 3500); }
+  };
+
+  const memberAction = async (member, action, body = {}) => {
+    setBusy(true);
+    try {
+      const method = action === 'update' ? 'PUT' : action === 'remove' ? 'DELETE' : 'POST';
+      const endpoint = action === 'update' || action === 'remove' ? '/api/admin/staff' : `/api/admin/staff/${action}`;
+      const response = await authenticatedFetch(API_BASE_URL + endpoint, { method, headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:member.id,baseUrl:window.location.origin,...body}) });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || 'Unable to update staff access');
+      if (action === 'resend' || action === 'reset') await sendAccessEmail(member, payload.link, action === 'reset' ? 'reset' : 'invite');
+      if (action === 'remove') setSelected(null);
+      await loadStaff(); setToast(action === 'reset' ? 'Password reset sent' : action === 'resend' ? 'Invitation resent' : 'Staff access updated');
+    } catch (error) { setToast(error.message); }
+    finally { setBusy(false); setTimeout(() => setToast(''), 3500); }
+  };
+
+  const formatDate = value => value ? new Date(value).toLocaleString('en-GB', {dateStyle:'medium',timeStyle:'short'}) : 'Never';
+  const formatUsage = minutes => Number(minutes) < 1 ? '—' : `${Math.floor(Number(minutes)/60)}h ${Math.round(Number(minutes)%60)}m`;
+
+  return <>
+    <section className="settings-staff col-span-12 rounded-xl border-[1.5px] border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-3"><div><h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Staff Access</h3><p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Invite staff, control access, and review account activity.</p></div><button type="button" onClick={()=>setShowInvite(value=>!value)} className="rounded-lg bg-primary px-3 py-2 text-[11px] font-extrabold text-white"><Plus size={13} className="inline mr-1"/> Add member</button></div>
+      {showInvite && <form onSubmit={invite} className="mb-5 grid grid-cols-1 gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900 md:grid-cols-4"><label className="text-[10px] font-bold text-slate-500">NAME<input required value={form.name} onChange={e=>setForm({...form,name:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900"/></label><label className="text-[10px] font-bold text-slate-500">EMAIL<input required type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900"/></label><label className="text-[10px] font-bold text-slate-500">ROLE<select value={form.role} onChange={e=>setForm({...form,role:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900"><option value="quotes">Quotations</option><option value="admin">Administrator</option><option value="custom">Custom access</option></select></label><div className="flex items-end gap-2"><button disabled={busy} className="rounded-lg bg-primary px-4 py-2 text-xs font-bold text-white disabled:opacity-50">Send invitation</button><button type="button" onClick={()=>setShowInvite(false)} className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold">Cancel</button></div>{form.role==='custom' && <div className="md:col-span-4 flex flex-wrap gap-2">{permissions.map(permission=><label key={permission} className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-bold"><input type="checkbox" checked={form.permissions.includes(permission)} onChange={e=>setForm({...form,permissions:e.target.checked?[...form.permissions,permission]:form.permissions.filter(item=>item!==permission)})}/>{STAFF_PERMISSION_LABELS[permission]||permission}</label>)}</div>}</form>}
+      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700"><table className="w-full min-w-[760px] text-left"><thead className="bg-slate-50 text-[9px] uppercase tracking-wide text-slate-500 dark:bg-slate-900"><tr><th className="p-3">Member</th><th>Access</th><th>Status</th><th>Last active</th><th>Usage</th><th className="pr-3 text-right">Actions</th></tr></thead><tbody>{staff.map(member=><tr key={member.id} className="border-t border-slate-100 text-xs dark:border-slate-700"><td className="p-3"><strong className="block text-slate-900 dark:text-white">{member.name}</strong><span className="text-[10px] text-slate-500">{member.email}</span></td><td className="capitalize">{member.role}</td><td><span className={`rounded-full px-2 py-1 text-[9px] font-extrabold uppercase ${member.status==='active'?'bg-emerald-50 text-emerald-700':member.status==='suspended'?'bg-red-50 text-red-700':'bg-amber-50 text-amber-700'}`}>{member.status}</span></td><td>{formatDate(member.lastActiveAt)}</td><td>{formatUsage(member.usageMinutes)}</td><td className="pr-3 text-right"><button onClick={()=>setSelected(member)} className="rounded-lg border border-slate-200 px-3 py-1.5 text-[10px] font-bold text-primary">View</button></td></tr>)}</tbody></table>{staff.length===0&&<p className="p-6 text-center text-xs text-slate-500">No staff accounts found.</p>}</div>
+    </section>
+    {selected && typeof document !== 'undefined' && createPortal(<div className="fixed inset-0 z-[10000] bg-slate-950/35" onMouseDown={e=>{if(e.target===e.currentTarget)setSelected(null)}}><aside className="absolute right-0 top-0 h-full w-full max-w-md overflow-y-auto bg-white shadow-2xl dark:bg-slate-900"><header className="sticky top-0 z-10 flex items-start justify-between border-b border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900"><div><h2 className="font-extrabold text-slate-900 dark:text-white">{selected.name}</h2><p className="text-xs text-slate-500">{selected.email}</p></div><button onClick={()=>setSelected(null)} aria-label="Close activity" className="rounded-lg p-2 text-slate-500"><SvgClose size={17}/></button></header><div className="space-y-5 p-5"><div className="grid grid-cols-2 gap-2">{[['Last login',formatDate(selected.lastLoginAt)],['Usage',formatUsage(selected.usageMinutes)],['Logins',selected.loginCount||0],['Status',selected.status]].map(([label,value])=><div key={label} className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800"><span className="block text-[9px] font-bold uppercase text-slate-400">{label}</span><strong className="mt-1 block text-xs capitalize">{value}</strong></div>)}</div>{selected.role!=='owner'&&<><div><label className="text-[10px] font-bold text-slate-500">ACCESS ROLE<select value={selected.role} onChange={e=>setSelected({...selected,role:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900"><option value="quotes">Quotations</option><option value="admin">Administrator</option><option value="custom">Custom access</option></select></label>{selected.role==='custom'&&<div className="mt-3 flex flex-wrap gap-2">{permissions.map(permission=><label key={permission} className="flex items-center gap-1 rounded-full border px-2 py-1 text-[10px]"><input type="checkbox" checked={(selected.permissions||[]).includes(permission)} onChange={e=>setSelected({...selected,permissions:e.target.checked?[...(selected.permissions||[]),permission]:(selected.permissions||[]).filter(item=>item!==permission)})}/>{STAFF_PERMISSION_LABELS[permission]}</label>)}</div>}<button disabled={busy} onClick={()=>memberAction(selected,'update',{role:selected.role,permissions:selected.permissions,status:selected.status})} className="mt-3 rounded-lg bg-primary px-3 py-2 text-xs font-bold text-white">Save access</button></div><div className="flex flex-wrap gap-2">{selected.status==='invited'&&<button disabled={busy} onClick={()=>memberAction(selected,'resend')} className="rounded-lg border px-3 py-2 text-xs font-bold">Resend invite</button>}{selected.status==='active'&&<button disabled={busy} onClick={()=>memberAction(selected,'reset')} className="rounded-lg border px-3 py-2 text-xs font-bold">Send password reset</button>}<button disabled={busy} onClick={()=>memberAction(selected,'update',{status:selected.status==='suspended'?'active':'suspended'})} className="rounded-lg border px-3 py-2 text-xs font-bold">{selected.status==='suspended'?'Reactivate':'Suspend'}</button><button disabled={busy} onClick={()=>{if(window.confirm(`Remove ${selected.name}?`))memberAction(selected,'remove')}} className="rounded-lg border border-red-200 px-3 py-2 text-xs font-bold text-red-700">Remove</button></div></>}
+      <div><h3 className="mb-3 text-xs font-extrabold uppercase tracking-wide text-slate-500">Activity</h3><div className="space-y-3">{(selected.activities||[]).map(activity=><div key={activity.id} className="border-l-2 border-primary pl-3"><strong className="block text-xs text-slate-900 dark:text-white">{activity.message}</strong><span className="text-[10px] text-slate-400">{formatDate(activity.createdAt)}</span>{activity.changes?.map((change,index)=><p key={index} className="mt-1 text-[10px] text-slate-500">{change.field}: {String(change.before??'—')} → {String(change.after??'Updated')}</p>)}</div>)}{!selected.activities?.length&&<p className="text-xs text-slate-500">No recorded changes yet.</p>}</div></div></div></aside></div>,document.body)}
+  </>;
+}
+
 function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) {
   const fetch = authenticatedFetch;
+  const hasPermission = permission => !adminUser?.role || adminUser.role === 'owner' || adminUser.role === 'admin' && permission !== 'staff' || (adminUser.permissions || []).includes(permission);
   const injectDefaults = (v) => {
     const newV = { ...v };
     if (!newV.annualFixedCosts || newV.annualFixedCosts.length === 0) {
@@ -1179,6 +1296,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   };
 
   const [tab, setTab]       = useState("dashboard");
+  const [settingsSection, setSettingsSection] = useState('company');
   const [darkMode, setDarkMode] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [activeFeature, setActiveFeature] = useState(null);
@@ -1215,6 +1333,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     if (typeof window !== "undefined") {
       const savedTab = localStorage.getItem("adminTab");
       if (savedTab) setTab(savedTab);
+      const savedSettingsSection = localStorage.getItem("adminSettingsSection");
+      if (savedSettingsSection && ['company', 'pricing', 'staff'].includes(savedSettingsSection)) setSettingsSection(savedSettingsSection);
       const savedTheme = localStorage.getItem("adminTheme");
       if (savedTheme === "dark") {
         setDarkMode(true);
@@ -1228,8 +1348,9 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   useEffect(() => {
     if (isReady && typeof window !== "undefined") {
       localStorage.setItem("adminTab", tab);
+      localStorage.setItem("adminSettingsSection", settingsSection);
     }
-  }, [tab, isReady]);
+  }, [tab, settingsSection, isReady]);
 
   useEffect(() => {
     if (isReady && typeof window !== "undefined") {
@@ -1288,7 +1409,6 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   const [newSeasonal, setNS] = useState(blankSeasonal);
   const [showVehicleDetails, setShowVehicleDetails] = useState(false);
   const [toast, setToast]   = useState("");
-  const [settingsSection, setSettingsSection] = useState('company');
   const [globalSearch, setGlobalSearch] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const searchResults = useMemo(() => {
@@ -2163,7 +2283,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     { k: "fleet",   label: "Fleet Economics",                  icon: <SvgBus size={17} color="currentColor" /> },
     { k: "bookings",label: "Quotations",                  icon: <SvgBookings size={17} color="currentColor" /> },
     { k: "settings",label: "Settings",                 icon: <SvgSettings size={17} color="currentColor" /> },
-  ];
+  ].filter(item => hasPermission(item.k === 'bookings' ? 'bookings' : item.k === 'settings' ? (hasPermission('settings') ? 'settings' : 'staff') : item.k));
 
   return (
     <div className="admin-premium-shell bg-background text-on-surface dark:bg-[#0B0F19] dark:text-white min-h-screen transition-colors duration-300" style={{ opacity: isReady ? 1 : 0 }} onBlurCapture={() => {
@@ -2194,7 +2314,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 </button>
                 {k === 'settings' && (
                   <div className="pl-11 py-1 space-y-0.5">
-                    {[['company', 'Business'], ['pricing', 'Pricing']].map(([key, subLabel]) => {
+                    {[...(hasPermission('settings') ? [['company', 'Business'], ['pricing', 'Pricing']] : []), ...(hasPermission('staff') ? [['staff', 'Staff Access']] : [])].map(([key, subLabel]) => {
                       const subSel = tab === 'settings' && settingsSection === key;
                       return (
                         <button key={key} onClick={() => { setTab('settings'); setSettingsSection(key); }} className={`w-full text-left px-sm py-1.5 rounded text-[11px] font-bold transition-colors duration-200 ${subSel ? "text-primary dark:text-[#60A5FA] bg-surface-container-low dark:bg-[#1F2937]" : "text-on-surface-variant dark:text-[#9CA3AF] hover:bg-surface-container-low dark:hover:bg-[#1F2937] hover:text-primary dark:hover:text-white"}`}>
@@ -3670,6 +3790,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
               </div>
 
               <div className={`settings-layout settings-section-${settingsSection} grid grid-cols-12 gap-4`}>
+                {settingsSection === 'staff' && hasPermission('staff') && <StaffAccessPanel setToast={setToast}/>} 
                 
                 {/* ── CARD 1: Business Profile (Col-span 8) ── */}
                 <div className="settings-business col-span-12 lg:col-span-8 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 relative overflow-hidden shadow-sm">
@@ -4122,7 +4243,8 @@ export default function AdminApp() {
         }
         const recovery = restoreMissingConfiguration(receivedData);
         const data = recovery.data;
-        if (recovery.changed) {
+        const canEditSettings = adminUser?.role === 'owner' || adminUser?.role === 'admin' || (adminUser?.permissions || []).includes('settings');
+        if (recovery.changed && canEditSettings) {
           const restoreResponse = await authenticatedFetch(API_BASE_URL + "/api/admin/config", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -4168,7 +4290,7 @@ export default function AdminApp() {
       cancelled = true;
       window.clearInterval(heartbeat);
     };
-  }, [authVersion]);
+  }, [authVersion, adminUser?.role]);
 
   const handleAuthenticated = user => {
     if (user) setAdminUser(user);
