@@ -1254,6 +1254,7 @@ function StaffAccessPanel({ setToast }) {
 function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) {
   const fetch = authenticatedFetch;
   const hasPermission = permission => !adminUser?.role || adminUser.role === 'owner' || adminUser.role === 'admin' && permission !== 'staff' || (adminUser.permissions || []).includes(permission);
+  const canAccessTab = item => hasPermission(item === 'bookings' ? 'bookings' : item === 'settings' ? (hasPermission('settings') ? 'settings' : 'staff') : item);
   const injectDefaults = (v) => {
     const newV = { ...v };
     if (!newV.annualFixedCosts || newV.annualFixedCosts.length === 0) {
@@ -1332,7 +1333,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedTab = localStorage.getItem("adminTab");
-      if (savedTab) setTab(savedTab);
+      if (savedTab && canAccessTab(savedTab)) setTab(savedTab);
+      else setTab(['dashboard', 'pricing', 'fleet', 'bookings', 'settings'].find(canAccessTab) || 'dashboard');
       const savedSettingsSection = localStorage.getItem("adminSettingsSection");
       if (savedSettingsSection && ['company', 'pricing', 'staff'].includes(savedSettingsSection)) setSettingsSection(savedSettingsSection);
       const savedTheme = localStorage.getItem("adminTheme");
@@ -1344,6 +1346,10 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     }
     setIsReady(true);
   }, []);
+
+  useEffect(() => {
+    if (isReady && !canAccessTab(tab)) setTab(['dashboard', 'pricing', 'fleet', 'bookings', 'settings'].find(canAccessTab) || 'dashboard');
+  }, [adminUser?.role, JSON.stringify(adminUser?.permissions || []), isReady, tab]);
 
   useEffect(() => {
     if (isReady && typeof window !== "undefined") {
@@ -2283,7 +2289,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     { k: "fleet",   label: "Fleet Economics",                  icon: <SvgBus size={17} color="currentColor" /> },
     { k: "bookings",label: "Quotations",                  icon: <SvgBookings size={17} color="currentColor" /> },
     { k: "settings",label: "Settings",                 icon: <SvgSettings size={17} color="currentColor" /> },
-  ].filter(item => hasPermission(item.k === 'bookings' ? 'bookings' : item.k === 'settings' ? (hasPermission('settings') ? 'settings' : 'staff') : item.k));
+  ].filter(item => canAccessTab(item.k));
 
   return (
     <div className="admin-premium-shell bg-background text-on-surface dark:bg-[#0B0F19] dark:text-white min-h-screen transition-colors duration-300" style={{ opacity: isReady ? 1 : 0 }} onBlurCapture={() => {
@@ -4213,6 +4219,18 @@ export default function AdminApp() {
       const timeout = window.setTimeout(() => controller.abort(), 4500);
 
       try {
+        const meResponse = await authenticatedFetch(API_BASE_URL + "/api/auth/me", { cache: "no-store", signal: controller.signal });
+        if (meResponse.status === 401) {
+          if (!cancelled) setAuthRequired(true);
+          return;
+        }
+        if (!meResponse.ok) throw new Error(`Current user returned ${meResponse.status}`);
+        const currentUser = (await meResponse.json()).user;
+        if (!cancelled && currentUser) {
+          window.localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(currentUser));
+          setAdminUser(previous => JSON.stringify(previous) === JSON.stringify(currentUser) ? previous : currentUser);
+        }
+
         // Once data has loaded, heartbeat only checks connectivity. Re-fetching the
         // configuration here would overwrite edits currently being made in forms.
         if (backendStatusRef.current === 'online') {
