@@ -8,10 +8,9 @@ export async function POST(request: Request) {
   try {
     const authorization = request.headers.get('authorization') || '';
     const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    const authResponse = await fetch(`${apiBase}/api/auth/me`, { headers: { Authorization: authorization }, cache: 'no-store' });
-    const authPayload = await authResponse.json().catch(() => ({}));
-    if (!authResponse.ok || authPayload.user?.role !== 'owner') {
-      return NextResponse.json({ error: 'Owner access is required' }, { status: 403 });
+    const authResponse = await fetch(`${apiBase}/api/admin/staff`, { headers: { Authorization: authorization }, cache: 'no-store' });
+    if (!authResponse.ok) {
+      return NextResponse.json({ error: 'Staff access permission is required' }, { status: 403 });
     }
     const { email, name, link, kind } = await request.json();
     const smtpEmail = (process.env.SMTP_EMAIL || process.env.SMTP_USER || '').replace(/"/g, '');
