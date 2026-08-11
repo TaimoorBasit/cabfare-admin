@@ -7,10 +7,11 @@ const escapeHtml = (value: unknown) => String(value || '')
 export async function POST(request: Request) {
   try {
     const adminToken = request.headers.get('x-admin-token') || '';
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const apiBase = (process.env.NEXT_PUBLIC_API_URL?.trim() || 'http://localhost:5000').replace(/\/+$/, '');
     const authResponse = await fetch(`${apiBase}/api/admin/staff`, { headers: { 'X-Admin-Token': adminToken }, cache: 'no-store' });
     if (!authResponse.ok) {
-      return NextResponse.json({ error: 'Staff access permission is required' }, { status: 403 });
+      const authPayload = await authResponse.json().catch(() => ({}));
+      return NextResponse.json({ error: authPayload.error || `Staff access check failed (${authResponse.status})` }, { status: authResponse.status });
     }
     const { email, name, link, kind } = await request.json();
     const smtpEmail = (process.env.SMTP_EMAIL || process.env.SMTP_USER || '').replace(/"/g, '');
