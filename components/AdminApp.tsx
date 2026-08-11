@@ -1203,7 +1203,7 @@ function StaffAccessPanel({ setToast }) {
 
   const sendAccessEmail = async (member, link, kind) => {
     const token = window.localStorage.getItem(ADMIN_TOKEN_KEY) || '';
-    const response = await fetch('/api/staff-access-email', { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`}, body:JSON.stringify({ email:member.email, name:member.name, link, kind }) });
+    const response = await fetch('/api/staff-access-email', { method:'POST', headers:{'Content-Type':'application/json','X-Admin-Token':token}, body:JSON.stringify({ email:member.email, name:member.name, link, kind }) });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(payload.error || 'Access was created, but the email could not be sent');
   };

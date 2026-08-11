@@ -6,7 +6,7 @@ const escapeHtml = (value: unknown) => String(value || '')
 
 export async function POST(request: Request) {
   try {
-    const authorization = request.headers.get('authorization') || '';
+    const authorization = `Bearer ${request.headers.get('x-admin-token') || ''}`;
     const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     const authResponse = await fetch(`${apiBase}/api/admin/staff`, { headers: { Authorization: authorization }, cache: 'no-store' });
     if (!authResponse.ok) {
