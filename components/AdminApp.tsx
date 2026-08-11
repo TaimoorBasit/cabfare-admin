@@ -1178,8 +1178,7 @@ function JourneyRouteDetails({ journey, darkMode=false }) {
 // ── VehicleCard (Step 2 equivalent) ──────────────────────────────────────────
 // ── Admin Dashboard ────────────────────────────────────────────────────────────
 const STAFF_PERMISSION_LABELS = {
-  dashboard:'Dashboard', quotes:'Quotations', bookings:'Bookings', fleet:'Fleet',
-  pricing:'Pricing', reports:'Reports', settings:'Settings'
+  dashboard:'Dashboard', bookings:'Quotations', fleet:'Fleet', pricing:'Pricing', settings:'Settings'
 };
 const STAFF_PERMISSIONS = Object.keys(STAFF_PERMISSION_LABELS);
 
