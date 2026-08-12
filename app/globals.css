@@ -2022,7 +2022,7 @@ table {
   transition: border-color .15s ease, background .15s ease;
 }
 .fleet-compact-field:focus-within { border-color: #b6636f; background: #fff; box-shadow: 0 0 0 2px rgba(167, 55, 70, .1); }
-.fleet-compact-field label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fleet-compact-field label { flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fleet-compact-field input { min-width: 0; flex: 1 1 auto; width: auto !important; }
 .fleet-fixed-cost-rows {
   height: 220px;
@@ -2343,7 +2343,6 @@ table {
   .fleet-variable-costs { grid-row: 1; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
   .fleet-fixed-costs { grid-row: 2; }
   .fleet-operational-card { grid-column: 1 / -1; grid-row: 3; min-height: 0; height: auto; }
-  .fleet-operational-card > .flex.flex-col { display: grid !important; grid-template-columns: 1fr 1fr 1fr; align-items: end; gap: 12px !important; }
   .fleet-operational-summary { margin-top: 14px; }
   .fleet-profitability { grid-row: 4; grid-template-columns: 1fr; }
   .fleet-revenue-chart { grid-column: 1; grid-row: 4; padding: 16px 0 0; border-left: 0; border-top: 1px solid var(--admin-border); }
@@ -2352,7 +2351,6 @@ table {
 
 @media (max-width: 760px) {
   .fleet-variable-costs { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-  .fleet-operational-card > .flex.flex-col { grid-template-columns: 1fr; }
 }
 
 /* Pricing Rules — polished control-room layout */
@@ -3213,8 +3211,6 @@ table {
 .admin-premium-shell .quotation-list-pane,
 .admin-premium-shell .quotation-detail-panel { min-width: 0; }
 .admin-premium-shell .quotation-list-pane { container-type: inline-size; }
-.admin-premium-shell .fleet-economics-workspace { container-type: inline-size; }
-.admin-premium-shell .fleet-operational-card { container-type: inline-size; }
 .admin-premium-shell .quotation-filters,
 .admin-premium-shell .quotation-filters > *,
 .admin-premium-shell .quotation-fare-filter { min-width: 0; max-width: 100%; }
@@ -3243,57 +3239,11 @@ table {
 .admin-premium-shell .settings-layout span,
 .admin-premium-shell .dashboard-premium strong { overflow-wrap: anywhere; }
 
-/* Reflow narrow cards based on their actual panel width, including browser zoom. */
-@container (max-width: 520px) {
-  .admin-premium-shell .fleet-operational-card > .flex.flex-col {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 12px !important;
-  }
-  .admin-premium-shell .fleet-operational-card > .flex.flex-col > .fleet-range-control {
-    grid-column: 1 / -1;
-  }
-  .admin-premium-shell .fleet-operational-card .grid.grid-cols-\[1fr_1\.2fr_1\.5fr\] {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  }
-  .admin-premium-shell .fleet-compact-field {
-    min-width: 0;
-    gap: 5px;
-    padding-left: 8px;
-    padding-right: 8px;
-    align-items: stretch;
-    flex-direction: column;
-    justify-content: center;
-  }
-  .admin-premium-shell .fleet-compact-field label {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .admin-premium-shell .fleet-compact-field input {
-    min-width: 0;
-    flex: 1 1 auto;
-    width: auto !important;
-    text-align: left !important;
-  }
-}
-
-@container (max-width: 360px) {
-  .admin-premium-shell .fleet-operational-card > .flex.flex-col {
-    grid-template-columns: 1fr !important;
-  }
-  .admin-premium-shell .fleet-operational-card .grid.grid-cols-\[1fr_1\.2fr_1\.5fr\] {
-    grid-template-columns: 1fr !important;
-  }
-}
-
 @media (max-width: 1500px) {
   .admin-premium-shell .premium-sidebar { width: 220px !important; }
   .admin-premium-shell .premium-sidebar + div { margin-left: 220px !important; }
   .admin-premium-shell .premium-sidebar nav button { padding-left: 14px !important; padding-right: 14px !important; }
   .admin-premium-shell .quotations-page { grid-template-columns: minmax(0, 1fr) minmax(320px, 36%) !important; }
-  .admin-premium-shell .fleet-economics-workspace { grid-template-columns: minmax(250px, 30%) minmax(0, 1fr) !important; }
   .admin-premium-shell .settings-section-pricing > .settings-pricing { grid-column: 1 / 13 !important; }
   .admin-premium-shell .settings-section-pricing > .settings-tolls { grid-column: 1 / 13 !important; }
 }
@@ -3315,7 +3265,6 @@ table {
     overflow-y: auto !important;
   }
   .admin-premium-shell .quotation-detail-panel { max-height: none !important; }
-  .admin-premium-shell .fleet-economics-workspace { display: flex !important; flex-direction: column; }
 }
 
 @media (max-width: 760px) {
