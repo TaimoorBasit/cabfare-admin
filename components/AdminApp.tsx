@@ -3271,6 +3271,10 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                     <td style={{ padding: "8px 0", textAlign: "right", fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(Number(value) || 0)}</td>
                                   </tr>
                                 ))}
+                                <tr style={{ borderTop: `2px solid ${darkMode ? "#374151" : "#e2e8f0"}` }}>
+                                  <td style={{ padding: "10px 0 4px", fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800 }}>Total operating cost</td>
+                                  <td style={{ padding: "10px 0 4px", textAlign: "right", fontWeight: 900, color: darkMode ? "#f3f4f6" : PX.navy800 }}>Â£{fmt(surcharges + distCost + drvCost + overnightCost + dailyStanding + dailyOverhead)}</td>
+                                </tr>
                               </tbody>
                             </table>
                           </>
