@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 
+export const dynamic = 'force-dynamic';
+
 const escapeHtml = (value: unknown) => String(value || '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 

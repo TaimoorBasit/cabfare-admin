@@ -5,7 +5,7 @@ import { API_BASE_URL } from '../lib/api';
 
 import { Fragment, useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { Search, Sun, Moon, TrendingUp, Plus, Edit3, MoreVertical, Pause, History, CalendarDays, SlidersHorizontal, Download, CircleDollarSign, Target, RefreshCw, Activity, MapPinned } from "lucide-react";
+import { Search, Sun, Moon, TrendingUp, Plus, Edit3, MoreVertical, Pause, History, CalendarDays, SlidersHorizontal, Download, CircleDollarSign, Target, RefreshCw, Activity, MapPinned, Eye, EyeOff } from "lucide-react";
 
 const ADMIN_TOKEN_KEY = 'caroleanAdminToken';
 const ADMIN_USER_KEY = 'caroleanAdminUser';
@@ -154,6 +154,9 @@ function LegacyAdminAuthGate({ onAuthenticated }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const errorTimerRef = useRef(null);
@@ -176,9 +179,18 @@ function LegacyAdminAuthGate({ onAuthenticated }) {
     }, 400);
   };
 
+  const isCreatePasswordMode = mode === 'register' || mode === 'invite' || mode === 'reset';
+
   const submit = async event => {
     event.preventDefault();
-    setBusy(true); clearAuthError();
+    clearAuthError();
+
+    if (isCreatePasswordMode && password !== confirmPassword) {
+      showConfirmedAuthError('Passwords do not match.');
+      return;
+    }
+
+    setBusy(true);
     try {
       const accessSetup = mode === 'invite' || mode === 'reset';
       const endpoint = accessSetup ? (mode === 'invite' ? 'complete-invite' : 'reset-password') : mode;
@@ -193,6 +205,7 @@ function LegacyAdminAuthGate({ onAuthenticated }) {
         if (accessSetup) window.history.replaceState({}, '', window.location.pathname);
         setMode('login');
         setPassword('');
+        setConfirmPassword('');
         setError(accessSetup ? 'Password saved. Sign in to continue.' : 'Administrator created. Sign in to continue.');
       } else {
         clearAuthError();
@@ -207,7 +220,46 @@ function LegacyAdminAuthGate({ onAuthenticated }) {
     }
   };
 
-  return <main className="admin-auth-screen min-h-screen flex items-center justify-center p-6"><form onSubmit={submit} className="admin-auth-card w-full max-w-sm rounded-2xl p-7"><img src="/carolean%20image.png" alt="Carolean" className="h-14 mx-auto mb-5"/><h1 className="text-xl font-extrabold text-slate-900 text-center">{mode === 'login' ? 'Admin sign in' : 'Create first administrator'}</h1><p className="text-sm text-slate-600 text-center mt-1 mb-5">Protected access to pricing and operational data.</p>{mode === 'register' && <label className="block text-xs font-bold text-slate-700 mb-3">Name<input className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={name} onChange={event=>setName(event.target.value)} required/></label>}<label className="block text-xs font-bold text-slate-700 mb-3">Email<input type="email" className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={email} onChange={event=>setEmail(event.target.value)} required/></label><label className="block text-xs font-bold text-slate-700 mb-3">Password<input type="password" minLength={10} className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={password} onChange={event=>setPassword(event.target.value)} required/></label>{error && <p className={`mb-3 text-xs ${error.startsWith('Administrator created') ? 'text-emerald-700' : 'text-red-700'}`}>{error}</p>}<button disabled={busy} className="admin-auth-submit w-full rounded-lg px-4 py-2.5 text-sm font-bold text-white disabled:opacity-60">{busy ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Create administrator'}</button></form></main>;
+  const accessSetup = mode === 'invite' || mode === 'reset';
+  return (
+    <main className="admin-auth-screen min-h-screen flex items-center justify-center p-6">
+      <form onSubmit={submit} className="admin-auth-card w-full max-w-sm rounded-2xl p-7">
+        <img src="/carolean%20image.png" alt="Carolean" className="h-14 mx-auto mb-5"/>
+        <h1 className="text-xl font-extrabold text-slate-900 text-center">{mode === 'login' ? 'Admin sign in' : 'Create first administrator'}</h1>
+        <p className="text-sm text-slate-600 text-center mt-1 mb-5">Protected access to pricing and operational data.</p>
+        {mode === 'register' && (
+          <label className="block text-xs font-bold text-slate-700 mb-3">Name
+            <input className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={name} onChange={event=>setName(event.target.value)} required/>
+          </label>
+        )}
+        <label className="block text-xs font-bold text-slate-700 mb-3">Email
+          <input type="email" className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={email} onChange={event=>setEmail(event.target.value)} required/>
+        </label>
+        <label className="block text-xs font-bold text-slate-700 mb-3">
+          Password
+          <div className="relative mt-1">
+            <input type={showPassword ? 'text' : 'password'} minLength={10} className="w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 pr-10 text-sm text-slate-900" value={password} onChange={event=>setPassword(event.target.value)} required/>
+            <button type="button" onClick={()=>setShowPassword(!showPassword)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none p-1" aria-label={showPassword ? 'Hide password' : 'Show password'}>
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+        </label>
+        {isCreatePasswordMode && (
+          <label className="block text-xs font-bold text-slate-700 mb-3">
+            Confirm password
+            <div className="relative mt-1">
+              <input type={showConfirmPassword ? 'text' : 'password'} minLength={10} className="w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 pr-10 text-sm text-slate-900" value={confirmPassword} onChange={event=>setConfirmPassword(event.target.value)} required/>
+              <button type="button" onClick={()=>setShowConfirmPassword(!showConfirmPassword)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none p-1" aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}>
+                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </label>
+        )}
+        {error && <p className={`mb-3 text-xs ${error.startsWith('Administrator created') ? 'text-emerald-700' : 'text-red-700'}`}>{error}</p>}
+        <button disabled={busy} className="admin-auth-submit w-full rounded-lg px-4 py-2.5 text-sm font-bold text-white disabled:opacity-60">{busy ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Create administrator'}</button>
+      </form>
+    </main>
+  );
 }
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
@@ -219,12 +271,24 @@ function AdminAuthGate({ onAuthenticated }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const accessSetup = mode === 'invite' || mode === 'reset';
+  const isCreatePasswordMode = mode === 'register' || accessSetup;
 
   const submit = async event => {
-    event.preventDefault(); setBusy(true); setMessage('');
+    event.preventDefault();
+    setMessage('');
+
+    if (isCreatePasswordMode && password !== confirmPassword) {
+      setMessage('Passwords do not match.');
+      return;
+    }
+
+    setBusy(true);
     try {
       const endpoint = accessSetup ? (mode === 'invite' ? 'complete-invite' : 'reset-password') : mode;
       const response = await fetch(`${API_BASE_URL}/api/auth/${endpoint}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(accessSetup ? {token,password} : {name,email,password}) });
@@ -232,7 +296,7 @@ function AdminAuthGate({ onAuthenticated }) {
       if (!response.ok) throw new Error(payload.error || 'Authentication failed');
       if (mode === 'register' || accessSetup) {
         if (accessSetup) window.history.replaceState({}, '', window.location.pathname);
-        setMode('login'); setPassword(''); setMessage('Password saved. Sign in to continue.');
+        setMode('login'); setPassword(''); setConfirmPassword(''); setMessage('Password saved. Sign in to continue.');
       } else {
         window.localStorage.setItem(ADMIN_TOKEN_KEY, payload.token);
         if (payload.user) window.localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(payload.user));
@@ -243,7 +307,47 @@ function AdminAuthGate({ onAuthenticated }) {
   };
 
   const title = accessSetup ? (mode === 'invite' ? 'Set up your account' : 'Create a new password') : mode === 'login' ? 'Admin sign in' : 'Create first administrator';
-  return <main className="admin-auth-screen min-h-screen flex items-center justify-center p-6"><form onSubmit={submit} className="admin-auth-card w-full max-w-sm rounded-2xl p-7"><img src="/carolean%20image.png" alt="Carolean" className="h-14 mx-auto mb-5"/><h1 className="text-xl font-extrabold text-slate-900 text-center">{title}</h1><p className="text-sm text-slate-600 text-center mt-1 mb-5">{accessSetup ? 'Choose a secure password with at least 10 characters.' : 'Protected access to pricing and operational data.'}</p>{mode === 'register' && <label className="block text-xs font-bold text-slate-700 mb-3">Name<input className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={name} onChange={event=>setName(event.target.value)} required/></label>}{!accessSetup && <label className="block text-xs font-bold text-slate-700 mb-3">Email<input type="email" className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={email} onChange={event=>setEmail(event.target.value)} required/></label>}<label className="block text-xs font-bold text-slate-700 mb-3">{accessSetup ? 'New password' : 'Password'}<input type="password" minLength={10} className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={password} onChange={event=>setPassword(event.target.value)} required/></label>{message && <p className={`mb-3 text-xs ${message.includes('Sign in to continue') ? 'text-emerald-700' : 'text-red-700'}`}>{message}</p>}<button disabled={busy} className="admin-auth-submit w-full rounded-lg px-4 py-2.5 text-sm font-bold text-white disabled:opacity-60">{busy ? 'Please wait…' : accessSetup ? 'Save password' : mode === 'login' ? 'Sign in' : 'Create administrator'}</button></form></main>;
+  return (
+    <main className="admin-auth-screen min-h-screen flex items-center justify-center p-6">
+      <form onSubmit={submit} className="admin-auth-card w-full max-w-sm rounded-2xl p-7">
+        <img src="/carolean%20image.png" alt="Carolean" className="h-14 mx-auto mb-5"/>
+        <h1 className="text-xl font-extrabold text-slate-900 text-center">{title}</h1>
+        <p className="text-sm text-slate-600 text-center mt-1 mb-5">{accessSetup ? 'Choose a secure password with at least 10 characters.' : 'Protected access to pricing and operational data.'}</p>
+        {mode === 'register' && (
+          <label className="block text-xs font-bold text-slate-700 mb-3">Name
+            <input className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={name} onChange={event=>setName(event.target.value)} required/>
+          </label>
+        )}
+        {!accessSetup && (
+          <label className="block text-xs font-bold text-slate-700 mb-3">Email
+            <input type="email" className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900" value={email} onChange={event=>setEmail(event.target.value)} required/>
+          </label>
+        )}
+        <label className="block text-xs font-bold text-slate-700 mb-3">
+          {accessSetup ? 'New password' : 'Password'}
+          <div className="relative mt-1">
+            <input type={showPassword ? 'text' : 'password'} minLength={10} className="w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 pr-10 text-sm text-slate-900" value={password} onChange={event=>setPassword(event.target.value)} required/>
+            <button type="button" onClick={()=>setShowPassword(!showPassword)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none p-1" aria-label={showPassword ? 'Hide password' : 'Show password'}>
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+        </label>
+        {isCreatePasswordMode && (
+          <label className="block text-xs font-bold text-slate-700 mb-3">
+            {accessSetup ? 'Confirm new password' : 'Confirm password'}
+            <div className="relative mt-1">
+              <input type={showConfirmPassword ? 'text' : 'password'} minLength={10} className="w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 pr-10 text-sm text-slate-900" value={confirmPassword} onChange={event=>setConfirmPassword(event.target.value)} required/>
+              <button type="button" onClick={()=>setShowConfirmPassword(!showConfirmPassword)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none p-1" aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}>
+                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </label>
+        )}
+        {message && <p className={`mb-3 text-xs ${message.includes('Sign in to continue') ? 'text-emerald-700' : 'text-red-700'}`}>{message}</p>}
+        <button disabled={busy} className="admin-auth-submit w-full rounded-lg px-4 py-2.5 text-sm font-bold text-white disabled:opacity-60">{busy ? 'Please wait…' : accessSetup ? 'Save password' : mode === 'login' ? 'Sign in' : 'Create administrator'}</button>
+      </form>
+    </main>
+  );
 }
 
 const PX = {
