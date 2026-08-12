@@ -2966,11 +2966,12 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                   const utilDays = Number(vehicle?.utilisationDays) || 225;
                                   const fleetCount = Number(vehicle?.fleetCount) || 1;
                                   
-                                  const dailyOverhead = Number.isFinite(Number(bd.allocatedOverhead)) ? Number(bd.allocatedOverhead) : overheadPerUnit / utilDays;
-                                  const dailyStanding = Number.isFinite(Number(bd.allocatedStanding)) ? Number(bd.allocatedStanding) : annualFixed / fleetCount / utilDays;
+                                  const operatingDays = Math.max(1, Number(b.quote?.result?.opDays) || 1);
+                                  const allocatedOverhead = Number.isFinite(Number(bd.allocatedOverhead)) ? Number(bd.allocatedOverhead) : (overheadPerUnit / utilDays) * operatingDays;
+                                  const allocatedStanding = Number.isFinite(Number(bd.allocatedStanding)) ? Number(bd.allocatedStanding) : (annualFixed / fleetCount / utilDays) * operatingDays;
                                   
                                   const grossProfit = rev - surcharges - distCost - drvCost - overnightCost;
-                                  const netProfit = grossProfit - dailyStanding - dailyOverhead;
+                                  const netProfit = grossProfit - allocatedStanding - allocatedOverhead;
                                   
                                   const baseForMargin = rev;
                                   if (baseForMargin <= 0) return <span style={{ color: darkMode ? "#475569" : "#cbd5e1" }}>-</span>;
@@ -3168,8 +3169,9 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         const utilDays = Number(vehicle?.utilisationDays) || 225;
                         const fleetCount = Number(vehicle?.fleetCount) || 1;
                         
-                        const dailyOverhead = Number.isFinite(Number(bd.allocatedOverhead)) ? Number(bd.allocatedOverhead) : overheadPerUnit / utilDays;
-                        const dailyStanding = Number.isFinite(Number(bd.allocatedStanding)) ? Number(bd.allocatedStanding) : annualFixed / fleetCount / utilDays;
+                        const operatingDays = Math.max(1, Number(previewBooking.quote?.result?.opDays) || 1);
+                        const allocatedOverhead = Number.isFinite(Number(bd.allocatedOverhead)) ? Number(bd.allocatedOverhead) : (overheadPerUnit / utilDays) * operatingDays;
+                        const allocatedStanding = Number.isFinite(Number(bd.allocatedStanding)) ? Number(bd.allocatedStanding) : (annualFixed / fleetCount / utilDays) * operatingDays;
 
                         // Fuel/maintenance/tyre are only split out in the breakdown for quotes
                         // priced after this field was added. Older bookings still carry the
@@ -3191,7 +3193,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         }
 
                         const grossProfit = rev - surcharges - distCost - drvCost - overnightCost;
-                        const netProfit = grossProfit - dailyStanding - dailyOverhead;
+                        const netProfit = grossProfit - allocatedStanding - allocatedOverhead;
                         
                         const baseForMargin = rev;
                         if (baseForMargin <= 0) return null;
@@ -3263,8 +3265,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                   <td style={{ padding: "8px 0", textAlign: "right", fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(surcharges + distCost + drvCost + overnightCost)}</td>
                                 </tr>
                                 {[
-                                  ['Allocated vehicle overheads', dailyStanding],
-                                  ['Allocated company overhead', dailyOverhead],
+                                  ['Allocated vehicle overheads', allocatedStanding],
+                                  ['Allocated company overhead', allocatedOverhead],
                                 ].map(([label, value]) => (
                                   <tr key={label as string} style={{ borderBottom: `1px solid ${darkMode ? "#1f2937" : "#f1f5f9"}` }}>
                                     <td style={{ padding: "8px 0", color: darkMode ? "#d1d5db" : PX.gray700 }}>{label}</td>
@@ -3273,7 +3275,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                 ))}
                                 <tr style={{ borderTop: `2px solid ${darkMode ? "#374151" : "#e2e8f0"}` }}>
                                   <td style={{ padding: "10px 0 4px", fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800 }}>Total operating cost</td>
-                                  <td style={{ padding: "10px 0 4px", textAlign: "right", fontWeight: 900, color: darkMode ? "#f3f4f6" : PX.navy800 }}>Â£{fmt(surcharges + distCost + drvCost + overnightCost + dailyStanding + dailyOverhead)}</td>
+                                  <td style={{ padding: "10px 0 4px", textAlign: "right", fontWeight: 900, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(surcharges + distCost + drvCost + overnightCost + allocatedStanding + allocatedOverhead)}</td>
                                 </tr>
                               </tbody>
                             </table>
