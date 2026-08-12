@@ -3208,6 +3208,11 @@ table {
 .admin-premium-shell .fleet-economics-workspace > *,
 .admin-premium-shell .quotation-list-pane,
 .admin-premium-shell .quotation-detail-panel { min-width: 0; }
+.admin-premium-shell .quotation-list-pane { container-type: inline-size; }
+.admin-premium-shell .quotation-filters,
+.admin-premium-shell .quotation-filters > *,
+.admin-premium-shell .quotation-fare-filter { min-width: 0; max-width: 100%; }
+.admin-premium-shell .quotation-filters > input[type="date"] { min-width: 0 !important; width: 100% !important; }
 
 .admin-premium-shell .vehicle-quotation-grid {
   grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
@@ -3260,6 +3265,23 @@ table {
 
 @media (max-width: 420px) {
   .admin-premium-shell .vehicle-quotation-grid { grid-template-columns: 1fr; }
+}
+
+/* Container queries fix the real failure mode: the list panel can be narrow
+   even while the overall browser viewport is wide because of the sidebar and
+   detail panel. */
+@container (max-width: 900px) {
+  .admin-premium-shell .quotation-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .admin-premium-shell .quotation-fare-filter { grid-column: span 2; }
+}
+@container (max-width: 560px) {
+  .admin-premium-shell .quotation-filters {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .admin-premium-shell .quotation-fare-filter { grid-column: auto; }
+  .admin-premium-shell .quotation-filters > button { width: 100%; }
 }
 
 /* Admin authentication hero */
