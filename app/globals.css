@@ -3209,6 +3209,8 @@ table {
 .admin-premium-shell .quotation-list-pane,
 .admin-premium-shell .quotation-detail-panel { min-width: 0; }
 .admin-premium-shell .quotation-list-pane { container-type: inline-size; }
+.admin-premium-shell .fleet-economics-workspace { container-type: inline-size; }
+.admin-premium-shell .fleet-operational-card { container-type: inline-size; }
 .admin-premium-shell .quotation-filters,
 .admin-premium-shell .quotation-filters > *,
 .admin-premium-shell .quotation-fare-filter { min-width: 0; max-width: 100%; }
@@ -3223,6 +3225,47 @@ table {
 .admin-premium-shell .settings-layout strong,
 .admin-premium-shell .settings-layout span,
 .admin-premium-shell .dashboard-premium strong { overflow-wrap: anywhere; }
+
+/* Reflow narrow cards based on their actual panel width, including browser zoom. */
+@container (max-width: 520px) {
+  .admin-premium-shell .fleet-operational-card > .flex.flex-col {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+  }
+  .admin-premium-shell .fleet-operational-card > .flex.flex-col > .fleet-range-control {
+    grid-column: 1 / -1;
+  }
+  .admin-premium-shell .fleet-operational-card .grid.grid-cols-\[1fr_1\.2fr_1\.5fr\] {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+  .admin-premium-shell .fleet-compact-field {
+    min-width: 0;
+    gap: 5px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .admin-premium-shell .fleet-compact-field label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .admin-premium-shell .fleet-compact-field input {
+    min-width: 0;
+    flex: 1 1 auto;
+    width: auto !important;
+  }
+}
+
+@container (max-width: 360px) {
+  .admin-premium-shell .fleet-operational-card > .flex.flex-col {
+    grid-template-columns: 1fr !important;
+  }
+  .admin-premium-shell .fleet-operational-card .grid.grid-cols-\[1fr_1\.2fr_1\.5fr\] {
+    grid-template-columns: 1fr !important;
+  }
+}
 
 @media (max-width: 1500px) {
   .admin-premium-shell .premium-sidebar { width: 220px !important; }
