@@ -3193,6 +3193,75 @@ table {
   .admin-premium-shell .settings-section-company > .settings-business > .grid { grid-template-columns: 1fr; }
 }
 
+/* Responsive desktop contract: size components from their available content
+   width (after the sidebar), not from the physical display resolution. */
+.admin-premium-shell,
+.admin-premium-shell .premium-sidebar + div,
+.admin-premium-shell main,
+.admin-premium-shell main > section,
+.admin-premium-shell .dashboard-premium,
+.admin-premium-shell .pricing-rules-page,
+.admin-premium-shell .fleet-economics-page,
+.admin-premium-shell .settings-page,
+.admin-premium-shell .quotations-page,
+.admin-premium-shell .settings-layout > *,
+.admin-premium-shell .fleet-economics-workspace > *,
+.admin-premium-shell .quotation-list-pane,
+.admin-premium-shell .quotation-detail-panel { min-width: 0; }
+
+.admin-premium-shell .vehicle-quotation-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+}
+.admin-premium-shell input,
+.admin-premium-shell select,
+.admin-premium-shell textarea { max-width: 100%; }
+.admin-premium-shell .settings-layout strong,
+.admin-premium-shell .settings-layout span,
+.admin-premium-shell .dashboard-premium strong { overflow-wrap: anywhere; }
+
+@media (max-width: 1500px) {
+  .admin-premium-shell .premium-sidebar { width: 220px !important; }
+  .admin-premium-shell .premium-sidebar + div { margin-left: 220px !important; }
+  .admin-premium-shell .premium-sidebar nav button { padding-left: 14px !important; padding-right: 14px !important; }
+  .admin-premium-shell .quotations-page { grid-template-columns: minmax(0, 1fr) minmax(320px, 36%) !important; }
+  .admin-premium-shell .fleet-economics-workspace { grid-template-columns: minmax(250px, 30%) minmax(0, 1fr) !important; }
+  .admin-premium-shell .settings-section-pricing > .settings-pricing { grid-column: 1 / 13 !important; }
+  .admin-premium-shell .settings-section-pricing > .settings-tolls { grid-column: 1 / 13 !important; }
+}
+
+@media (max-width: 1180px) {
+  .admin-premium-shell .premium-sidebar { width: 72px !important; padding: 12px 8px !important; }
+  .admin-premium-shell .premium-sidebar + div { margin-left: 72px !important; }
+  .admin-premium-shell .premium-sidebar > div:first-child h1,
+  .admin-premium-shell .premium-sidebar > div:first-child p,
+  .admin-premium-shell .premium-sidebar nav button > span:last-child,
+  .admin-premium-shell .sidebar-account-copy,
+  .admin-premium-shell .sidebar-account-logout span { display: none !important; }
+  .admin-premium-shell .premium-sidebar nav button { justify-content: center !important; padding: 10px 8px !important; }
+  .admin-premium-shell .header-quick-nav { display: none !important; }
+  .admin-premium-shell .quotations-page {
+    height: auto !important;
+    max-height: none !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    overflow-y: auto !important;
+  }
+  .admin-premium-shell .quotation-detail-panel { max-height: none !important; }
+  .admin-premium-shell .fleet-economics-workspace { display: flex !important; flex-direction: column; }
+}
+
+@media (max-width: 760px) {
+  .admin-premium-shell .premium-header > div:first-child { min-width: 0; flex: 1; }
+  .admin-premium-shell .admin-global-search { min-width: 0; flex: 1; }
+  .admin-premium-shell .admin-global-search input { width: 100% !important; }
+  .admin-premium-shell .settings-page { padding: 12px !important; }
+  .admin-premium-shell .settings-layout { gap: 12px !important; }
+  .admin-premium-shell .vehicle-quotation-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 420px) {
+  .admin-premium-shell .vehicle-quotation-grid { grid-template-columns: 1fr; }
+}
+
 /* Admin authentication hero */
 .admin-auth-screen {
   position: relative;
@@ -3320,7 +3389,7 @@ table {
 
 /* Current admin shell responsive contract. The older .adm-root rules above
    belong to the retired layout and do not match AdminApp's live class names. */
-@media (max-width: 900px) {
+@media (max-width: 1180px) {
   .admin-premium-shell .premium-sidebar {
     width: 72px !important;
     padding: 12px 8px !important;

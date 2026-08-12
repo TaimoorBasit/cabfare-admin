@@ -1503,7 +1503,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   }, [darkMode, isReady]);
   const [vehicles, setV]    = useState(db.vehicles.map(injectDefaults));
   const [activeVehicleId, setActiveVehicleId] = useState(vehicles[0]?.id || "");
-  const [selectedWageVehicleId, setSelectedWageVehicleId] = useState(vehicles[0]?.id || "");
+  const [selectedPricingVehicleId, setSelectedPricingVehicleId] = useState(vehicles[0]?.id || "");
   const [gv, setGv]         = useState({...db.globalVars});
   const [depotLoc, setDepotLoc] = useState({ address: gv.yardAddress || "", lat: gv.yardLat, lng: gv.yardLng });
   const [previewBooking, setPreviewBooking] = useState<any>(null);
@@ -1838,10 +1838,12 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   }, [bookingsData, bookingLast30Days, reportDate, searchNameRef, searchVehicle, searchFareFrom, searchFareTo, searchRoute]);
 
   const exportBookingsToCSV = async () => {
-    const [{ default: ExcelJS }, { saveAs }] = await Promise.all([
+    try {
+    const [{ default: ExcelJS }, fileSaver] = await Promise.all([
       import('exceljs'),
       import('file-saver')
     ]);
+    const saveAs = fileSaver.saveAs || fileSaver.default;
     const unit = gv?.distanceUnit === 'miles' ? 'mile' : 'km';
     const headers = [
       "Booking ID", "Date", "Customer Name", "Email", "Phone", "Company",
@@ -2015,9 +2017,55 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
       col.width = Math.max(header.length, 12);
     });
 
+    const accountancy = workbook.addWorksheet('Accountancy Breakdown');
+    const auditHeaders = [
+      'Booking ID','Date','Vehicle','Origin','Destination','Trip Type','Passengers','Distance (km)','Operating Days',
+      'Minimum Customer Hire (£)','Quoted Subtotal (£)','Surcharges (£)','Final Net Fare (£)','VAT 20% (£)','Total Inc VAT (£)',
+      'Fuel Price (£/L)','Fuel Economy (km/L)','Fuel Cost (£)','Maintenance Rate (£/km)','Maintenance Cost (£)',
+      'Tyre Rate (£/km)','Tyre Cost (£)','Driver Cost (£)','Standing Cost (£)','Overnight Cost (£)',
+      'Vehicle Fixed Allocation (£)','Company Overhead Allocation (£)','Direct Cost (£)','Accounting Cost (£)',
+      'Gross Profit (£)','Gross Margin (%)','Net Profit (£)','Net Margin (%)','Configured Net Margin (%)','Profit Floor (£)'
+    ];
+    const auditHeader = accountancy.addRow(auditHeaders);
+    auditHeader.font = { bold:true, color:{argb:'FFFFFFFF'} };
+    auditHeader.fill = { type:'pattern', pattern:'solid', fgColor:{argb:'FF1E293B'} };
+    filteredBookingsData.forEach((b, index) => {
+      const rowNumber = index + 2;
+      const vehicle = b.quote?.vehicle || db.vehicles.find(v=>v.id===b.journey?.vehicleId) || {};
+      const result = b.quote?.result || {};
+      const bd = result.breakdown || {};
+      const distanceKm = Number(result.chargedKm || 0);
+      const fuelPrice = Number(vehicle.fuelPricePerLitre ?? db.globalVars?.fuelPricePerLitre ?? 0);
+      const fuelEconomy = Number(vehicle.fuelKpl || 0);
+      const maintenanceRate = Number(vehicle.maintenanceCostPerKm) || (Number(vehicle.maintenanceSetCost)||0) / Math.max(1,Number(vehicle.expectedMaintenanceLifeKm)||1);
+      const tyreRate = Number(vehicle.tyreCostPerKm) || (Number(vehicle.tyreSetCost)||0) / Math.max(1,Number(vehicle.expectedTyreLifeKm)||1);
+      accountancy.addRow([
+        b.id, new Date(b.createdAt), vehicle.name || '', b.journey?.origin || '', b.journey?.destination || '', b.journey?.journeyType || '', Number(b.journey?.passengers)||0, distanceKm, Number(result.opDays)||1,
+        Number(vehicle.minimumHire)||0, Number(result.subtotal)||0, Number(result.surchargeTotal ?? bd.surchargeTotal)||0, Number(result.finalPrice || result.finalFare)||0,
+        {formula:`M${rowNumber}*20%`}, {formula:`M${rowNumber}+N${rowNumber}`}, fuelPrice, fuelEconomy,
+        {formula:`IF(Q${rowNumber}>0,H${rowNumber}*P${rowNumber}/Q${rowNumber},0)`}, maintenanceRate, {formula:`H${rowNumber}*S${rowNumber}`}, tyreRate, {formula:`H${rowNumber}*U${rowNumber}`},
+        Number(bd.driverCost ?? result.driverCost)||0, Number(bd.standingCost)||0, Number(bd.overnightCost)||0, Number(bd.allocatedStanding)||0, Number(bd.allocatedOverhead)||0,
+        {formula:`R${rowNumber}+T${rowNumber}+V${rowNumber}+W${rowNumber}+X${rowNumber}+Y${rowNumber}+L${rowNumber}`},
+        {formula:`AB${rowNumber}+Z${rowNumber}+AA${rowNumber}`}, {formula:`M${rowNumber}-AB${rowNumber}`}, {formula:`IF(M${rowNumber}>0,AD${rowNumber}/M${rowNumber},0)`},
+        {formula:`M${rowNumber}-AC${rowNumber}`}, {formula:`IF(M${rowNumber}>0,AF${rowNumber}/M${rowNumber},0)`}, Number(bd.netMarginPct)||0, Number(bd.profitFloor)||0
+      ]);
+    });
+    accountancy.views = [{state:'frozen',ySplit:1}];
+    accountancy.autoFilter = {from:'A1',to:`AI${Math.max(1,filteredBookingsData.length+1)}`};
+    accountancy.columns.forEach((column,index)=>{ column.width = Math.min(36,Math.max(14,auditHeaders[index]?.length||14)); });
+    accountancy.getColumn(2).numFmt = 'dd/mm/yyyy hh:mm';
+    for (let column=10; column<=30; column++) accountancy.getColumn(column).numFmt = '£#,##0.00';
+    for (const column of [31,33]) accountancy.getColumn(column).numFmt = '0.0%';
+    accountancy.getColumn(34).numFmt = '0.0';
+    accountancy.getColumn(35).numFmt = '£#,##0.00';
+
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     saveAs(blob, `bookings_${new Date().toISOString().split('T')[0]}.xlsx`);
+    setToast(`Exported ${filteredBookingsData.length} quotation${filteredBookingsData.length===1?'':'s'}`);
+    } catch (error) {
+      setToast(error.message || 'Unable to export quotations');
+    }
   };
 
   const saveApi = useCallback(async (type, item, isDelete=false) => {
@@ -4021,6 +4069,16 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 <div className="settings-pricing col-span-12 lg:col-span-4 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
                   <div className="flex items-center gap-3 mb-4">
                     <div><h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Profit & Margin Controls</h3><p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Admin targets applied automatically to quotations</p></div>
+                  </div>
+                  <div className="mb-4 border-b border-slate-200 pb-4 dark:border-slate-700">
+                    <div className="flex flex-wrap items-end justify-between gap-2"><div><h4 className="text-xs font-extrabold text-slate-900 dark:text-slate-100">Vehicle quotation rates</h4><p className="mt-0.5 text-[10px] font-semibold text-slate-500 dark:text-slate-400">Fallback quotation settings</p></div><select aria-label="Vehicle quotation tier" value={vehicles.some(vehicle=>vehicle.id===selectedPricingVehicleId)?selectedPricingVehicleId:vehicles[0]?.id||''} onChange={event=>setSelectedPricingVehicleId(event.target.value)} className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-[11px] font-bold text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">{vehicles.map(vehicle=><option key={vehicle.id} value={vehicle.id}>{vehicle.name}</option>)}</select></div>
+                    {(()=>{const vehicle=vehicles.find(item=>item.id===selectedPricingVehicleId)||vehicles[0];return vehicle?<div className="vehicle-quotation-grid mt-3 grid gap-2">{[
+                      ['minimumHire','Minimum hire','£',1],
+                      ['sellingRateOneWay','One-way rate',`£/${distanceUnitShort}`,0.01],
+                      ['sellingRateReturn','Return rate',`£/${distanceUnitShort}`,0.01],
+                      ['includedKmOneWay','Included one-way',distanceUnitShort,1],
+                      ['includedKmReturn','Included return',distanceUnitShort,1]
+                    ].map(([field,label,suffix,step])=><label key={field} className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50"><span className="block text-[9px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">{label}</span><span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600"><input aria-label={`${vehicle.name} ${label}`} type="number" min="0" step={step} value={vehicle[field]??0} onChange={event=>updateV(vehicle.id,field,Math.max(0,Number(event.target.value)||0))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/><span className="ml-1 whitespace-nowrap text-[9px] font-bold text-slate-400">{suffix}</span></span></label>)}</div>:null})()}
                   </div>
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
