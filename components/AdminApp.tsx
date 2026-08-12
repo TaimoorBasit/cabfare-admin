@@ -50,7 +50,7 @@ const RECOVERY_CONFIGURATION = {
     driverWageHoliday: 22, marginWeekday: 20, marginWeekend: 25,
     marginHoliday: 30, netMarginPct: 5, netProfitTarget: 0, overnightCost: 200, waitingChargePerHour: 35,
     emptyLegThresholdKm: 20, dualDriverThresholdHours: 9,
-    waitingWageFactor: 0.75, customerRangePct: 12,
+    waitingWageFactor: 0.75, customerRangePct: 12, walkaroundCheckMinutes: 30,
     distanceUnit: 'miles',
     yardAddress: 'Unit 1, Carolean Coaches, Bentley Lane, Walsall WS2 8TL, UK',
     yardLat: 52.5916536, yardLng: -2.0071041
@@ -544,7 +544,7 @@ const ADMIN_SEARCH_DESTINATIONS = [
   { label: 'Dynamic pricing matrix', description: 'Global, fleet and city rates', tab: 'pricing', target: 'pricing-matrix', feature: 'matrix', keywords: 'matrix bands rates city global' },
   { label: 'Fixed route templates', description: 'Saved route prices', tab: 'pricing', target: 'pricing-routes', feature: 'routes', keywords: 'route template fixed price' },
   { label: 'Fleet variables', description: 'Count, utilisation, seats and running costs', tab: 'fleet', target: 'fleet-variables', feature: 'fleetVariables', keywords: 'fleet fuel tyre maintenance luggage seats utilisation' },
-  { label: 'Annual fixed costs', description: 'Vehicle standing-cost ledger', tab: 'fleet', target: 'fleet-fixed-costs', feature: 'fixedCosts', keywords: 'annual fixed cost insurance depreciation standing' },
+  { label: 'Vehicle Overheads', description: 'Vehicle standing-cost ledger', tab: 'fleet', target: 'fleet-fixed-costs', feature: 'fixedCosts', keywords: 'annual fixed cost vehicle overheads insurance depreciation standing' },
   { label: 'Quotations', description: 'Search, edit and export quotes', tab: 'bookings', target: 'quotation-workspace', feature: 'quotations', keywords: 'quote booking client customer export' },
   { label: 'Company settings', description: 'Business and operator details', tab: 'settings', settingsSection: 'company', keywords: 'company operator business licence' },
   { label: 'Pricing settings', description: 'Wages, margins and operating rates', tab: 'settings', settingsSection: 'pricing', keywords: 'wage margin waiting overnight pricing' },
@@ -2534,7 +2534,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   <span className="font-label-caps text-label-caps">{label}</span>
                 </button>
                 {k === 'settings' && (
-                  <div className="pl-11 py-1 space-y-0.5">
+                  <div className="sidebar-settings-subnav pl-11 py-1 space-y-0.5">
                     {[...(hasPermission('settings') ? [['company', 'Business'], ['pricing', 'Pricing']] : []), ...(hasPermission('staff') ? [['staff', 'Staff Access']] : [])].map(([key, subLabel]) => {
                       const subSel = tab === 'settings' && settingsSection === key;
                       return (
@@ -3170,7 +3170,26 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         
                         const dailyOverhead = Number.isFinite(Number(bd.allocatedOverhead)) ? Number(bd.allocatedOverhead) : overheadPerUnit / utilDays;
                         const dailyStanding = Number.isFinite(Number(bd.allocatedStanding)) ? Number(bd.allocatedStanding) : annualFixed / fleetCount / utilDays;
-                        
+
+                        // Fuel/maintenance/tyre are only split out in the breakdown for quotes
+                        // priced after this field was added. Older bookings still carry the
+                        // combined distanceCost, so approximate the split using this vehicle's
+                        // current per-km rates, scaled to reconcile with the recorded total.
+                        let fuelCostVal, maintenanceCostVal, tyreCostVal;
+                        if (Number.isFinite(Number(bd.fuelCost)) || Number.isFinite(Number(bd.maintenanceCost)) || Number.isFinite(Number(bd.tyreCost))) {
+                          fuelCostVal = Number(bd.fuelCost) || 0;
+                          maintenanceCostVal = Number(bd.maintenanceCost) || 0;
+                          tyreCostVal = Number(bd.tyreCost) || 0;
+                        } else {
+                          const fuelRate = (vehicle?.fuelPricePerLitre ?? db.globalVars?.fuelPricePerLitre ?? 1.52) / (vehicle?.fuelKpl || 5);
+                          const maintRate = Number(vehicle?.maintenanceCostPerKm) || ((Number(vehicle?.maintenanceSetCost) || 0) / (Number(vehicle?.expectedMaintenanceLifeKm) || 1)) || 0.15;
+                          const tyreRate = Number(vehicle?.tyreCostPerKm) || ((Number(vehicle?.tyreSetCost) || 0) / (Number(vehicle?.expectedTyreLifeKm) || 1)) || 0.05;
+                          const rateSum = fuelRate + maintRate + tyreRate;
+                          fuelCostVal = rateSum > 0 ? distCost * (fuelRate / rateSum) : 0;
+                          maintenanceCostVal = rateSum > 0 ? distCost * (maintRate / rateSum) : 0;
+                          tyreCostVal = rateSum > 0 ? distCost * (tyreRate / rateSum) : 0;
+                        }
+
                         const grossProfit = rev - surcharges - distCost - drvCost - overnightCost;
                         const netProfit = grossProfit - dailyStanding - dailyOverhead;
                         
@@ -3219,10 +3238,45 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                 </tr>
                               </tbody>
                             </table>
+
+                            <div style={{ fontSize: 11, fontWeight: 800, color: darkMode ? "#6b7280" : PX.gray400, textTransform: "uppercase", letterSpacing: 1, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                              <span>Cost Breakdown</span>
+                              <div style={{ flex: 1, height: 1, background: darkMode ? "#1f2937" : "#f1f5f9" }} />
+                            </div>
+                            <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse", marginBottom: 24 }}>
+                              <tbody>
+                                {[
+                                  ['Fuel cost', fuelCostVal],
+                                  ['Maintenance cost', maintenanceCostVal],
+                                  ['Tyre cost', tyreCostVal],
+                                  ['Driver cost', drvCost],
+                                  ['Overnight / subsistence', overnightCost],
+                                  ['Surcharges (tolls, ULEZ, CAZ)', surcharges],
+                                ].map(([label, value]) => (
+                                  <tr key={label as string} style={{ borderBottom: `1px solid ${darkMode ? "#1f2937" : "#f1f5f9"}` }}>
+                                    <td style={{ padding: "8px 0", color: darkMode ? "#d1d5db" : PX.gray700 }}>{label}</td>
+                                    <td style={{ padding: "8px 0", textAlign: "right", fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(Number(value) || 0)}</td>
+                                  </tr>
+                                ))}
+                                <tr style={{ borderBottom: `2px solid ${darkMode ? "#374151" : "#e2e8f0"}` }}>
+                                  <td style={{ padding: "8px 0", fontWeight: 800, color: darkMode ? "#d1d5db" : PX.gray700 }}>Total direct cost</td>
+                                  <td style={{ padding: "8px 0", textAlign: "right", fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(surcharges + distCost + drvCost + overnightCost)}</td>
+                                </tr>
+                                {[
+                                  ['Allocated vehicle overheads', dailyStanding],
+                                  ['Allocated company overhead', dailyOverhead],
+                                ].map(([label, value]) => (
+                                  <tr key={label as string} style={{ borderBottom: `1px solid ${darkMode ? "#1f2937" : "#f1f5f9"}` }}>
+                                    <td style={{ padding: "8px 0", color: darkMode ? "#d1d5db" : PX.gray700 }}>{label}</td>
+                                    <td style={{ padding: "8px 0", textAlign: "right", fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(Number(value) || 0)}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
                           </>
                         );
                       })()}
-                      
+
                     </div>
                   </>
                 ) : (
@@ -3826,7 +3880,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           <div className="fleet-fixed-costs-head py-4 px-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
                             <div>
                                 <div className="fleet-card-eyebrow">Cost ledger</div>
-                                <h3 className="fleet-card-title">Annual fixed costs</h3>
+                                <h3 className="fleet-card-title">Vehicle Overheads</h3>
                                 <div className="fleet-card-description">Recurring costs carried by this vehicle tier</div>
                             </div>
                             <button className="fleet-add-cost" onClick={() => {
@@ -4109,13 +4163,20 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   </div>
                   <div className="mb-4 border-b border-slate-200 pb-4 dark:border-slate-700">
                     <div className="flex flex-wrap items-end justify-between gap-2"><div><h4 className="text-xs font-extrabold text-slate-900 dark:text-slate-100">Vehicle quotation rates</h4><p className="mt-0.5 text-[10px] font-semibold text-slate-500 dark:text-slate-400">Fallback quotation settings</p></div><select aria-label="Vehicle quotation tier" value={vehicles.some(vehicle=>vehicle.id===selectedPricingVehicleId)?selectedPricingVehicleId:vehicles[0]?.id||''} onChange={event=>setSelectedPricingVehicleId(event.target.value)} className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-[11px] font-bold text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">{vehicles.map(vehicle=><option key={vehicle.id} value={vehicle.id}>{vehicle.name}</option>)}</select></div>
-                    {(()=>{const vehicle=vehicles.find(item=>item.id===selectedPricingVehicleId)||vehicles[0];return vehicle?<div className="vehicle-quotation-grid mt-3 grid gap-2">{[
-                      ['minimumHire','Minimum hire','£',1],
+                    {(()=>{const vehicle=vehicles.find(item=>item.id===selectedPricingVehicleId)||vehicles[0];if(!vehicle)return null;const autoMinHire=eco.vehicleBreakdown.find(v=>v.id===vehicle.id)?.minHirePerDay;return <div className="vehicle-quotation-grid mt-3 grid gap-2">
+                      <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50" title="Auto-calculated from standing cost + overhead per day. Update fleet economics to change it.">
+                        <span className="block text-[9px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">Minimum hire (auto)</span>
+                        <span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600">
+                          <span className="min-w-0 w-full text-right text-sm font-extrabold text-slate-900 dark:text-white">{(autoMinHire ?? vehicle.minimumHire ?? 0).toFixed(2)}</span>
+                          <span className="ml-1 whitespace-nowrap text-[9px] font-bold text-slate-400">£</span>
+                        </span>
+                      </div>
+                      {[
                       ['sellingRateOneWay','One-way rate',`£/${distanceUnitShort}`,0.01],
                       ['sellingRateReturn','Return rate',`£/${distanceUnitShort}`,0.01],
                       ['includedKmOneWay','Included one-way',distanceUnitShort,1],
                       ['includedKmReturn','Included return',distanceUnitShort,1]
-                    ].map(([field,label,suffix,step])=><label key={field} className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50"><span className="block text-[9px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">{label}</span><span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600"><input aria-label={`${vehicle.name} ${label}`} type="number" min="0" step={step} value={vehicle[field]??0} onChange={event=>updateV(vehicle.id,field,Math.max(0,Number(event.target.value)||0))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/><span className="ml-1 whitespace-nowrap text-[9px] font-bold text-slate-400">{suffix}</span></span></label>)}</div>:null})()}
+                    ].map(([field,label,suffix,step])=><label key={field} className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50"><span className="block text-[9px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">{label}</span><span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600"><input aria-label={`${vehicle.name} ${label}`} type="number" min="0" step={step} value={vehicle[field]??0} onChange={event=>updateV(vehicle.id,field,Math.max(0,Number(event.target.value)||0))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/><span className="ml-1 whitespace-nowrap text-[9px] font-bold text-slate-400">{suffix}</span></span></label>)}</div>})()}
                   </div>
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
@@ -4146,7 +4207,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       ['emptyLegThresholdKm','Empty-leg threshold',20,'km'],
                       ['dualDriverThresholdHours','Daily driving limit',9,'hr'],
                       ['waitingWageFactor','Waiting wage factor',0.75,'×'],
-                      ['customerRangePct','Customer range uplift',12,'%']
+                      ['customerRangePct','Customer range uplift',12,'%'],
+                      ['walkaroundCheckMinutes','Walkaround check (each way)',30,'min']
                     ].map(([key,label,fallback,suffix]) => <div key={key} className="flex justify-between items-center pt-3 border-t border-outline-variant dark:border-[#1F2937]"><span className="text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span><div className="flex items-center gap-1"><input type="number" min="0" step={key==='waitingWageFactor'?0.05:1} className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))}/><span className="text-[10px] text-slate-500 dark:text-slate-400">{suffix}</span></div></div>)}
                   </div>
                 </div>

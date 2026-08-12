@@ -2134,7 +2134,7 @@ table {
 .dark .fleet-operational-summary-item strong { color: #f1f5f9 !important; }
 .dark .fleet-operational-summary { border-color: #334155; }
 .dark .fleet-operational-summary-title { color: #c2ccd8; }
-.fleet-variable-costs { grid-column: 1 / -1; grid-row: 2; align-items: start; }
+.fleet-variable-costs { grid-column: 1 / -1; grid-row: 2; align-items: start; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important; }
 .fleet-profitability { grid-column: 1 / -1; grid-row: 3; border-style: solid !important; min-height: 190px; }
 .fleet-auto-notice { grid-column: 1 / -1; grid-row: 4; }
 
@@ -2225,7 +2225,7 @@ table {
 
 .fleet-top-breakeven {
   flex: 1.45 1 300px;
-  min-width: 0;
+  min-width: 300px;
   display: flex;
   min-height: 82px;
   align-items: center;
@@ -2340,7 +2340,7 @@ table {
   .fleet-fixed-costs,
   .fleet-variable-costs,
   .fleet-profitability { grid-column: 1 / -1; }
-  .fleet-variable-costs { grid-row: 1; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .fleet-variable-costs { grid-row: 1; }
   .fleet-fixed-costs { grid-row: 2; }
   .fleet-operational-card { grid-column: 1 / -1; grid-row: 3; min-height: 0; height: auto; }
   .fleet-operational-summary { margin-top: 14px; }
@@ -2349,9 +2349,6 @@ table {
   .fleet-auto-notice { grid-row: 5; }
 }
 
-@media (max-width: 760px) {
-  .fleet-variable-costs { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-}
 
 /* Pricing Rules — polished control-room layout */
 .pricing-rules-page {
@@ -3255,7 +3252,8 @@ table {
   .admin-premium-shell .premium-sidebar > div:first-child p,
   .admin-premium-shell .premium-sidebar nav button > span:last-child,
   .admin-premium-shell .sidebar-account-copy,
-  .admin-premium-shell .sidebar-account-logout span { display: none !important; }
+  .admin-premium-shell .sidebar-account-logout span,
+  .admin-premium-shell .sidebar-settings-subnav { display: none !important; }
   .admin-premium-shell .premium-sidebar nav button { justify-content: center !important; padding: 10px 8px !important; }
   .admin-premium-shell .header-quick-nav { display: none !important; }
   .admin-premium-shell .quotations-page {
@@ -3442,7 +3440,8 @@ table {
   .admin-premium-shell .premium-sidebar > div:first-child p,
   .admin-premium-shell .premium-sidebar nav button > span:last-child,
   .admin-premium-shell .sidebar-account-copy,
-  .admin-premium-shell .sidebar-account-logout span { display: none !important; }
+  .admin-premium-shell .sidebar-account-logout span,
+  .admin-premium-shell .sidebar-settings-subnav { display: none !important; }
   .admin-premium-shell .premium-sidebar nav button {
     justify-content: center !important;
     min-height: 44px;
