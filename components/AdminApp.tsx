@@ -2012,6 +2012,14 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
         }
         return cell;
       }));
+      // Keep the visible summary columns populated in viewers that do not
+      // calculate Excel formulas on open.
+      for (const column of [51, 52, 53, 54]) {
+        const formulaCell = row[column - 1];
+        if (formulaCell && typeof formulaCell === 'object' && 'result' in formulaCell) {
+          addedRow.getCell(column).value = Number.isFinite(Number(formulaCell.result)) ? Number(formulaCell.result) : 0;
+        }
+      }
       
       if (rowIndex % 2 === 0) {
         addedRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
