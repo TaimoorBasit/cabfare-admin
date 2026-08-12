@@ -2011,8 +2011,10 @@ table {
 .fleet-compact-field {
   display: flex;
   min-height: 44px;
+  min-width: 0;
   align-items: center;
   justify-content: space-between;
+  gap: 6px;
   padding: 8px 11px;
   border: 1px solid #dce3ea;
   border-radius: 9px;
@@ -2020,6 +2022,8 @@ table {
   transition: border-color .15s ease, background .15s ease;
 }
 .fleet-compact-field:focus-within { border-color: #b6636f; background: #fff; box-shadow: 0 0 0 2px rgba(167, 55, 70, .1); }
+.fleet-compact-field label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fleet-compact-field input { min-width: 0; flex: 1 1 auto; width: auto !important; }
 .fleet-fixed-cost-rows {
   height: 220px;
   min-height: 220px;

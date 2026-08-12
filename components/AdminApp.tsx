@@ -1912,6 +1912,22 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
       const holPayPct = vehicle.holidayPayPct ?? db.globalVars?.holidayPayPct ?? 12.07;
 
       const rNum = index + 2;
+      const totalStanding = dailyStanding * (Number(result.opDays) || 1);
+      const totalOverhead = dailyOverhead * (Number(result.opDays) || 1);
+      const totalMinHire = minDailyHire * (Number(result.opDays) || 1);
+      const totalFuel = fuelPerKm * totalKm;
+      const totalTyre = tyreCost * totalKm;
+      const totalMaintenance = maintCost * totalKm;
+      const totalVariable = totalFuel + totalTyre + totalMaintenance;
+      const totalSurcharges = ulezCost + cazCost + dartfordCost + m6TollCost + subsistenceCost;
+      const subtotalValue = totalStanding + totalVariable + driverCost;
+      const targetProfit = (subtotalValue + totalSurcharges) * (profitMarginPct / 100);
+      const seasonalMultiplier = Number(b.quote?.result?.seasonalMultiplier || 1);
+      const totalFare = seasonalMultiplier > 0
+        ? Math.max((subtotalValue + totalSurcharges + targetProfit) * seasonalMultiplier, totalMinHire)
+        : subtotalValue + totalSurcharges + targetProfit;
+      const grossProfit = totalFare - totalSurcharges - totalVariable - driverCost - subsistenceCost;
+      const netProfit = totalFare - totalStanding - totalOverhead;
 
       return [
         b.id,
@@ -1962,16 +1978,17 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
         profitMarginPct,
         `=(AW${rNum}+AS${rNum})*(AT${rNum}/100)`,
         (b.quote?.result?.seasonalMultiplier || 1).toFixed(2),
-        `=IF(AT${rNum}>0,X${rNum}+AJ${rNum}+AM${rNum},${(result.subtotal || 0).toFixed(2)})`,
-        `=IF(AT${rNum}>0,IF((AW${rNum}+AS${rNum}+AU${rNum})*AV${rNum}<AB${rNum},AB${rNum},(AW${rNum}+AS${rNum}+AU${rNum})*AV${rNum}),(AW${rNum}+AS${rNum}+AU${rNum})*AV${rNum})`,
-        `=AX${rNum}-AS${rNum}-AJ${rNum}-AM${rNum}-AR${rNum}`,
-        `=IF(AX${rNum}>0, (AY${rNum}/AX${rNum})*100, 0)`,
-        `=AY${rNum}-X${rNum}-Z${rNum}`,
-        `=IF(AX${rNum}>0, (BA${rNum}/AX${rNum})*100, 0)`
+        { formula: `IF(AT${rNum}>0,X${rNum}+AJ${rNum}+AM${rNum},${(result.subtotal || 0).toFixed(2)})`, result: subtotalValue },
+        { formula: `IF(AT${rNum}>0,IF((AW${rNum}+AS${rNum}+AU${rNum})*AV${rNum}<AB${rNum},AB${rNum},(AW${rNum}+AS${rNum}+AU${rNum})*AV${rNum}),(AW${rNum}+AS${rNum}+AU${rNum})*AV${rNum})`, result: totalFare },
+        { formula: `AX${rNum}-AS${rNum}-AJ${rNum}-AM${rNum}-AR${rNum}`, result: grossProfit },
+        { formula: `IF(AX${rNum}>0, (AY${rNum}/AX${rNum})*100, 0)`, result: totalFare > 0 ? (grossProfit / totalFare) * 100 : 0 },
+        { formula: `AY${rNum}-X${rNum}-Z${rNum}`, result: netProfit },
+        { formula: `IF(AX${rNum}>0, (BA${rNum}/AX${rNum})*100, 0)`, result: totalFare > 0 ? (netProfit / totalFare) * 100 : 0 }
       ];
     });
 
     const workbook = new ExcelJS.Workbook();
+    workbook.calcProperties = { calcMode: 'auto', fullCalcOnLoad: true, forceFullCalc: true };
     const sheet = workbook.addWorksheet('Bookings');
     
     const headerRow = sheet.addRow(headers);
@@ -1982,6 +1999,9 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
     rows.forEach((row, rowIndex) => {
       const addedRow = sheet.addRow(row.map((cell, colIndex) => {
+        if (cell && typeof cell === 'object' && 'formula' in cell) {
+          return cell;
+        }
         if (typeof cell === 'string' && cell.startsWith('=')) {
           return { formula: cell.substring(1) };
         }
@@ -2039,6 +2059,15 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
       const fuelEconomy = Number(vehicle.fuelKpl || 0);
       const maintenanceRate = Number(vehicle.maintenanceCostPerKm) || (Number(vehicle.maintenanceSetCost)||0) / Math.max(1,Number(vehicle.expectedMaintenanceLifeKm)||1);
       const tyreRate = Number(vehicle.tyreCostPerKm) || (Number(vehicle.tyreSetCost)||0) / Math.max(1,Number(vehicle.expectedTyreLifeKm)||1);
+      const finalFareValue = Number(result.finalPrice || result.finalFare) || 0;
+      const driverValue = Number(bd.driverCost ?? result.driverCost) || 0;
+      const standingValue = Number(bd.standingCost) || 0;
+      const overnightValue = Number(bd.overnightCost) || 0;
+      const allocatedStandingValue = Number(bd.allocatedStanding) || 0;
+      const allocatedOverheadValue = Number(bd.allocatedOverhead) || 0;
+      const surchargeValue = Number(result.surchargeTotal ?? bd.surchargeTotal) || 0;
+      const directCostValue = (fuelEconomy > 0 ? distanceKm * fuelPrice / fuelEconomy : 0) + distanceKm * maintenanceRate + distanceKm * tyreRate + driverValue + standingValue + overnightValue + allocatedStandingValue + allocatedOverheadValue + surchargeValue;
+      const accountingCostValue = directCostValue + allocatedStandingValue + allocatedOverheadValue;
       accountancy.addRow([
         b.id, new Date(b.createdAt), vehicle.name || '', b.journey?.origin || '', b.journey?.destination || '', b.journey?.journeyType || '', Number(b.journey?.passengers)||0, distanceKm, Number(result.opDays)||1,
         Number(vehicle.minimumHire)||0, Number(result.subtotal)||0, Number(result.surchargeTotal ?? bd.surchargeTotal)||0, Number(result.finalPrice || result.finalFare)||0,
@@ -2046,8 +2075,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
         {formula:`IF(Q${rowNumber}>0,H${rowNumber}*P${rowNumber}/Q${rowNumber},0)`}, maintenanceRate, {formula:`H${rowNumber}*S${rowNumber}`}, tyreRate, {formula:`H${rowNumber}*U${rowNumber}`},
         Number(bd.driverCost ?? result.driverCost)||0, Number(bd.standingCost)||0, Number(bd.overnightCost)||0, Number(bd.allocatedStanding)||0, Number(bd.allocatedOverhead)||0,
         {formula:`R${rowNumber}+T${rowNumber}+V${rowNumber}+W${rowNumber}+X${rowNumber}+Y${rowNumber}+L${rowNumber}`},
-        {formula:`AB${rowNumber}+Z${rowNumber}+AA${rowNumber}`}, {formula:`M${rowNumber}-AB${rowNumber}`}, {formula:`IF(M${rowNumber}>0,AD${rowNumber}/M${rowNumber},0)`},
-        {formula:`M${rowNumber}-AC${rowNumber}`}, {formula:`IF(M${rowNumber}>0,AF${rowNumber}/M${rowNumber},0)`}, Number(bd.netMarginPct)||0, Number(bd.profitFloor)||0
+        {formula:`AB${rowNumber}+Z${rowNumber}+AA${rowNumber}`}, {formula:`M${rowNumber}-AB${rowNumber}`, result: finalFareValue - directCostValue}, {formula:`IF(M${rowNumber}>0,AD${rowNumber}/M${rowNumber},0)`, result: finalFareValue > 0 ? (finalFareValue - directCostValue) / finalFareValue : 0},
+        {formula:`M${rowNumber}-AC${rowNumber}`, result: finalFareValue - directCostValue}, {formula:`IF(M${rowNumber}>0,AF${rowNumber}/M${rowNumber},0)`, result: finalFareValue > 0 ? (finalFareValue - accountingCostValue) / finalFareValue : 0}, Number(bd.netMarginPct)||0, Number(bd.profitFloor)||0
       ]);
     });
     accountancy.views = [{state:'frozen',ySplit:1}];
