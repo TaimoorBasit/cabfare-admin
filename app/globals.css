@@ -3257,6 +3257,9 @@ table {
     gap: 5px;
     padding-left: 8px;
     padding-right: 8px;
+    align-items: stretch;
+    flex-direction: column;
+    justify-content: center;
   }
   .admin-premium-shell .fleet-compact-field label {
     min-width: 0;
@@ -3268,6 +3271,7 @@ table {
     min-width: 0;
     flex: 1 1 auto;
     width: auto !important;
+    text-align: left !important;
   }
 }
 
