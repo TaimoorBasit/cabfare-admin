@@ -794,15 +794,7 @@ input, select, textarea {
   --shadow-card: 0 1px 2px rgba(15,23,42,.03), 0 12px 32px rgba(15,23,42,.035);
 }
 .dark .admin-premium-shell { --shadow-card: 0 1px 2px rgba(0,0,0,.16), 0 16px 36px rgba(0,0,0,.12); }
-.admin-premium-shell main {
-  background: var(--ui-bg);
-  min-width: 0;
-  container: admin-main / inline-size;
-}
-.admin-premium-shell .premium-header {
-  min-width: 0;
-  container: admin-header / inline-size;
-}
+.admin-premium-shell main { background: var(--ui-bg); }
 .admin-premium-shell input, .admin-premium-shell select, .admin-premium-shell textarea { border-radius: var(--radius-sm) !important; border-color: var(--ui-border) !important; color: var(--ui-ink); }
 .admin-premium-shell input::placeholder, .admin-premium-shell textarea::placeholder { color: var(--ui-muted); opacity: .8; }
 .admin-premium-shell .admin-table { border-spacing: 0; }
@@ -838,43 +830,6 @@ input, select, textarea {
 @media (max-width: 900px) {
   .admin-premium-shell .dashboard-premium { padding: 20px !important; }
   .admin-premium-shell .dashboard-premium > div:first-child { padding: 20px !important; }
-}
-
-/* Container breakpoints keep every tab aligned when the content area is
-   narrowed by a sidebar, browser zoom, split view, or a smaller display. */
-@container admin-main (max-width: 1200px) {
-  .admin-premium-shell .dashboard-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-  .admin-premium-shell .dashboard-analytics,
-  .admin-premium-shell .dashboard-operations { grid-template-columns: 1fr !important; }
-  .admin-premium-shell .pricing-rules-page > .grid.grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-  .admin-premium-shell .pricing-rules-page > .grid.grid-cols-\[1fr_300px\] { grid-template-columns: 1fr !important; }
-  .admin-premium-shell .settings-business { grid-column: 1 / 9 !important; }
-  .admin-premium-shell .settings-operations { grid-column: 9 / 13 !important; }
-  .admin-premium-shell .settings-pricing { grid-column: 1 / 5 !important; }
-  .admin-premium-shell .settings-geo { grid-column: 5 / 9 !important; }
-  .admin-premium-shell .settings-tolls { grid-column: 9 / 13 !important; }
-  .admin-premium-shell .settings-overheads { grid-column: 1 / 13 !important; }
-  .admin-premium-shell .settings-system-rail { grid-column: 1 / 13 !important; grid-row: 4 !important; display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .admin-premium-shell .fleet-economics-workspace { display: flex !important; flex-direction: column !important; }
-}
-
-@container admin-main (max-width: 760px) {
-  .admin-premium-shell .dashboard-premium { padding: 14px !important; }
-  .admin-premium-shell .dashboard-kpis,
-  .admin-premium-shell .pricing-rules-page > .grid.grid-cols-4 { grid-template-columns: 1fr !important; }
-  .admin-premium-shell .pricing-rules-page { padding: 14px !important; }
-  .admin-premium-shell .pricing-rules-page > div:last-child,
-  .admin-premium-shell .pricing-rules-page > .grid.grid-cols-\[1fr_300px\] > div:first-child { overflow-x: auto !important; }
-  .admin-premium-shell .settings-layout { display: flex !important; flex-direction: column !important; }
-  .admin-premium-shell .settings-layout > * { width: 100% !important; }
-  .admin-premium-shell .settings-system-rail { display: flex !important; flex-direction: column !important; }
-}
-
-@container admin-header (max-width: 900px) {
-  .admin-premium-shell .header-quick-nav { display: none !important; }
-  .admin-premium-shell .premium-header > div:first-child { min-width: 0; flex: 1; }
-  .admin-premium-shell .admin-global-search { min-width: 0; flex: 1; }
-  .admin-premium-shell .admin-global-search input { width: 100% !important; }
 }
 
 /* Quotations workspace */
@@ -3267,6 +3222,19 @@ table {
 .admin-premium-shell input,
 .admin-premium-shell select,
 .admin-premium-shell textarea { max-width: 100%; }
+.admin-premium-shell input,
+.admin-premium-shell select,
+.admin-premium-shell textarea { box-sizing: border-box; }
+.admin-premium-shell .dashboard-premium > *,
+.admin-premium-shell .pricing-rules-page > *,
+.admin-premium-shell .settings-layout > *,
+.admin-premium-shell .fleet-economics-workspace > * { min-width: 0; }
+.admin-premium-shell .settings-page .grid > *,
+.admin-premium-shell .pricing-rules-page .grid > *,
+.admin-premium-shell .dashboard-premium .grid > * { min-width: 0; }
+.admin-premium-shell .settings-page label,
+.admin-premium-shell .pricing-rules-page label,
+.admin-premium-shell .dashboard-premium label { min-width: 0; overflow-wrap: anywhere; }
 .admin-premium-shell .settings-layout strong,
 .admin-premium-shell .settings-layout span,
 .admin-premium-shell .dashboard-premium strong { overflow-wrap: anywhere; }
