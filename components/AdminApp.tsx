@@ -1385,7 +1385,9 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   const canAccessTab = item => hasPermission(item === 'bookings' ? 'bookings' : item === 'settings' ? (hasPermission('settings') ? 'settings' : 'staff') : item);
   const injectDefaults = (v) => {
     const newV = { ...v };
-    if (!newV.annualFixedCosts || newV.annualFixedCosts.length === 0) {
+    // An empty list is an intentional "no fixed overhead" setting. Only
+    // recover defaults when the field is genuinely absent.
+    if (!Array.isArray(newV.annualFixedCosts)) {
       newV.annualFixedCosts = Array.isArray(newV.annualCosts) && newV.annualCosts.length > 0
         ? newV.annualCosts.map((cost, index) => ({
             id: cost.id ?? index + 1,
