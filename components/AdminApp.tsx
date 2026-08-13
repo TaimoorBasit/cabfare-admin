@@ -91,8 +91,7 @@ function restoreMissingConfiguration(source) {
     }
     const currentCosts = Array.isArray(repaired.annualFixedCosts) && repaired.annualFixedCosts.length
       ? repaired.annualFixedCosts : repaired.annualCosts;
-    const costsAreMissing = !Array.isArray(currentCosts) || currentCosts.length === 0 ||
-      currentCosts.every(cost => !String(cost?.label || cost?.name || '').trim() || Number(cost?.cost ?? cost?.amount ?? 0) === 0);
+    const costsAreMissing = !Array.isArray(currentCosts);
     if (costsAreMissing) {
       repaired.annualCosts = structuredClone(baseline.annualCosts);
       repaired.annualFixedCosts = baseline.annualCosts.map(cost => ({ ...cost, name: cost.label, amount: cost.cost }));
@@ -126,8 +125,7 @@ function restoreMissingConfiguration(source) {
   for (const [field, value] of Object.entries(RECOVERY_CONFIGURATION.surcharges)) {
     if (missingNonNegative(data.surcharges[field])) { data.surcharges[field] = value; changed = true; }
   }
-  if (!Array.isArray(data.annualOverheads) || data.annualOverheads.length === 0 ||
-      data.annualOverheads.every(item => !String(item?.label || '').trim() || Number(item?.cost || 0) === 0)) {
+  if (!Array.isArray(data.annualOverheads)) {
     data.annualOverheads = structuredClone(RECOVERY_CONFIGURATION.annualOverheads);
     changed = true;
   }
