@@ -3889,7 +3889,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                             </div>
                             <button className="fleet-add-cost" onClick={() => {
                                 const newFc = [...(activeV.annualFixedCosts||[]), { id: Date.now(), name: "New Cost", amount: 0 }];
-                                updateV(activeV.id, "annualFixedCosts", newFc);
+                                setV(vs => vs.map(vx => vx.id === activeV.id ? { ...vx, annualCosts: newFc, annualFixedCosts: newFc } : vx));
                                 window.setTimeout(() => {
                                   const rows = document.querySelector('.fleet-fixed-cost-rows');
                                   if (rows) rows.scrollTop = rows.scrollHeight;
@@ -3919,7 +3919,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                         newFc[idx] = { ...newFc[idx], amount: Number(e.target.value) };
                                         const sum = newFc.reduce((s, x) => s + (Number(x.amount)||0), 0);
                                         const utilDays = activeV.utilisationDays || 225;
-                                        const vs = vehicles.map(vx => vx.id === activeV.id ? { ...vx, annualFixedCosts: newFc, standingCostPerDay: (sum / (activeV.fleetCount||1)) / utilDays } : vx);
+                                        const vs = vehicles.map(vx => vx.id === activeV.id ? { ...vx, annualCosts: newFc, annualFixedCosts: newFc, standingCostPerDay: (sum / (activeV.fleetCount||1)) / utilDays } : vx);
                                         setV(vs);
                                       }} />
                                   </div>
@@ -3928,7 +3928,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                       const newFc = (activeV.annualFixedCosts||[]).filter((_, i) => i !== idx);
                                       const sum = newFc.reduce((s, x) => s + (Number(x.amount)||0), 0);
                                       const utilDays = activeV.utilisationDays || 225;
-                                      const vs = vehicles.map(vx => vx.id === activeV.id ? { ...vx, annualFixedCosts: newFc,  } : vx);
+                                      const vs = vehicles.map(vx => vx.id === activeV.id ? { ...vx, annualCosts: newFc, annualFixedCosts: newFc,  } : vx);
                                       setV(vs);
                                   }} className="admin-icon-action admin-icon-delete"><SvgTrash size={12}/></button>
                               </div>
