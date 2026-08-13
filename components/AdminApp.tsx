@@ -4637,7 +4637,9 @@ export default function AdminApp() {
       <GlobalStyle/>
       <div style={{ minHeight:"100vh" }}>
         <AdminDashboard
-          key={backendStatus}
+          // Preserve unsaved form state across transient health-check failures;
+          // only remount when the initial configuration becomes ready.
+          key={backendStatus === 'connecting' ? 'connecting' : 'ready'}
           db={db}
           mapsLoaded={mapsLoaded}
           backendOnline={backendStatus === 'online'}
