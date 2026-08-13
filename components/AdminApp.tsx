@@ -2541,7 +2541,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       const subSel = tab === 'settings' && settingsSection === key;
                       return (
                         <button key={key} onClick={() => { setTab('settings'); setSettingsSection(key); }} className={`w-full text-left px-sm py-1.5 rounded text-[11px] font-bold transition-colors duration-200 ${subSel ? "text-primary dark:text-[#60A5FA] bg-surface-container-low dark:bg-[#1F2937]" : "text-on-surface-variant dark:text-[#9CA3AF] hover:bg-surface-container-low dark:hover:bg-[#1F2937] hover:text-primary dark:hover:text-white"}`}>
-                          {subLabel}
+                          <span className="sidebar-settings-subnav-icon hidden" aria-hidden="true">{key === 'company' ? <SvgGrid size={16} color="currentColor" /> : key === 'pricing' ? <SvgPricing size={16} color="currentColor" /> : <SvgUser size={16} color="currentColor" />}</span>
+                          <span className="sidebar-settings-subnav-label">{subLabel}</span>
                         </button>
                       );
                     })}
