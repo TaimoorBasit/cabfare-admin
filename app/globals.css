@@ -3253,7 +3253,22 @@ table {
   .admin-premium-shell .premium-sidebar nav button > span:last-child,
   .admin-premium-shell .sidebar-account-copy,
   .admin-premium-shell .sidebar-account-logout span,
-  .admin-premium-shell .sidebar-settings-subnav { display: none !important; }
+  .admin-premium-shell .sidebar-settings-item { position: relative; }
+  .admin-premium-shell .sidebar-settings-subnav {
+    display: flex !important;
+    flex-direction: column;
+    position: absolute;
+    left: 64px;
+    top: 0;
+    width: 150px;
+    margin: 0 !important;
+    padding: 6px !important;
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    background: var(--admin-surface);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, .16);
+    z-index: 60;
+  }
   .admin-premium-shell .premium-sidebar nav button { justify-content: center !important; padding: 10px 8px !important; }
   .admin-premium-shell .header-quick-nav { display: none !important; }
   .admin-premium-shell .quotations-page {
@@ -3441,7 +3456,22 @@ table {
   .admin-premium-shell .premium-sidebar nav button > span:last-child,
   .admin-premium-shell .sidebar-account-copy,
   .admin-premium-shell .sidebar-account-logout span,
-  .admin-premium-shell .sidebar-settings-subnav { display: none !important; }
+  .admin-premium-shell .sidebar-settings-item { position: relative; }
+  .admin-premium-shell .sidebar-settings-subnav {
+    display: flex !important;
+    flex-direction: column;
+    position: absolute;
+    left: 64px;
+    top: 0;
+    width: 150px;
+    margin: 0 !important;
+    padding: 6px !important;
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    background: var(--admin-surface);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, .16);
+    z-index: 60;
+  }
   .admin-premium-shell .premium-sidebar nav button {
     justify-content: center !important;
     min-height: 44px;

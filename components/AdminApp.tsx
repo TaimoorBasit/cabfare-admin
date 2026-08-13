@@ -2528,7 +2528,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
           {navItems.map(({ k, label, icon }) => {
             const isSel = tab === k;
             return (
-              <div key={k}>
+              <div key={k} className={k === 'settings' ? 'sidebar-settings-item' : undefined}>
                 <button onClick={() => setTab(k)} className={`w-full flex items-center gap-3 px-sm py-3 rounded transition-colors duration-200 group ${isSel ? "text-primary dark:text-[#60A5FA] font-bold border-r-2 border-primary dark:border-[#60A5FA] bg-surface-container-low dark:bg-[#1F2937]" : "text-on-surface-variant dark:text-[#9CA3AF] hover:bg-surface-container-low dark:hover:bg-[#1F2937] hover:text-primary dark:hover:text-white"}`}>
                   <span className={`flex-shrink-0 flex items-center justify-center ${isSel ? "text-primary" : "text-on-surface-variant group-hover:text-primary"}`}>
                     {icon}
