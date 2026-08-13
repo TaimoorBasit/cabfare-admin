@@ -1754,7 +1754,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   }, [apisLoaded, refreshDashboardData]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const refreshBookings = () => {
       authenticatedFetch(API_BASE_URL + '/api/bookings')
         .then(r => { if (!r.ok) throw new Error('Unable to refresh bookings'); return r.json(); })
         .then(b => {
@@ -1764,9 +1764,11 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
           }
         })
         .catch((error) => setBookingsLoadError(error.message || "Unable to refresh quotations"));
-    }, 10000);
+    };
+    refreshBookings();
+    const interval = setInterval(refreshBookings, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [tab]);
 
   const filteredBookingsData = useMemo(() => {
     let list = bookingsData;
