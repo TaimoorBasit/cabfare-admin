@@ -3252,7 +3252,9 @@ table {
   .admin-premium-shell .premium-sidebar > div:first-child p,
   .admin-premium-shell .premium-sidebar nav button > span:last-child,
   .admin-premium-shell .sidebar-account-copy,
-  .admin-premium-shell .sidebar-account-logout span,
+  .admin-premium-shell .sidebar-account-logout span {
+    display: none !important;
+  }
   .admin-premium-shell .sidebar-settings-subnav {
     display: flex !important;
     flex-direction: column;
@@ -3453,7 +3455,9 @@ table {
   .admin-premium-shell .premium-sidebar > div:first-child p,
   .admin-premium-shell .premium-sidebar nav button > span:last-child,
   .admin-premium-shell .sidebar-account-copy,
-  .admin-premium-shell .sidebar-account-logout span,
+  .admin-premium-shell .sidebar-account-logout span {
+    display: none !important;
+  }
   .admin-premium-shell .sidebar-settings-subnav {
     display: flex !important;
     flex-direction: column;
