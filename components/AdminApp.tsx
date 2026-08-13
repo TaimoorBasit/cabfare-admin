@@ -9,6 +9,7 @@ import { Search, Sun, Moon, TrendingUp, Plus, Edit3, MoreVertical, Pause, Histor
 
 const ADMIN_TOKEN_KEY = 'caroleanAdminToken';
 const ADMIN_USER_KEY = 'caroleanAdminUser';
+const ADMIN_DB_CACHE_KEY = 'caroleanAdminDbCache';
 
 const RECOVERY_CONFIGURATION = {
   vehicles: {
@@ -1381,6 +1382,11 @@ function StaffAccessPanel({ setToast }) {
 
 function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) {
   const fetch = authenticatedFetch;
+  // True once there's data to show — either freshly fetched or restored from
+  // last session's cache. Separate from `backendOnline`, which only turns true
+  // after a real, confirmed round trip (and gates autosave) so cached data can
+  // render instantly without pretending the connection is live yet.
+  const hasData = Array.isArray(db?.vehicles) && db.vehicles.length > 0;
   const hasPermission = permission => !adminUser?.role || adminUser.role === 'owner' || adminUser.role === 'admin' && permission !== 'staff' || (adminUser.permissions || []).includes(permission);
   const canAccessTab = item => hasPermission(item === 'bookings' ? 'bookings' : item === 'settings' ? (hasPermission('settings') ? 'settings' : 'staff') : item);
   const injectDefaults = (v) => {
@@ -2047,6 +2053,81 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
       col.width = Math.max(header.length, 12);
     });
 
+    // Live stats dashboard in the same sheet, right of the data — formulas
+    // recalc automatically when someone edits a booking row in Excel.
+    const colLetter = (n) => { let s = ''; while (n > 0) { const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; };
+    const lastDataRow = rows.length + 1;
+    const cellResult = (cell) => (cell && typeof cell === 'object' && 'result' in cell) ? Number(cell.result) || 0 : Number(cell) || 0;
+    const totalFareArr = rows.map(r => cellResult(r[49]));
+    const netProfitArr = rows.map(r => cellResult(r[52]));
+    const grossMarginArr = rows.map(r => cellResult(r[51]));
+    const netMarginArr = rows.map(r => cellResult(r[53]));
+    const sum = arr => arr.reduce((s, n) => s + n, 0);
+    const avg = arr => arr.length ? sum(arr) / arr.length : 0;
+
+    const dashCol = 56; // BD — one blank column after the last data column (BB)
+    sheet.getCell(1, dashCol).value = 'Booking Statistics';
+    sheet.getCell(1, dashCol).font = { bold: true, size: 14, color: { argb: 'FF1E293B' } };
+
+    const kpis = [
+      ['Total Bookings', `COUNTA(A2:A${lastDataRow})`, rows.length, false],
+      ['Total Fare (£)', `SUM(AX2:AX${lastDataRow})`, sum(totalFareArr), true],
+      ['Avg Fare per Booking (£)', `AVERAGE(AX2:AX${lastDataRow})`, avg(totalFareArr), true],
+      ['Total Net Profit (£)', `SUM(BA2:BA${lastDataRow})`, sum(netProfitArr), true],
+      ['Avg Gross Margin (%)', `AVERAGE(AZ2:AZ${lastDataRow})`, avg(grossMarginArr), false],
+      ['Avg Net Margin (%)', `AVERAGE(BB2:BB${lastDataRow})`, avg(netMarginArr), false],
+    ];
+    kpis.forEach(([label, formula, result, isCurrency], i) => {
+      const r = 3 + i;
+      sheet.getCell(r, dashCol).value = label;
+      sheet.getCell(r, dashCol).font = { bold: true, color: { argb: 'FF334155' } };
+      const valueCell = sheet.getCell(r, dashCol + 1);
+      valueCell.value = { formula, result };
+      valueCell.font = { bold: true, color: { argb: 'FF065F46' } };
+      valueCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD1FAE5' } };
+      valueCell.numFmt = isCurrency ? '"£"#,##0.00' : '0.0"%"';
+    });
+
+    const buildBreakdownTable = (startCol, title, catIndex, categories) => {
+      const catLetter = colLetter(catIndex + 1);
+      const headerRow = 10;
+      ['Category', 'Bookings', 'Total Fare (£)', 'Avg Net Margin (%)'].forEach((h, i) => {
+        const cell = sheet.getCell(headerRow, startCol + i);
+        cell.value = i === 0 ? title : h;
+        cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E293B' } };
+      });
+      categories.forEach((cat, i) => {
+        const r = headerRow + 1 + i;
+        let count = 0, fareSum = 0, marginSum = 0;
+        rows.forEach(row => { if (row[catIndex] === cat) { count++; fareSum += cellResult(row[49]); marginSum += cellResult(row[53]); } });
+        const nameCell = sheet.getCell(r, startCol);
+        nameCell.value = cat;
+        const countCell = sheet.getCell(r, startCol + 1);
+        countCell.value = { formula: `COUNTIF($${catLetter}$2:$${catLetter}$${lastDataRow},${colLetter(startCol)}${r})`, result: count };
+        const fareCell = sheet.getCell(r, startCol + 2);
+        fareCell.value = { formula: `SUMIF($${catLetter}$2:$${catLetter}$${lastDataRow},${colLetter(startCol)}${r},$AX$2:$AX$${lastDataRow})`, result: fareSum };
+        fareCell.numFmt = '"£"#,##0.00';
+        const marginCell = sheet.getCell(r, startCol + 3);
+        marginCell.value = { formula: `AVERAGEIF($${catLetter}$2:$${catLetter}$${lastDataRow},${colLetter(startCol)}${r},$BB$2:$BB$${lastDataRow})`, result: count ? marginSum / count : 0 };
+        marginCell.numFmt = '0.0"%"';
+        if (i % 2 === 0) [nameCell, countCell, fareCell, marginCell].forEach(c => { c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } }; });
+      });
+      if (categories.length) {
+        sheet.addConditionalFormatting({
+          ref: `${colLetter(startCol + 2)}${headerRow + 1}:${colLetter(startCol + 2)}${headerRow + categories.length}`,
+          rules: [{ type: 'dataBar', gradient: false, minLength: 0, maxLength: 100, color: { argb: 'FF34D399' }, cfvo: [{ type: 'min' }, { type: 'max' }] }],
+        });
+      }
+      [0, 1, 2, 3].forEach(i => { sheet.getColumn(startCol + i).width = Math.max(14, title.length); });
+    };
+
+    const vehicleNames = [...new Set(rows.map(r => r[9]).filter(Boolean))];
+    const tripTypes = [...new Set(rows.map(r => r[8]).filter(Boolean))];
+    buildBreakdownTable(dashCol, 'By Vehicle', 9, vehicleNames);
+    buildBreakdownTable(dashCol + 5, 'By Trip Type', 8, tripTypes);
+    sheet.getColumn(dashCol + 1).width = 20;
+
     const accountancy = workbook.addWorksheet('Accountancy Breakdown');
     const auditHeaders = [
       'Booking ID','Date','Vehicle','Origin','Destination','Trip Type','Passengers','Distance (km)','Operating Days',
@@ -2502,8 +2583,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
   const navItems = [
     { k: "dashboard", label: "Dashboard",      icon: <SvgGrid size={17} color="currentColor" /> },
-    { k: "pricing", label: "Pricing Rules",      icon: <SvgPricing size={17} color="currentColor" /> },
     { k: "fleet",   label: "Fleet Economics",                  icon: <SvgBus size={17} color="currentColor" /> },
+    { k: "pricing", label: "Pricing Rules",      icon: <SvgPricing size={17} color="currentColor" /> },
     { k: "bookings",label: "Quotations",                  icon: <SvgBookings size={17} color="currentColor" /> },
     { k: "settings",label: "Settings",                 icon: <SvgSettings size={17} color="currentColor" /> },
   ].filter(item => canAccessTab(item.k));
@@ -2533,7 +2614,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   <span className={`flex-shrink-0 flex items-center justify-center ${isSel ? "text-primary" : "text-on-surface-variant group-hover:text-primary"}`}>
                     {icon}
                   </span>
-                  <span className="font-label-caps text-label-caps">{label}</span>
+                  <span className="font-label-caps text-label-caps truncate min-w-0">{label}</span>
                 </button>
                 {k === 'settings' && (
                   <div className="sidebar-settings-subnav pl-11 py-1 space-y-0.5">
@@ -2633,7 +2714,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
               </g>
             </svg>
           </div>
-          {backendOnline && tab !== "bookings" && tab !== "settings" && (
+          {hasData && tab !== "bookings" && tab !== "settings" && (
           <section>
                       <div className="flex justify-between items-end mb-md">
                         <div>
@@ -2648,7 +2729,14 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     </section>
           )}
 
-          <div style={{ display: backendOnline ? "flex" : "none", flexDirection: "column", gap: tab === "bookings" ? 0 : 16, flex: 1, minHeight: 0 }}>
+          {!hasData && (
+            <div className="flex-1 flex flex-col items-center justify-center gap-3 text-slate-400 dark:text-slate-500">
+              <div className="h-8 w-8 rounded-full border-2 border-slate-300 dark:border-slate-600 border-t-primary animate-spin" />
+              <p className="text-xs font-semibold uppercase tracking-wide">Loading dashboard…</p>
+            </div>
+          )}
+
+          <div style={{ display: hasData ? "flex" : "none", flexDirection: "column", gap: tab === "bookings" ? 0 : 16, flex: 1, minHeight: 0 }}>
           
                     {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• DASHBOARD â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
           {tab === "dashboard" && (
@@ -3376,8 +3464,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
               </div>
 
               {/* ROW 2: Fixed Routes & Blocked Dates */}
-              <div className="grid grid-cols-[1fr_300px] gap-4">
-                
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4">
+
                 {/* Fixed Route Templates */}
                 <div id="pricing-routes" onPointerDownCapture={() => recordFeatureUsage('routes')} className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden shadow-sm">
                   <div className="py-3 px-5 flex justify-between items-center border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
@@ -3668,18 +3756,18 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   </div>
                 )}
 
-                <div className="p-5">
-                   <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr_80px] gap-4 mb-4">
+                <div className="p-5 overflow-x-auto">
+                   <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr_80px] gap-4 mb-4 min-w-[640px]">
                       <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{matrixView === 'city' ? 'City Route' : matrixView === 'fleet' ? 'Fleet / Tier' : 'Category / Tier'}</div>
                       {matrixHeaderBands.map((band, index) => <div key={index} className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{band.max == null ? `${band.min}${distanceUnitShort}+` : `${band.min}-${band.max}${distanceUnitShort}`}</div>)}
                       <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Base Drop</div>
                       <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-right">Actions</div>
                    </div>
-                   
+
                    {matrixRulesForView.length === 0 ? (
                       <div style={{ color: darkMode ? "#94A3B8" : "#64748b", fontSize: 13, textAlign: "center", padding: 20 }}>No {matrixView === 'city' ? 'city' : matrixView === 'fleet' ? 'fleet' : 'global'} matrix rules configured.</div>
                    ) : matrixRulesForView.map((m, idx) => (
-                      <div key={m.id} className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr_80px] gap-4 py-3 border-t border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors px-2 -mx-2 rounded">
+                      <div key={m.id} className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr_80px] gap-4 py-3 border-t border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors px-2 -mx-2 rounded min-w-[640px]">
                          <div style={{ fontSize: 13, fontWeight: 700, color: darkMode ? "#F3F4F6" : "#0f172a", display: "flex", alignItems: "center" }}>{matrixView === 'city' ? `${m.pickupArea || 'Any city'} → ${m.dropArea || 'Any city'}` : matrixView === 'global' ? 'Global · All bookings' : (db.vehicles.find(v=>v.id===m.vehicleId)?.name || 'Standard Tier')}</div>
                          {matrixBands(m).map((band, bandIndex) => <div key={bandIndex} className="text-xs font-semibold text-slate-900 dark:text-slate-100 flex items-center">£{fmt(band.rate)}/{distanceUnitShort}</div>)}
                          <div className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center">£{fmt(m.baseFare)}</div>
@@ -3948,7 +4036,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
                       {/* Variable Costs Grid (4-Column Compact Style) */}
                       <div onPointerDownCapture={() => recordFeatureUsage('fleetVariables')} className="fleet-variable-costs grid grid-cols-4 gap-3">
-                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex items-center justify-between">
+                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex flex-wrap items-center justify-between gap-y-1.5">
                               <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Fuel Economy</div>
                               <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
                               <div className="fleet-variable-value !w-auto flex items-center shrink-0">
@@ -3964,7 +4052,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                               </div>
                           </div>
 
-                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex items-center justify-between">
+                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex flex-wrap items-center justify-between gap-y-1.5">
                               <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Maint. Lifecycle</div>
                               <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
                               <div className="fleet-variable-value !w-auto flex items-center shrink-0">
@@ -3985,7 +4073,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                               </div>
                           </div>
 
-                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex items-center justify-between">
+                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex flex-wrap items-center justify-between gap-y-1.5">
                               <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Tyre Lifecycle</div>
                               <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
                               <div className="fleet-variable-value !w-auto flex items-center shrink-0">
@@ -4006,7 +4094,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                               </div>
                           </div>
 
-                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex items-center justify-between">
+                          <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex flex-wrap items-center justify-between gap-y-1.5">
                               <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Luggage Profit</div>
                               <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
                               <div className="fleet-variable-value !w-auto flex items-center gap-1 shrink-0">
@@ -4477,7 +4565,13 @@ function FleetEconomicsPanel({ eco, darkMode }) {
 
 // ── Root App ──────────────────────────────────────────────────────────────────
 export default function AdminApp() {
-  const [db, setDb] = useState({ vehicles: [], globalVars: {}, annualOverheads: [], surcharges: {}, blockedDates: [] });
+  const [db, setDb] = useState(() => {
+    try {
+      const cached = window.localStorage.getItem(ADMIN_DB_CACHE_KEY);
+      if (cached) return JSON.parse(cached);
+    } catch {}
+    return { vehicles: [], globalVars: {}, annualOverheads: [], surcharges: {}, blockedDates: [] };
+  });
   const [adminUser, setAdminUser] = useState(null);
   const [backendStatus, setBackendStatus] = useState<'connecting' | 'online' | 'offline'>('connecting');
   const [authRequired, setAuthRequired] = useState(false);
@@ -4523,7 +4617,19 @@ export default function AdminApp() {
       const timeout = window.setTimeout(() => controller.abort(), 4500);
 
       try {
-        const meResponse = await authenticatedFetch(API_BASE_URL + "/api/auth/me", { cache: "no-store", signal: controller.signal });
+        // Once data has loaded, heartbeat only checks connectivity. Re-fetching the
+        // configuration here would overwrite edits currently being made in forms.
+        const alreadyOnline = backendStatusRef.current === 'online';
+
+        // /me and /config (or /health) don't depend on each other, so fire them
+        // together instead of one-after-another to cut the first-load wait in half.
+        const [meResponse, secondResponse] = await Promise.all([
+          authenticatedFetch(API_BASE_URL + "/api/auth/me", { cache: "no-store", signal: controller.signal }),
+          alreadyOnline
+            ? fetch(API_BASE_URL + "/health", { cache: "no-store", signal: controller.signal })
+            : authenticatedFetch(API_BASE_URL + "/api/admin/config", { cache: "no-store", signal: controller.signal })
+        ]);
+
         if (meResponse.status === 401) {
           if (!cancelled) setAuthRequired(true);
           return;
@@ -4535,21 +4641,12 @@ export default function AdminApp() {
           setAdminUser(previous => JSON.stringify(previous) === JSON.stringify(currentUser) ? previous : currentUser);
         }
 
-        // Once data has loaded, heartbeat only checks connectivity. Re-fetching the
-        // configuration here would overwrite edits currently being made in forms.
-        if (backendStatusRef.current === 'online') {
-          const healthResponse = await fetch(API_BASE_URL + "/health", {
-            cache: "no-store",
-            signal: controller.signal
-          });
-          if (!healthResponse.ok) throw new Error(`Backend returned ${healthResponse.status}`);
+        if (alreadyOnline) {
+          if (!secondResponse.ok) throw new Error(`Backend returned ${secondResponse.status}`);
           return;
         }
 
-        const response = await authenticatedFetch(API_BASE_URL + "/api/admin/config", {
-          cache: "no-store",
-          signal: controller.signal
-        });
+        const response = secondResponse;
         if (response.status === 401) {
           if (!cancelled) {
             setAuthRequired(true);
@@ -4582,14 +4679,16 @@ export default function AdminApp() {
           if (!restoreResponse.ok) throw new Error("Unable to restore missing backend configuration");
         }
         if (!cancelled) {
-          setDb({
+          const freshDb = {
             ...data,
             vehicles: data.vehicles,
             globalVars: data.globalVars || {},
             annualOverheads: Array.isArray(data.annualOverheads) ? data.annualOverheads : [],
             surcharges: data.surcharges || {},
             blockedDates: Array.isArray(data.blockedDates) ? data.blockedDates : []
-          });
+          };
+          setDb(freshDb);
+          try { window.localStorage.setItem(ADMIN_DB_CACHE_KEY, JSON.stringify(freshDb)); } catch {}
           setAuthRequired(false);
           backendStatusRef.current = 'online';
           setBackendStatus('online');
@@ -4626,6 +4725,7 @@ export default function AdminApp() {
     await authenticatedFetch(API_BASE_URL + '/api/auth/logout', { method:'POST' }).catch(()=>{});
     window.localStorage.removeItem(ADMIN_TOKEN_KEY);
     window.localStorage.removeItem(ADMIN_USER_KEY);
+    window.localStorage.removeItem(ADMIN_DB_CACHE_KEY);
     setAdminUser(null);
     setDb({ vehicles: [], globalVars: {}, annualOverheads: [], surcharges: {}, blockedDates: [] });
     setAuthRequired(true);
