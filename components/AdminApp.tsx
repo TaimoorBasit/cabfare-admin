@@ -1760,6 +1760,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   }, [apisLoaded, refreshDashboardData]);
 
   useEffect(() => {
+    if (tab !== 'bookings') return;
     const refreshBookings = () => {
       authenticatedFetch(API_BASE_URL + '/api/bookings')
         .then(r => { if (!r.ok) throw new Error('Unable to refresh bookings'); return r.json(); })
@@ -1771,7 +1772,6 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
         })
         .catch((error) => setBookingsLoadError(error.message || "Unable to refresh quotations"));
     };
-    refreshBookings();
     const interval = setInterval(refreshBookings, 10000);
     return () => clearInterval(interval);
   }, [tab]);
@@ -1844,6 +1844,12 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
     return sortedList;
   }, [bookingsData, bookingLast30Days, reportDate, searchNameRef, searchVehicle, searchFareFrom, searchFareTo, searchRoute]);
+
+  const fleetOverheadTotals = useMemo(() => {
+    const totalOverheads = (db.annualOverheads || []).reduce((sum, item) => sum + Number(item.cost || 0), 0);
+    const totalFleetUnits = (db.vehicles || []).reduce((sum, v) => sum + (Number(v.fleetCount) || 0), 0);
+    return { totalOverheads, totalFleetUnits };
+  }, [db.annualOverheads, db.vehicles]);
 
   const exportBookingsToCSV = async () => {
     try {
@@ -3048,8 +3054,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                     drvCost = (b.quote.result.totalShiftHrs || 0) * driverWage;
                                   }
                                   
-                                  const totalOverheads = (db.annualOverheads || []).reduce((sum, item) => sum + Number(item.cost || 0), 0);
-                                  const totalFleetUnits = (db.vehicles || []).reduce((sum, v) => sum + (Number(v.fleetCount) || 0), 0);
+                                  const { totalOverheads, totalFleetUnits } = fleetOverheadTotals;
                                   const overheadPerUnit = totalFleetUnits > 0 ? totalOverheads / totalFleetUnits : 0;
                                   
                                   const annualFixed = vehicle?.annualFixedCosts?.reduce((sum, c) => sum + Number(c.amount || 0), 0) 

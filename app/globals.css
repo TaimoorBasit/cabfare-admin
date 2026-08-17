@@ -876,12 +876,13 @@ input, select, textarea {
 @media (max-width: 1350px) { .quotation-kpis { grid-template-columns: repeat(2,minmax(0,1fr)) !important; } }
 
 /* Quotations use one viewport: the list scrolls while the selected quote stays put. */
-@media (min-width: 1024px) {
+@media (min-width: 1650px) {
   .admin-premium-shell .quotations-page {
     height: calc(100vh - 64px);
     max-height: calc(100vh - 64px);
     overflow: hidden !important;
     align-items: stretch;
+    grid-template-columns: minmax(0, 1fr) clamp(320px, 30vw, 420px) !important;
   }
   .admin-premium-shell .quotation-list-pane,
   .admin-premium-shell .quotation-detail-panel {
@@ -1006,6 +1007,7 @@ input, select, textarea {
   background: var(--admin-bg) !important;
   color: var(--admin-text) !important;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  overflow-x: hidden;
 }
 .dark .admin-premium-shell {
   --admin-bg: #0E1117;
@@ -3236,11 +3238,20 @@ table {
 .admin-premium-shell .settings-layout span,
 .admin-premium-shell .dashboard-premium strong { overflow-wrap: anywhere; }
 
+/* Connector line tying the Settings sub-items back to their parent */
+.admin-premium-shell .sidebar-settings-subnav {
+  border-top: 1px solid rgba(100, 116, 139, .4);
+  margin-top: 2px;
+  padding-top: 8px !important;
+}
+.dark .admin-premium-shell .sidebar-settings-subnav {
+  border-top-color: rgba(148, 163, 184, .45);
+}
+
 @media (max-width: 1500px) {
   .admin-premium-shell .premium-sidebar { width: 220px !important; }
   .admin-premium-shell .premium-sidebar + div { margin-left: 220px !important; }
   .admin-premium-shell .premium-sidebar nav button { padding-left: 14px !important; padding-right: 14px !important; }
-  .admin-premium-shell .quotations-page { grid-template-columns: minmax(0, 1fr) minmax(320px, 36%) !important; }
   .admin-premium-shell .settings-section-pricing > .settings-pricing { grid-column: 1 / 13 !important; }
   .admin-premium-shell .settings-section-pricing > .settings-tolls { grid-column: 1 / 13 !important; }
 }
@@ -3264,13 +3275,22 @@ table {
     padding: 4px 0 !important;
     background: transparent;
     box-shadow: none;
-    border: 0;
+    border-top: 1px solid rgba(100, 116, 139, .4) !important;
+    padding-top: 8px !important;
+  }
+  .dark .admin-premium-shell .sidebar-settings-subnav {
+    border-top-color: rgba(148, 163, 184, .45) !important;
   }
   .admin-premium-shell .sidebar-settings-subnav button { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 8px !important; }
   .admin-premium-shell .sidebar-settings-subnav-icon { display: inline-flex; }
   .admin-premium-shell .sidebar-settings-subnav-label { display: none; }
   .admin-premium-shell .premium-sidebar nav button { justify-content: center !important; padding: 10px 8px !important; }
   .admin-premium-shell .header-quick-nav { display: none !important; }
+}
+
+/* Stay single-column (list, then detail panel below) until there's genuinely
+   enough room for sidebar + the table's 980px minimum + the detail panel. */
+@media (max-width: 1649px) {
   .admin-premium-shell .quotations-page {
     height: auto !important;
     max-height: none !important;
@@ -3467,7 +3487,11 @@ table {
     padding: 4px 0 !important;
     background: transparent;
     box-shadow: none;
-    border: 0;
+    border-top: 1px solid rgba(100, 116, 139, .4) !important;
+    padding-top: 8px !important;
+  }
+  .dark .admin-premium-shell .sidebar-settings-subnav {
+    border-top-color: rgba(148, 163, 184, .45) !important;
   }
   .admin-premium-shell .sidebar-settings-subnav button { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 8px !important; }
   .admin-premium-shell .sidebar-settings-subnav-icon { display: inline-flex; }
