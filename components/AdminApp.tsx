@@ -1620,7 +1620,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   const [searchFareFrom, setSearchFareFrom] = useState("");
   const [searchFareTo, setSearchFareTo] = useState("");
   const [searchRoute, setSearchRoute] = useState("");
-  const [apisLoaded, setApisLoaded] = useState(false);
+  const settingsApisLoadedRef = useRef(false);
+  const bookingsApisLoadedRef = useRef(false);
   const [isBookingsLoading, setIsBookingsLoading] = useState(true);
   const [bookingsLoadError, setBookingsLoadError] = useState("");
   const [bookingsDisplayCount, setBookingsDisplayCount] = useState(100);
@@ -1732,13 +1733,14 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   };
 
   useEffect(() => {
-    if (!apisLoaded) {
-      setApisLoaded(true);
-      
+    if (tab === 'pricing' && !settingsApisLoadedRef.current) {
+      settingsApisLoadedRef.current = true;
       authenticatedFetch(API_BASE_URL + '/api/admin/pricing-matrix').then(r=>{if(!r.ok)throw new Error('Unable to load pricing matrices');return r.json();}).then(m => setMatrixData(Array.isArray(m) ? m : [])).catch(()=>{});
       authenticatedFetch(API_BASE_URL + '/api/admin/route-templates').then(r=>{if(!r.ok)throw new Error('Unable to load route templates');return r.json();}).then(t => setTemplatesData(Array.isArray(t) ? t : [])).catch(()=>{});
       authenticatedFetch(API_BASE_URL + '/api/admin/seasonal').then(r=>{if(!r.ok)throw new Error('Unable to load seasonal rules');return r.json();}).then(s => setSeasonalData(Array.isArray(s) ? s : [])).catch(()=>{});
-      
+    }
+    if (tab === 'bookings' && !bookingsApisLoadedRef.current) {
+      bookingsApisLoadedRef.current = true;
       authenticatedFetch(API_BASE_URL + '/api/bookings').then(r=>{if(!r.ok)throw new Error('Unable to load bookings');return r.json();}).then(b => {
         setBookingsData(b.bookings && Array.isArray(b.bookings) ? b.bookings : []);
         setBookingsLoadError("");
@@ -1750,14 +1752,13 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
         setIsBookingsLoading(false);
       });
     }
-  }, [apisLoaded]);
+  }, [tab]);
 
   useEffect(() => {
-    if (!apisLoaded) return;
     refreshDashboardData();
     const interval = setInterval(refreshDashboardData, 10000);
     return () => clearInterval(interval);
-  }, [apisLoaded, refreshDashboardData]);
+  }, [refreshDashboardData]);
 
   useEffect(() => {
     if (tab !== 'bookings') return;
@@ -4616,6 +4617,7 @@ export default function AdminApp() {
     let requestRunning = false;
 
     const checkBackend = async () => {
+      if (authRequired) return;
       if (requestRunning) return;
       requestRunning = true;
       const controller = new AbortController();
@@ -4626,13 +4628,17 @@ export default function AdminApp() {
         // configuration here would overwrite edits currently being made in forms.
         const alreadyOnline = backendStatusRef.current === 'online';
 
-        // /me and /config (or /health) don't depend on each other, so fire them
-        // together instead of one-after-another to cut the first-load wait in half.
-        const [meResponse, secondResponse] = await Promise.all([
+        if (alreadyOnline) {
+          const healthResponse = await fetch(API_BASE_URL + "/health", { cache: "no-store", signal: controller.signal });
+          if (!healthResponse.ok) throw new Error(`Backend health returned ${healthResponse.status}`);
+          return;
+        }
+
+        // Bootstrap auth and configuration once. Once online, the interval above
+        // only checks health so it cannot keep re-downloading /me and /config.
+        const [meResponse, configResponse] = await Promise.all([
           authenticatedFetch(API_BASE_URL + "/api/auth/me", { cache: "no-store", signal: controller.signal }),
-          alreadyOnline
-            ? fetch(API_BASE_URL + "/health", { cache: "no-store", signal: controller.signal })
-            : authenticatedFetch(API_BASE_URL + "/api/admin/config", { cache: "no-store", signal: controller.signal })
+          authenticatedFetch(API_BASE_URL + "/api/admin/config", { cache: "no-store", signal: controller.signal })
         ]);
 
         if (meResponse.status === 401) {
@@ -4646,12 +4652,7 @@ export default function AdminApp() {
           setAdminUser(previous => JSON.stringify(previous) === JSON.stringify(currentUser) ? previous : currentUser);
         }
 
-        if (alreadyOnline) {
-          if (!secondResponse.ok) throw new Error(`Backend returned ${secondResponse.status}`);
-          return;
-        }
-
-        const response = secondResponse;
+        const response = configResponse;
         if (response.status === 401) {
           if (!cancelled) {
             setAuthRequired(true);
@@ -4711,12 +4712,12 @@ export default function AdminApp() {
     };
 
     checkBackend();
-    const heartbeat = window.setInterval(checkBackend, 5000);
+    const heartbeat = window.setInterval(checkBackend, 15000);
     return () => {
       cancelled = true;
       window.clearInterval(heartbeat);
     };
-  }, [authVersion, adminUser?.role]);
+  }, [authVersion, adminUser?.role, authRequired]);
 
   const handleAuthenticated = user => {
     if (user) setAdminUser(user);
