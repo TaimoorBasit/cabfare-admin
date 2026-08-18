@@ -4621,7 +4621,7 @@ export default function AdminApp() {
       if (requestRunning) return;
       requestRunning = true;
       const controller = new AbortController();
-      const timeout = window.setTimeout(() => controller.abort(), 4500);
+      const timeout = window.setTimeout(() => controller.abort(), 15000);
 
       try {
         // Once data has loaded, heartbeat only checks connectivity. Re-fetching the
