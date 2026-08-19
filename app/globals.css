@@ -3216,7 +3216,7 @@ table {
 .admin-premium-shell .quotation-filters > input[type="date"] { min-width: 0 !important; width: 100% !important; }
 
 .admin-premium-shell .vehicle-quotation-grid {
-  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 .admin-premium-shell input,
 .admin-premium-shell select,
