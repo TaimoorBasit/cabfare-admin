@@ -1277,7 +1277,7 @@ function JourneyRouteDetails({ journey, darkMode=false }) {
   </div>;
 }
 
-function printBookingPdf(booking) {
+function printBookingPdfLegacy(booking) {
   const esc = value => String(value ?? "-").replace(/[&<>"]/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[char]));
   const date = value => value ? new Date(value).toLocaleString("en-GB", { day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit" }) : "Not set";
   const money = value => Number.isFinite(Number(value)) ? `£${Number(value).toFixed(2)}` : "-";
@@ -1322,6 +1322,162 @@ function printBookingPdf(booking) {
   popup.document.body.insertAdjacentHTML("afterbegin", "<div class='report-hero'><div><strong>" + esc(journey.origin || "Pickup") + " → " + esc(journey.destination || "Destination") + "</strong><span>Ref #" + esc(booking.id) + " · " + esc(String(booking.status || "NEW").toUpperCase()) + "</span></div><div>" + esc(journey.journeyType === "return" ? "Return journey" : "One-way journey") + "<br>" + esc(date(journey.departureDate)) + "</div></div><section class='route-snapshot'><h2>Route map</h2>" + (mapImage ? "<img src='" + mapImage + "' alt='Route map'>" : "<div class='missing'>Route map snapshot unavailable for this quotation</div>") + "</section>");
   popup.onafterprint = () => popup.close();
   setTimeout(() => popup.print(), 300);
+}
+
+function printBookingPdf(booking) {
+  const journey = booking.journey || {};
+  const quote = booking.quote || {};
+  const result = quote.result || {};
+  const breakdown = result.breakdown || {};
+  const esc = value => String(value ?? "--").replace(/[&<>"]/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[char]));
+  const has = (object, key) => Object.prototype.hasOwnProperty.call(object || {}, key) && object[key] !== null && object[key] !== undefined && object[key] !== "";
+  const text = value => value === null || value === undefined || value === "" ? "--" : String(value);
+  const money = value => Number.isFinite(Number(value)) ? `£${Number(value).toFixed(2)}` : "--";
+  const dateTime = value => {
+    if (!value) return "--";
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? String(value) : parsed.toLocaleString("en-GB", { day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit" });
+  };
+  const dateOnly = value => {
+    if (!value) return "--";
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? String(value) : parsed.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" });
+  };
+  const timeOnly = value => {
+    if (!value) return "--";
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? "--" : parsed.toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" });
+  };
+  const field = (label, value) => `<div class="field"><span>${esc(label)}</span><strong>${esc(text(value))}</strong></div>`;
+  const metric = (label, value) => `<div class="metric"><span>${esc(label)}</span><strong>${esc(text(value))}</strong></div>`;
+  const moneyRow = (label, key, className = "") => has(breakdown, key) ? `<div class="money-row ${className}"><span>${esc(label)}</span><strong>${money(breakdown[key])}</strong></div>` : "";
+  const stops = getJourneyStops(journey);
+  const points = getSavedRoutePoints(result, journey);
+  const staticMapPoints = (journey.wpCoords || []).filter(point => point && Number.isFinite(Number(point.lat)) && Number.isFinite(Number(point.lng)));
+  const mapKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
+  const mapPath = result.geometry ? "&path=color:0x16205c|weight:5|enc:" + encodeURIComponent(result.geometry) : "";
+  const mapMarkers = staticMapPoints.slice(0, 10).map((point, index) => "&markers=color:" + (index === 0 ? "0x0f766e" : index === staticMapPoints.length - 1 ? "0xd2232a" : "0x64748b") + "|label:" + (index === 0 ? "A" : index === staticMapPoints.length - 1 ? "B" : String(index)) + "|" + point.lat + "," + point.lng).join("");
+  const mapImage = mapKey && (result.geometry || staticMapPoints.length > 1) ? "https://maps.googleapis.com/maps/api/staticmap?size=1200x500&scale=2&maptype=roadmap&language=en-GB&region=GB" + mapPath + mapMarkers + "&key=" + encodeURIComponent(mapKey) : "";
+  const decodePolyline = encoded => {
+    const decoded = [];
+    let index = 0, lat = 0, lng = 0;
+    while (index < String(encoded || "").length) {
+      let shift = 0, value = 0, byte;
+      do { byte = String(encoded).charCodeAt(index++) - 63; value |= (byte & 31) << shift; shift += 5; } while (byte >= 32);
+      lat += (value & 1) ? ~(value >> 1) : value >> 1;
+      shift = 0; value = 0;
+      do { byte = String(encoded).charCodeAt(index++) - 63; value |= (byte & 31) << shift; shift += 5; } while (byte >= 32);
+      lng += (value & 1) ? ~(value >> 1) : value >> 1;
+      decoded.push({ lat: lat / 1e5, lng: lng / 1e5 });
+    }
+    return decoded;
+  };
+  const routePoints = decodePolyline(result.geometry);
+  const fallbackPoints = routePoints.length > 1 ? routePoints : points;
+  const bounds = fallbackPoints.reduce((box, point) => ({ minLat:Math.min(box.minLat, point.lat), maxLat:Math.max(box.maxLat, point.lat), minLng:Math.min(box.minLng, point.lng), maxLng:Math.max(box.maxLng, point.lng) }), { minLat:90, maxLat:-90, minLng:180, maxLng:-180 });
+  const latSpan = Math.max(bounds.maxLat - bounds.minLat, 0.01);
+  const lngSpan = Math.max(bounds.maxLng - bounds.minLng, 0.01);
+  const project = point => `${12 + ((point.lng - bounds.minLng) / lngSpan) * 876},${368 - ((point.lat - bounds.minLat) / latSpan) * 336}`;
+  const fallbackRoute = fallbackPoints.map(project).join(" ");
+  const fallbackMarkers = points.map((point, index) => `<circle cx="${project(point).split(",")[0]}" cy="${project(point).split(",")[1]}" r="8" fill="${index === 0 ? "#0f766e" : index === points.length - 1 ? "#d2232a" : "#475569"}"/><text x="${project(point).split(",")[0]}" y="${Number(project(point).split(",")[1]) + 3}" text-anchor="middle" fill="#fff" font-size="8" font-weight="700">${index === 0 ? "A" : index === points.length - 1 ? "B" : index}</text>`).join("");
+  const mapCenterLat = fallbackPoints.length ? (bounds.minLat + bounds.maxLat) / 2 : 52.5;
+  const mapCenterLng = fallbackPoints.length ? (bounds.minLng + bounds.maxLng) / 2 : -1.5;
+  const maxSpan = Math.max(latSpan, lngSpan);
+  const tileZoom = maxSpan > 10 ? 5 : maxSpan > 5 ? 6 : maxSpan > 2.5 ? 7 : 8;
+  const tileScale = 2 ** tileZoom;
+  const tileX = Math.floor(((mapCenterLng + 180) / 360) * tileScale);
+  const tileY = Math.floor((1 - Math.asinh(Math.tan(mapCenterLat * Math.PI / 180)) / Math.PI) / 2 * tileScale);
+  const tileMarkup = Array.from({ length: 6 }, (_, index) => {
+    const column = index % 3, row = Math.floor(index / 3);
+    const x = (tileX + column - 1 + tileScale) % tileScale;
+    const y = Math.max(0, Math.min(tileScale - 1, tileY + row - 1));
+    return `<img src="https://tile.openstreetmap.org/${tileZoom}/${x}/${y}.png" alt="" style="position:absolute;left:${column * 33.333}%;top:${row * 50}%;width:33.333%;height:50%;object-fit:cover">`;
+  }).join("");
+  const fallbackMap = `<div style="position:relative;width:100%;height:100%;overflow:hidden;background:#eaf5f3" role="img" aria-label="Saved route map">${tileMarkup}<svg style="position:absolute;inset:0;display:block;width:100%;height:100%" viewBox="0 0 900 380"><polyline points="${fallbackRoute}" fill="none" stroke="#fff" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/><polyline points="${fallbackRoute}" fill="none" stroke="#16205c" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>${fallbackMarkers}<text x="20" y="30" fill="#16205c" font-size="16" font-weight="700" stroke="#fff" stroke-width="4" paint-order="stroke">SAVED ROUTE</text></svg><small style="position:absolute;right:4px;bottom:2px;background:rgba(255,255,255,.8);color:#475569;font-size:7px">© OpenStreetMap contributors</small></div>`;
+  const mapMarkup = `<div id="pdf-map" style="width:100%;height:100%;position:relative;background:#eaf5f3"><div id="pdf-map-fallback" style="display:block;width:100%;height:100%">${fallbackMap}</div></div>`;
+  const distanceUnit = result.distanceUnit === "miles" ? "mi" : "km";
+  const finalFare = result.finalPrice ?? result.finalFare;
+  const vehicleName = quote.vehicle?.name || journey.vehicleName;
+  const vehicleCapacity = quote.vehicle?.seats || quote.vehicle?.capacity || quote.vehicle?.seatCapacity;
+  const resultVat = result.vat ?? result.vatAmount ?? result.tax;
+  const customerTotal = result.customerTotal ?? result.totalIncVat ?? result.total;
+  const stopRows = stops.map((stop, index) => `<div class="timeline-row"><b>${index + 1}</b><div><small>STOP ${index + 1}${stop.wait ? ` · ${esc(stop.wait)} MIN WAIT` : ""}</small><strong>${esc(stop.place || stop.name || "Saved stop")}</strong></div></div>`).join("");
+  const timeline = `<div class="timeline"><div class="timeline-row"><b>A</b><div><small>OUTWARD · PICKUP</small><strong>${esc(journey.origin)}</strong><span>${esc(dateTime(journey.departureDate))}</span></div></div>${stopRows}<div class="timeline-row"><b class="end">B</b><div><small>DESTINATION</small><strong>${esc(journey.destination)}</strong></div></div>${journey.journeyType === "return" ? `<div class="timeline-row return"><b>R</b><div><small>RETURN · ${esc(dateTime(journey.returnDate))}</small><strong>${esc(journey.destination)} → ${esc(journey.origin)}</strong></div></div>` : ""}</div>`;
+  const costRows = [moneyRow("Distance cost", "distanceCost"), moneyRow("Fuel cost", "fuelCost"), moneyRow("Maintenance cost", "maintenanceCost"), moneyRow("Tyre cost", "tyreCost"), moneyRow("Driver cost", "driverCost"), moneyRow("Standing cost", "standingCost"), moneyRow("Overnight / subsistence", "overnightCost"), moneyRow("Waiting cost", "waitingCost"), moneyRow("Surcharges", "surchargeTotal"), moneyRow("Allocated vehicle overhead", "allocatedStanding"), moneyRow("Allocated company overhead", "allocatedOverhead")].join("");
+  const profitabilityRows = [moneyRow("Gross profit", "grossProfit"), moneyRow("Net profit", "netProfit"), has(breakdown, "marginPct") ? `<div class="money-row"><span>Gross margin</span><strong>${esc(breakdown.marginPct)}%</strong></div>` : "", has(breakdown, "netMarginPct") ? `<div class="money-row"><span>Net margin</span><strong>${esc(breakdown.netMarginPct)}%</strong></div>` : "", moneyRow("Profit floor", "profitFloor"), moneyRow("Net profit target", "netProfitTarget")].join("");
+  const operationalRows = [
+    ["Commercial weight", has(breakdown, "commercialWeight") ? breakdown.commercialWeight : null],
+    ["Driver rate", has(breakdown, "driverRate") ? `${money(breakdown.driverRate)}/h` : null],
+    ["Driver count", has(breakdown, "driverCount") ? breakdown.driverCount : null],
+    ["Daily driving limit", has(breakdown, "dailyDrivingLimit") ? `${breakdown.dailyDrivingLimit} h` : null],
+    ["Mandatory break", has(breakdown, "mandatoryBreakHours") ? `${breakdown.mandatoryBreakHours} h` : null],
+    ["Waiting hours", has(breakdown, "waitingHours") ? `${breakdown.waitingHours} h` : null],
+    ["Customer range", has(breakdown, "customerRangePct") ? `${breakdown.customerRangePct}%` : null],
+    ["Operating days", has(result, "opDays") ? result.opDays : null],
+    ["Pricing method", has(result, "pricingMethod") ? result.pricingMethod : null]
+  ].filter(([, value]) => value !== null).map(([label, value]) => `<div><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("");
+  const transparentRows = [
+    ["Live legs", has(result, "revenueKm") ? `${result.revenueKm} ${distanceUnit}` : null],
+    ["Dead legs", has(result, "deadKm") ? `${result.deadKm} ${distanceUnit}` : null],
+    ["Total driven", has(result, "totalKm") ? `${result.totalKm} ${distanceUnit}` : null],
+    ["Driving time", has(result, "liveDurationMinutes") ? `${result.liveDurationMinutes} min` : null],
+    ["Empty running time", has(result, "emptyRunningMinutes") ? `${result.emptyRunningMinutes} min` : null],
+    ["Driver paid time", has(result, "driverPaidMinutes") ? `${result.driverPaidMinutes} min` : null],
+    ["Base price", has(result, "baseFare") ? money(result.baseFare) : null],
+    ["Minimum hire floor", has(quote.vehicle, "minimumHire") ? money(quote.vehicle.minimumHire) : null],
+    ["Target margin", has(breakdown, "marginPct") ? `${breakdown.marginPct}%` : null],
+    ["Customer pays", has(result, "finalPrice") || has(result, "finalFare") ? money(finalFare) : null],
+    ["Discount", has(result, "discountAmount") ? money(result.discountAmount) : has(result, "discount") ? money(result.discount) : null],
+    ["Discount %", has(result, "discountPct") ? `${result.discountPct}%` : null]
+  ].filter(([, value]) => value !== null).map(([label, value]) => `<div><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("");
+  const reportHtml = `<header class="report-header"><img src="/carolean%20image.png" alt="Carolean Coaches"><div class="report-heading"><div class="eyebrow">QUOTATION REPORT</div><h1>#${esc(booking.id)}</h1><div class="badges"><span>${esc(String(booking.status || "NEW").toUpperCase())}</span><span>${esc(journey.journeyType === "return" ? "RETURN" : stops.length ? "MULTI-STOP" : "ONE-WAY")}</span></div></div></header><section class="route-head"><div><span class="eyebrow">JOURNEY</span><h2>${esc(journey.origin || "Pickup")} <i>→</i> ${esc(journey.destination || "Destination")}</h2></div><div class="route-dates"><strong>${esc(dateOnly(journey.departureDate))}</strong><span>Departure ${esc(timeOnly(journey.departureDate))}${journey.journeyType === "return" ? ` · Return ${esc(timeOnly(journey.returnDate))}` : ""}</span></div></section><section class="section route-section"><div class="section-title">ROUTE &amp; JOURNEY</div><div class="route-grid"><div class="map-wrap">${mapMarkup}</div>${timeline}</div></section><div class="metrics">${metric("Total distance", `${text(result.totalKm)} ${distanceUnit}`)}${metric("Est. duration", `${text(result.totalShiftHrs)} h`)}${metric("Live miles", `${text(result.revenueKm)} ${distanceUnit}`)}${metric("Revenue miles", `${text(result.revenueKm)} ${distanceUnit}`)}${has(result, "deadKm") ? metric("Dead miles", `${text(result.deadKm)} ${distanceUnit}`) : ""}</div><section class="section"><div class="section-title">CUSTOMER &amp; BOOKING</div><div class="three-col"><div>${field("Customer", booking.customer?.name)}${field("Phone", booking.customer?.phone)}${field("Email", booking.customer?.email)}</div><div>${field("Passengers", journey.passengers)}${field("Suitcases 23KG+", journey.suitcaseCount)}${field("Handbags", journey.handbagCount)}</div><div>${field("Vehicle", vehicleName)}${field("Capacity", vehicleCapacity ? `${vehicleCapacity} seats` : "--")}${field("Vehicles", result.vehicleCount || quote.vehicleCount || "--")}</div></div>${journey.specialRequests ? `<div class="special"><span>Special request</span>${esc(journey.specialRequests)}</div>` : ""}</section><section class="section fare-section"><div class="section-title">FARE SUMMARY</div><div class="fare-grid"><div>${has(result, "baseFare") ? `<div class="fare-line"><span>Base rate${vehicleName ? ` · ${esc(vehicleName)}` : ""}</span><strong>${money(result.baseFare)}</strong></div>` : ""}${has(result, "surchargeTotal") ? `<div class="fare-line"><span>Surcharges</span><strong>${money(result.surchargeTotal)}</strong></div>` : ""}${has(result, "subtotal") ? `<div class="fare-line"><span>Subtotal</span><strong>${money(result.subtotal)}</strong></div>` : ""}${has(result, "upperBoundPrice") || has(result, "upperBoundFare") ? `<div class="fare-line"><span>Upper price bound</span><strong>${money(result.upperBoundPrice ?? result.upperBoundFare)}</strong></div>` : ""}</div><div class="fare-total"><span>NET FARE</span><strong>${money(finalFare)}</strong><div class="vat-line"><span>VAT</span><b>${money(resultVat)}</b></div><div class="customer-total"><span>CUSTOMER TOTAL</span><strong>${money(customerTotal)}</strong></div></div></div></section><section class="section transparent-section"><div class="section-title">TRANSPARENT PRICE BREAKDOWN</div><div class="transparent-grid">${transparentRows || `<div class="empty">No additional stored pricing details for this quotation</div>`}</div></section><div class="bottom-grid"><section class="section"><div class="section-title">COST BREAKDOWN</div><div class="money-table">${costRows || `<div class="empty">No stored cost breakdown for this quotation</div>`}</div></section><section class="section"><div class="section-title">PROFITABILITY</div><div class="money-table">${profitabilityRows || `<div class="empty">No stored profitability values for this quotation</div>`}</div></section></div><section class="section operational"><div class="section-title">OPERATIONAL PRICING DETAILS</div><div class="operational-grid">${operationalRows || `<div class="empty">No additional pricing-engine details for this quotation</div>`}</div></section><footer><span>Carolean Coaches · Internal Quotation Report</span><span>Generated ${esc(dateTime(new Date()))} · Quote #${esc(booking.id)}</span></footer>`;
+  const reportCss = `@page{size:A4 portrait;margin:10mm}*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0;padding:0;background:#fff;color:#17233f;font-family:Arial,Helvetica,sans-serif;font-size:9px;line-height:1.35}body{max-width:190mm;margin:0 auto}.report-header{height:19mm;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #d2232a}.report-header img{width:47mm;max-height:15mm;object-fit:contain;object-position:left}.report-heading{text-align:right}.eyebrow,.section-title{font-size:8px;font-weight:800;letter-spacing:1.1px;color:#64748b}.report-heading h1{font-size:16px;line-height:1;margin:2px 0 4px;color:#16205c}.badges{display:flex;justify-content:flex-end;gap:4px}.badges span{padding:2px 6px;border-radius:3px;background:#eef2f7;color:#16205c;font-size:7px;font-weight:800;letter-spacing:.5px}.badges span:first-child{background:#fce8eb;color:#b91c2a}.route-head{display:flex;justify-content:space-between;gap:12px;padding:5mm 0 3mm}.route-head h2{font-size:16px;line-height:1.1;margin:3px 0 0;color:#16205c}.route-head h2 i{font-style:normal;color:#d2232a;padding:0 5px}.route-dates{text-align:right;padding-top:3px}.route-dates strong,.route-dates span{display:block}.route-dates strong{font-size:11px;color:#16205c}.route-dates span{margin-top:2px;color:#64748b}.section{border:1px solid #e2e8f0;border-radius:5px;padding:3mm;background:#fff;break-inside:avoid;page-break-inside:avoid}.section-title{border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:6px;color:#16205c}.route-section{padding-bottom:2.5mm}.route-grid{display:grid;grid-template-columns:1.18fr .82fr;gap:3mm}.map-wrap{height:39mm;overflow:hidden;border:1px solid #dbe2ef;border-radius:4px;background:#f8fafc}.map-wrap img{display:block;width:100%;height:100%;object-fit:cover}.map-missing{height:100%;display:grid;place-items:center;color:#94a3b8;font-size:8px}.timeline{display:flex;flex-direction:column;justify-content:center;gap:2px}.timeline-row{display:grid;grid-template-columns:16px 1fr;gap:6px;align-items:start;position:relative}.timeline-row:not(:last-child):after{content:"";position:absolute;left:7px;top:17px;height:calc(100% + 1px);border-left:1px solid #cbd5e1}.timeline-row b{z-index:1;width:15px;height:15px;display:grid;place-items:center;border-radius:50%;background:#0f766e;color:#fff;font-size:7px}.timeline-row b.end{background:#d2232a}.timeline-row.return b{background:#fff;border:1px dashed #d2232a;color:#d2232a}.timeline-row small{display:block;color:#64748b;font-size:7px;font-weight:800;letter-spacing:.4px}.timeline-row strong{display:block;color:#16205c;font-size:9px}.timeline-row span{display:block;color:#64748b;font-size:8px}.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:2mm;margin:2.5mm 0}.metric{background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:2.5mm}.metric span{display:block;color:#64748b;font-size:7px;text-transform:uppercase;letter-spacing:.35px}.metric strong{display:block;margin-top:1px;color:#16205c;font-size:12px}.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:5mm}.field{margin:0 0 4px}.field span,.special span{display:block;color:#64748b;font-size:7px;text-transform:uppercase;letter-spacing:.35px}.field strong{display:block;color:#16205c;font-size:9px;font-weight:700;overflow-wrap:anywhere}.special{margin-top:3px;padding-top:4px;border-top:1px solid #eef2f7;color:#334155}.special span{display:inline;margin-right:6px}.fare-section{background:#f8fafc}.fare-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:8mm;align-items:stretch}.fare-line,.money-row{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #e8edf3;padding:3px 0}.fare-line strong,.money-row strong{font-variant-numeric:tabular-nums;color:#16205c}.fare-total{border-left:1px solid #dbe2ef;padding-left:6mm}.fare-total>span,.vat-line span,.customer-total span{display:block;color:#64748b;font-size:7px;font-weight:800;letter-spacing:.5px}.fare-total>strong{display:block;color:#16205c;font-size:19px;line-height:1.05;margin:2px 0 5px}.vat-line{display:flex;justify-content:space-between;color:#64748b;border-bottom:1px solid #dbe2ef;padding-bottom:3px}.customer-total{display:flex;justify-content:space-between;align-items:end;padding-top:4px}.customer-total strong{color:#d2232a;font-size:14px}.transparent-section{margin-top:3mm;background:#fbfcfd}.transparent-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px 8mm}.transparent-grid>div{display:flex;justify-content:space-between;border-bottom:1px solid #eef2f7;padding:2px 0;gap:4px}.transparent-grid span{color:#64748b}.transparent-grid strong{color:#16205c;font-variant-numeric:tabular-nums}.bottom-grid{display:grid;grid-template-columns:1.14fr .86fr;gap:3mm;margin-top:3mm}.bottom-grid .section{min-width:0}.money-table{font-size:8px}.empty{color:#94a3b8;font-style:italic;padding:3px 0}.operational{margin-top:3mm;background:#fbfcfd}.operational-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px 8mm}.operational-grid>div{display:flex;justify-content:space-between;border-bottom:1px solid #eef2f7;padding:2px 0;gap:4px}.operational-grid span{color:#64748b}.operational-grid strong{color:#16205c;font-variant-numeric:tabular-nums}.report-header,.route-head,.section,.metrics,footer{break-inside:avoid;page-break-inside:avoid}footer{display:flex;justify-content:space-between;border-top:1px solid #e2e8f0;margin-top:3mm;padding-top:2.5mm;color:#64748b;font-size:7px}@media print{body{max-width:none}a{color:inherit;text-decoration:none}}`;
+  const popup = window.open("", "_blank");
+  if (!popup) return;
+  popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Carolean Coaches - Quote #${esc(booking.id)}</title><style>${reportCss}</style></head><body>${reportHtml}</body></html>`);
+  popup.document.close();
+  popup.onafterprint = () => popup.close();
+  const print = () => { popup.focus(); popup.print(); };
+  const printWhenImagesReady = () => {
+    const images = Array.from(popup.document.images);
+    const ready = images.length ? Promise.all(images.map(image => image.complete ? Promise.resolve() : new Promise(resolve => { image.onload = resolve; image.onerror = resolve; }))) : Promise.resolve();
+    ready.then(() => setTimeout(print, 150));
+  };
+  if (mapKey) {
+    popup.__caroleanPdfMapReady = false;
+    popup.__caroleanPdfMap = () => {
+      const mapElement = popup.document.getElementById("pdf-map");
+      if (!mapElement || !popup.google?.maps) return;
+      const map = new popup.google.maps.Map(mapElement, { disableDefaultUI:true, streetViewControl:false, mapTypeControl:false, fullscreenControl:false, styles:[] });
+      let path = [];
+      if (result.geometry && popup.google.maps.geometry?.encoding?.decodePath) {
+        try { path = popup.google.maps.geometry.encoding.decodePath(result.geometry); } catch (_) { path = []; }
+      }
+      if (path.length < 2) path = points.map(point => ({ lat:Number(point.lat), lng:Number(point.lng) }));
+      if (path.length < 2) { printWhenImagesReady(); return; }
+      new popup.google.maps.Polyline({ map, path, geodesic:true, strokeColor:"#16205c", strokeOpacity:1, strokeWeight:5 });
+      const bounds = new popup.google.maps.LatLngBounds();
+      path.forEach(point => bounds.extend(point));
+      points.forEach((point, index) => {
+        const position = { lat:Number(point.lat), lng:Number(point.lng) };
+        new popup.google.maps.Marker({ map, position, label:index === 0 ? "A" : index === points.length - 1 ? "B" : String(index) });
+        bounds.extend(position);
+      });
+      map.fitBounds(bounds, 32);
+      const fallback = popup.document.getElementById("pdf-map-fallback");
+      if (fallback) fallback.style.display = "none";
+      popup.__caroleanPdfMapReady = true;
+      printWhenImagesReady();
+    };
+    const script = popup.document.createElement("script");
+    script.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(mapKey) + "&libraries=geometry&callback=__caroleanPdfMap";
+    script.async = true;
+    script.defer = true;
+    popup.document.head.appendChild(script);
+    setTimeout(() => { if (!popup.__caroleanPdfMapReady) printWhenImagesReady(); }, 2500);
+  } else {
+    printWhenImagesReady();
+  }
 }
 
 // ── Navbar ────────────────────────────────────────────────────────────────────
@@ -1493,17 +1649,37 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   const recordFeatureUsage = useCallback((key) => {
     setActiveFeature(key);
     setFeatureUsage(current => {
-      const previous = current[key] || { count: 0, lastUsed: 0 };
-      const next = { ...current, [key]: { count: previous.count + 1, lastUsed: Date.now() } };
+      const previous = current[key] || { count: 0, lastUsed: 0, durationMs: 0 };
+      const next = { ...current, [key]: { ...previous, count: previous.count + 1, lastUsed: Date.now() } };
       if (typeof window !== 'undefined') localStorage.setItem('adminFeatureUsage', JSON.stringify(next));
       return next;
     });
   }, []);
 
-  const frequentFeatures = useMemo(() => QUICK_ACCESS_FEATURES
-    .map((feature, index) => ({ ...feature, index, ...(featureUsage[feature.key] || { count: 0, lastUsed: 0 }) }))
-    .sort((a, b) => b.count - a.count || b.lastUsed - a.lastUsed || a.index - b.index)
-    .slice(0, 3), [featureUsage]);
+  useEffect(() => {
+    if (!activeFeature || typeof window === 'undefined') return;
+    let lastTick = Date.now();
+    const timer = window.setInterval(() => {
+      const now = Date.now();
+      const elapsed = now - lastTick;
+      lastTick = now;
+      setFeatureUsage(current => {
+        const previous = current[activeFeature] || { count: 0, lastUsed: now, durationMs: 0 };
+        const next = { ...current, [activeFeature]: { ...previous, durationMs: (previous.durationMs || 0) + elapsed } };
+        localStorage.setItem('adminFeatureUsage', JSON.stringify(next));
+        return next;
+      });
+    }, 10000);
+    return () => window.clearInterval(timer);
+  }, [activeFeature]);
+
+  const frequentFeatures = useMemo(() => {
+    const defaultOrder = ['quotations', 'seasonal', 'fleetVariables'];
+    return QUICK_ACCESS_FEATURES
+    .map((feature, index) => ({ ...feature, index, ...(featureUsage[feature.key] || { count: 0, lastUsed: 0, durationMs: 0 }), defaultIndex: defaultOrder.indexOf(feature.key) }))
+    .sort((a, b) => b.count - a.count || b.durationMs - a.durationMs || b.lastUsed - a.lastUsed || (a.defaultIndex < 0 ? 99 : a.defaultIndex) - (b.defaultIndex < 0 ? 99 : b.defaultIndex) || a.index - b.index)
+    .slice(0, 3);
+  }, [featureUsage]);
 
   const openFrequentFeature = useCallback((feature) => {
     recordFeatureUsage(feature.key);
@@ -1560,6 +1736,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   const [gv, setGv]         = useState({...db.globalVars});
   const [depotLoc, setDepotLoc] = useState({ address: gv.yardAddress || "", lat: gv.yardLat, lng: gv.yardLng });
   const [previewBooking, setPreviewBooking] = useState<any>(null);
+  const [quoteDetailTab, setQuoteDetailTab] = useState<'route' | 'costs' | 'customer'>('route');
+  useEffect(() => { setQuoteDetailTab('route'); }, [previewBooking?.id]);
   const [overheads, setOH]  = useState(db.annualOverheads.map(o=>({...o})));
   const [roadCharges, setRoadCharges] = useState(() => buildRoadChargeItems(db.surcharges));
   const sr = useMemo(() => roadChargeItemsToMap(roadCharges), [roadCharges]);
@@ -1600,32 +1778,6 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   const [toast, setToast]   = useState("");
   const [globalSearch, setGlobalSearch] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
-  const searchResults = useMemo(() => {
-    const query = globalSearch.trim().toLowerCase();
-    if (!query) return [];
-    const terms = query.split(/\s+/).filter(Boolean);
-    return ADMIN_SEARCH_DESTINATIONS
-      .map((item, index) => {
-        const searchable = `${item.label} ${item.description} ${item.keywords}`.toLowerCase();
-        const score = terms.reduce((total, term) => total +
-          (item.label.toLowerCase().startsWith(term) ? 4 : searchable.includes(term) ? 1 : -20), 0);
-        return { ...item, index, score };
-      })
-      .filter(item => item.score >= 0)
-      .sort((a, b) => b.score - a.score || a.index - b.index)
-      .slice(0, 5);
-  }, [globalSearch]);
-
-  const openSearchDestination = useCallback((destination) => {
-    if (destination.feature) recordFeatureUsage(destination.feature);
-    if (destination.settingsSection) setSettingsSection(destination.settingsSection);
-    setTab(destination.tab);
-    setGlobalSearch('');
-    setSearchOpen(false);
-    if (destination.target) {
-      window.setTimeout(() => document.getElementById(destination.target)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
-    }
-  }, [recordFeatureUsage]);
 
   useEffect(() => {
     if (db) {
@@ -1678,6 +1830,46 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   const [bookingEditForm, setBookingEditForm] = useState<any>(null);
   const [bookingEditError, setBookingEditError] = useState("");
   const [isSavingBooking, setIsSavingBooking] = useState(false);
+
+  const searchResults = useMemo(() => {
+    const query = globalSearch.trim().toLowerCase();
+    if (!query) return [];
+    const terms = query.split(/\s+/).filter(Boolean);
+    const bookingDestinations = bookingsData.map(booking => ({
+      label: `#${booking.id} · ${booking.customer?.name || "Unnamed customer"}`,
+      description: `${booking.journey?.origin || "Origin not set"} → ${booking.journey?.destination || "Destination not set"}`,
+      tab: 'bookings', target: 'quotation-workspace', feature: 'quotations', booking,
+      keywords: [booking.id, booking.status, booking.customer?.name, booking.customer?.email, booking.customer?.phone, booking.journey?.origin, booking.journey?.destination, booking.quote?.vehicle?.name].filter(Boolean).join(' ')
+    }));
+    const vehicleDestinations = vehicles.map(vehicle => ({
+      label: vehicle.name || 'Vehicle',
+      description: `${vehicle.capacity || 0} seats · Fleet variables`,
+      tab: 'fleet', target: 'fleet-variables', feature: 'fleetVariables',
+      keywords: Object.values(vehicle).join(' ')
+    }));
+    return [...ADMIN_SEARCH_DESTINATIONS, ...bookingDestinations, ...vehicleDestinations]
+      .map((item, index) => {
+        const searchable = `${item.label} ${item.description} ${item.keywords || ''}`.toLowerCase();
+        const score = terms.reduce((total, term) => total +
+          (item.label.toLowerCase().startsWith(term) ? 4 : searchable.includes(term) ? 1 : -20), 0);
+        return { ...item, index, score };
+      })
+      .filter(item => item.score >= 0)
+      .sort((a, b) => b.score - a.score || a.index - b.index)
+      .slice(0, 8);
+  }, [globalSearch, bookingsData, vehicles]);
+
+  const openSearchDestination = useCallback((destination) => {
+    if (destination.feature) recordFeatureUsage(destination.feature);
+    if (destination.booking) setPreviewBooking(destination.booking);
+    if (destination.settingsSection) setSettingsSection(destination.settingsSection);
+    setTab(destination.tab);
+    setGlobalSearch('');
+    setSearchOpen(false);
+    if (destination.target) {
+      window.setTimeout(() => document.getElementById(destination.target)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    }
+  }, [recordFeatureUsage]);
 
   const refreshDashboardData = useCallback(async () => {
     try {
@@ -3178,8 +3370,15 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         <button type="button" onClick={() => openBookingEditor(previewBooking)} className="admin-icon-action admin-icon-edit" title="Edit quotation" aria-label="Edit quotation"><Edit3 size={12}/></button>
                       </div>
                     </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", padding: "10px 16px", borderBottom: `1px solid ${darkMode ? "#1f2937" : "#eaecf0"}`, background: darkMode ? "#111827" : "#fff" }}>
+                      <div><div style={{ fontSize: 10, color: darkMode ? "#9ca3af" : PX.gray500, textTransform: "uppercase", letterSpacing: 1 }}>Net fare</div><div style={{ fontSize: 25, lineHeight: 1.1, fontWeight: 900, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(previewBooking.quote?.result?.finalPrice || previewBooking.quote?.result?.finalFare || 0)}</div><div style={{ fontSize: 9, color: darkMode ? "#6b7280" : PX.gray400, marginTop: 3 }}>£{fmt((previewBooking.quote?.result?.finalPrice || previewBooking.quote?.result?.finalFare || 0) * 1.2)} inc. VAT</div></div>
+                      <div style={{ textAlign: "right" }}><div style={{ fontSize: 10, color: darkMode ? "#9ca3af" : PX.gray500, textTransform: "uppercase", letterSpacing: 1 }}>Net margin target</div><div style={{ fontSize: 20, lineHeight: 1.1, fontWeight: 800, color: PX.brandRed }}>{previewBooking.quote?.result?.breakdown?.netMarginPct ?? "--"}{previewBooking.quote?.result?.breakdown?.netMarginPct != null ? "%" : ""}</div></div>
+                    </div>
+                    <nav aria-label="Quotation detail sections" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", borderBottom: `1px solid ${darkMode ? "#1f2937" : "#eaecf0"}`, background: darkMode ? "#111827" : "#fff", position: "sticky", top: 0, zIndex: 9 }}>
+                      {([['route', 'Route'], ['costs', 'Costs'], ['customer', 'Customer']] as const).map(([value, label]) => <button key={value} type="button" onClick={() => setQuoteDetailTab(value)} style={{ border: 0, borderBottom: `2px solid ${quoteDetailTab === value ? PX.brandRed : "transparent"}`, background: "transparent", color: quoteDetailTab === value ? (darkMode ? "#f3f4f6" : PX.navy800) : (darkMode ? "#9ca3af" : PX.gray500), padding: "9px 4px", fontSize: 11, fontWeight: quoteDetailTab === value ? 800 : 600, cursor: "pointer" }}>{label}</button>)}
+                    </nav>
                     
-                    <div className="quotation-detail-map" style={{ position: "relative", height: 220, flex: "0 0 220px", borderBottom: `1px solid ${darkMode ? "#1f2937" : "#eaecf0"}`, overflow: "hidden" }}>
+                    <div className="quotation-detail-map" style={{ display: quoteDetailTab === "route" ? "block" : "none", position: "relative", height: 220, flex: "0 0 220px", borderBottom: `1px solid ${darkMode ? "#1f2937" : "#eaecf0"}`, overflow: "hidden" }}>
                       <RouteMap result={previewBooking.quote?.result} journey={previewBooking.journey} gv={gv} height={220} minimal={true} darkMode={darkMode} mapsLoaded={mapsLoaded} />
                       <div style={{ position: "absolute", bottom: 12, left: 12, background: darkMode ? "rgba(15, 23, 42, 0.9)" : "rgba(255, 255, 255, 0.94)", color: darkMode ? "#e2e8f0" : PX.navy800, border: `1px solid ${darkMode ? "#475569" : "#e2e8f0"}`, padding: "4px 10px", borderRadius: 20, fontSize: 10, fontWeight: 800, letterSpacing: 0.5, display: "flex", alignItems: "center", gap: 4, backdropFilter: "blur(4px)" }}>
                         <MapPinned size={12} /> ROUTE PREVIEW
@@ -3187,41 +3386,54 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     </div>
                     
                     <div className="quotation-detail-body" style={{ padding: "12px 16px 14px" }}>
-                      <JourneyRouteDetails journey={previewBooking.journey} darkMode={darkMode} />
-                      <div style={{ fontSize: 11, fontWeight: 800, color: darkMode ? "#6b7280" : PX.gray400, textTransform: "uppercase", letterSpacing: 1, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ display: quoteDetailTab === "route" ? "block" : "none" }}><JourneyRouteDetails journey={previewBooking.journey} darkMode={darkMode} /></div>
+                      <div style={{ display: quoteDetailTab === "customer" ? "flex" : "none", fontSize: 11, fontWeight: 800, color: darkMode ? "#6b7280" : PX.gray400, textTransform: "uppercase", letterSpacing: 1, marginBottom: 16, alignItems: "center", gap: 8 }}>
                         <span>Customer & Requirements</span>
                         <div style={{ flex: 1, height: 1, background: darkMode ? "#1f2937" : "#f1f5f9" }} />
                       </div>
-                      <div style={{ background: darkMode ? "#1f2937" : PX.gray50, padding: 16, borderRadius: 12, marginBottom: 24 }}>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                          <div>
-                            <div style={{ fontSize: 11, color: darkMode ? "#9ca3af" : PX.gray500, fontWeight: 600, marginBottom: 4 }}>Customer</div>
-                            <div style={{ fontSize: 14, fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>{previewBooking.customer?.name || "-"}</div>
-                            <div style={{ fontSize: 12, color: darkMode ? "#d1d5db" : PX.gray600 }}>{previewBooking.customer?.phone || "-"}</div>
-                            <div style={{ fontSize: 12, color: darkMode ? "#d1d5db" : PX.gray600 }}>{previewBooking.customer?.email || "-"}</div>
-                          </div>
-                          <div>
-                            <div style={{ fontSize: 11, color: darkMode ? "#9ca3af" : PX.gray500, fontWeight: 600, marginBottom: 4 }}>Requirements</div>
-                            <div style={{ fontSize: 14, fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>{previewBooking.journey?.passengers || 0} Passengers</div>
-                            <div style={{ fontSize: 12, color: darkMode ? "#d1d5db" : PX.gray600 }}>Vehicle: {previewBooking.quote?.vehicle?.name || "-"}</div>
-                            <div style={{ fontSize: 12, color: darkMode ? "#d1d5db" : PX.gray600 }}>
-                              {previewBooking.journey?.handbagCount ?? 0} handbags · {previewBooking.journey?.suitcaseCount ?? 0} suitcases
+                      <div style={{ display: quoteDetailTab === "customer" ? "block" : "none", marginBottom: 12 }}>
+                        <div style={{ fontSize: 10, fontWeight: 800, color: darkMode ? "#6b7280" : PX.gray400, textTransform: "uppercase", letterSpacing: 1, marginBottom: 7, display: "flex", alignItems: "center", gap: 8 }}>
+                          <span>Customer</span><div style={{ flex: 1, height: 1, background: darkMode ? "#1f2937" : "#f1f5f9" }} />
+                        </div>
+                        <div style={{ background: darkMode ? "#1f2937" : PX.gray50, padding: 10, borderRadius: 8, border: `1px solid ${darkMode ? "#374151" : PX.gray200}` }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 10 }}>
+                            <div style={{ display: "grid", gridTemplateColumns: "28px 1fr", gap: 8, alignItems: "start" }}>
+                              <div style={{ width: 28, height: 28, borderRadius: "50%", background: darkMode ? "#374151" : "#e5e7eb", color: darkMode ? "#f3f4f6" : PX.navy800, display: "grid", placeItems: "center", fontSize: 12, fontWeight: 800 }}>{String(previewBooking.customer?.name || "?").trim().charAt(0).toUpperCase()}</div>
+                              <div>
+                                <div style={{ fontSize: 12, fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800 }}>{previewBooking.customer?.name || "-"}</div>
+                                <div style={{ fontSize: 10, color: darkMode ? "#d1d5db" : PX.gray600, overflowWrap: "anywhere" }}>{previewBooking.customer?.email || "-"}</div>
+                                <div style={{ fontSize: 10, color: darkMode ? "#d1d5db" : PX.gray600 }}>{previewBooking.customer?.phone || "-"}</div>
+                                {previewBooking.customer?.company && <div style={{ fontSize: 10, color: darkMode ? "#9ca3af" : PX.gray500 }}>{previewBooking.customer.company}</div>}
+                              </div>
+                            </div>
+                            <div style={{ paddingBottom: 9, borderBottom: `1px solid ${darkMode ? "#374151" : PX.gray200}` }}>
+                              <div style={{ fontSize: 9, color: darkMode ? "#9ca3af" : PX.gray500, fontWeight: 700, textTransform: "uppercase", letterSpacing: .5, marginBottom: 4 }}>Requirements</div>
+                              <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "5px 8px", fontSize: 10, color: darkMode ? "#d1d5db" : PX.gray600 }}>
+                                <span>Passengers</span><strong style={{ color: darkMode ? "#f3f4f6" : PX.navy800 }}>{previewBooking.journey?.passengers || 0}</strong>
+                                <span>Vehicle</span><strong style={{ color: darkMode ? "#f3f4f6" : PX.navy800, textAlign: "right" }}>{previewBooking.quote?.vehicle?.name || "-"}</strong>
+                                <span>Luggage</span><strong style={{ color: darkMode ? "#f3f4f6" : PX.navy800, textAlign: "right" }}>{previewBooking.journey?.handbagCount ?? 0} handbags · {previewBooking.journey?.suitcaseCount ?? 0} suitcases</strong>
+                              </div>
                             </div>
                           </div>
+                          {previewBooking.journey?.journeyType === "return" && <div style={{ marginTop: 9, paddingTop: 8, borderTop: `1px solid ${darkMode ? "#374151" : PX.gray200}`, display: "flex", justifyContent: "space-between", gap: 8, fontSize: 10 }}><span style={{ color: darkMode ? "#9ca3af" : PX.gray500 }}>Return journey</span><strong style={{ color: darkMode ? "#f3f4f6" : PX.navy800, textAlign: "right" }}>{previewBooking.journey?.returnDate ? new Date(previewBooking.journey.returnDate).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) : "Not set"}</strong></div>}
+                          {previewBooking.journey?.specialRequests && <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px solid ${darkMode ? "#374151" : PX.gray200}`, fontSize: 10, color: darkMode ? "#d1d5db" : PX.gray700 }}><strong>Special request:</strong> {previewBooking.journey.specialRequests}</div>}
                         </div>
-                        {previewBooking.journey?.specialRequests && (
-                          <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${darkMode ? "#374151" : PX.gray200}`, fontSize: 12, color: darkMode ? "#d1d5db" : PX.gray700 }}>
-                            <strong>Special Requests:</strong> {previewBooking.journey.specialRequests}
-                          </div>
-                        )}
+                        <div style={{ fontSize: 10, fontWeight: 800, color: darkMode ? "#6b7280" : PX.gray400, textTransform: "uppercase", letterSpacing: 1, margin: "14px 0 7px", display: "flex", alignItems: "center", gap: 8 }}>
+                          <span>Activity</span><div style={{ flex: 1, height: 1, background: darkMode ? "#1f2937" : "#f1f5f9" }} />
+                        </div>
+                        <div style={{ borderLeft: `2px solid ${PX.brandRed}`, paddingLeft: 9, display: "grid", gap: 8, fontSize: 10 }}>
+                          <div><strong style={{ display: "block", color: darkMode ? "#f3f4f6" : PX.navy800 }}>Quotation created</strong><span style={{ color: darkMode ? "#9ca3af" : PX.gray500 }}>{previewBooking.createdAt ? new Date(previewBooking.createdAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) : "Stored booking"}</span></div>
+                          <div><strong style={{ display: "block", color: darkMode ? "#f3f4f6" : PX.navy800 }}>Pricing engine resolved fare</strong><span style={{ color: darkMode ? "#9ca3af" : PX.gray500 }}>Stored quotation result</span></div>
+                          <div><strong style={{ display: "block", color: darkMode ? "#f3f4f6" : PX.navy800 }}>Quotation status</strong><span style={{ color: darkMode ? "#9ca3af" : PX.gray500 }}>{String(previewBooking.status || "NEW").toUpperCase()}</span></div>
+                        </div>
                       </div>
 
-                      <div style={{ fontSize: 11, fontWeight: 800, color: darkMode ? "#6b7280" : PX.gray400, textTransform: "uppercase", letterSpacing: 1, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ display: quoteDetailTab === "route" ? "flex" : "none", fontSize: 11, fontWeight: 800, color: darkMode ? "#6b7280" : PX.gray400, textTransform: "uppercase", letterSpacing: 1, marginBottom: 16, alignItems: "center", gap: 8 }}>
                         <span>Journey Metrics</span>
                         <div style={{ flex: 1, height: 1, background: darkMode ? "#1f2937" : "#f1f5f9" }} />
                       </div>
                       
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
+                      <div style={{ display: quoteDetailTab === "route" ? "grid" : "none", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
                         <div style={{ border: `1px solid ${darkMode ? "#374151" : "#e2e8f0"}`, borderRadius: 12, padding: "12px 16px", background: darkMode ? "#1f2937" : "#fff" }}>
                           <div style={{ fontSize: 11, color: darkMode ? "#9ca3af" : PX.gray500, fontWeight: 600, marginBottom: 4 }}>Total Distance</div>
                           <div style={{ fontSize: 20, fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800 }}>{previewBooking.quote?.result?.totalKm || 0} <span className="text-sm font-semibold">{gv?.distanceUnit === "miles" ? "mi" : "km"}</span></div>
@@ -3240,12 +3452,12 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         </div>
                       </div>
 
-                      <div style={{ fontSize: 11, fontWeight: 800, color: darkMode ? "#6b7280" : PX.gray400, textTransform: "uppercase", letterSpacing: 1, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ display: quoteDetailTab === "costs" ? "flex" : "none", fontSize: 11, fontWeight: 800, color: darkMode ? "#6b7280" : PX.gray400, textTransform: "uppercase", letterSpacing: 1, marginBottom: 16, alignItems: "center", gap: 8 }}>
                         <span>Fare Assessment</span>
                         <div style={{ flex: 1, height: 1, background: darkMode ? "#1f2937" : "#f1f5f9" }} />
                       </div>
                       
-                      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24, fontSize: 13 }}>
+                      <div style={{ display: quoteDetailTab === "costs" ? "flex" : "none", flexDirection: "column", gap: 10, marginBottom: 24, fontSize: 13 }}>
                         <div style={{ display: "flex", justifyContent: "space-between", color: darkMode ? "#d1d5db" : PX.gray600 }}>
                           <span>Base Rate ({previewBooking.quote?.vehicle?.name})</span>
                           <span style={{ fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(previewBooking.quote?.result?.baseFare || previewBooking.quote?.result?.subtotal || 0)}</span>
@@ -3282,6 +3494,39 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           </div>
                         </div>
                       </div>
+
+                      {(() => {
+                        const transparentResult = previewBooking.quote?.result || {};
+                        const transparentBreakdown = transparentResult.breakdown || {};
+                        const transparentUnit = transparentResult.distanceUnit === "miles" ? "mi" : "km";
+                        const transparentMoney = value => Number.isFinite(Number(value)) ? `£${fmt(value)}` : "--";
+                        const transparentRows = [
+                          ["Live legs", transparentResult.revenueKm != null ? `${transparentResult.revenueKm} ${transparentUnit}` : null],
+                          ["Dead legs", transparentResult.deadKm != null ? `${transparentResult.deadKm} ${transparentUnit}` : null],
+                          ["Total driven", transparentResult.totalKm != null ? `${transparentResult.totalKm} ${transparentUnit}` : null],
+                          ["Driving time", transparentResult.liveDurationMinutes != null ? `${transparentResult.liveDurationMinutes} min` : null],
+                          ["Empty running time", transparentResult.emptyRunningMinutes != null ? `${transparentResult.emptyRunningMinutes} min` : null],
+                          ["Driver paid time", transparentResult.driverPaidMinutes != null ? `${transparentResult.driverPaidMinutes} min` : null],
+                          ["Fuel & maintenance", transparentBreakdown.fuelCost != null || transparentBreakdown.maintenanceCost != null ? `${transparentMoney(transparentBreakdown.fuelCost)} + ${transparentMoney(transparentBreakdown.maintenanceCost)}` : null],
+                          ["Driver wages", transparentBreakdown.driverCost != null ? transparentMoney(transparentBreakdown.driverCost) : null],
+                          ["Standing / overhead", transparentBreakdown.standingCost != null || transparentBreakdown.allocatedOverhead != null ? `${transparentMoney(transparentBreakdown.standingCost)} + ${transparentMoney(transparentBreakdown.allocatedOverhead)}` : null],
+                          ["True cost", transparentBreakdown.accountingCost != null || transparentBreakdown.totalOperatingCost != null ? transparentMoney(transparentBreakdown.accountingCost ?? transparentBreakdown.totalOperatingCost) : null],
+                          ["Base price", transparentResult.baseFare != null ? transparentMoney(transparentResult.baseFare) : null],
+                          ["Minimum hire floor", previewBooking.quote?.vehicle?.minimumHire != null ? transparentMoney(previewBooking.quote.vehicle.minimumHire) : null],
+                          ["Target margin", transparentBreakdown.marginPct != null ? `${transparentBreakdown.marginPct}%` : null],
+                          ["Customer pays", transparentResult.finalPrice != null || transparentResult.finalFare != null ? transparentMoney(transparentResult.finalPrice ?? transparentResult.finalFare) : null],
+                          ["Discount", transparentResult.discountAmount != null ? transparentMoney(transparentResult.discountAmount) : transparentResult.discount != null ? transparentMoney(transparentResult.discount) : null]
+                        ].filter(([, value]) => value !== null);
+                        return <>
+                          <div style={{ display: quoteDetailTab === "costs" ? "flex" : "none", fontSize: 11, fontWeight: 800, color: darkMode ? "#6b7280" : PX.gray400, textTransform: "uppercase", letterSpacing: 1, marginBottom: 16, alignItems: "center", gap: 8 }}>
+                            <span>Transparent Price Breakdown</span>
+                            <div style={{ flex: 1, height: 1, background: darkMode ? "#1f2937" : "#f1f5f9" }} />
+                          </div>
+                          <div style={{ display: quoteDetailTab === "costs" ? "grid" : "none", gridTemplateColumns: "1fr 1fr", gap: "0 18px", padding: "12px 14px", marginBottom: 24, background: darkMode ? "#111827" : PX.gray50, border: `1px solid ${darkMode ? "#374151" : PX.gray200}`, borderRadius: 8, fontSize: 12 }}>
+                            {transparentRows.map(([label, value]) => <div key={label} style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "6px 0", borderBottom: `1px solid ${darkMode ? "#1f2937" : "#e2e8f0"}` }}><span style={{ color: darkMode ? "#9ca3af" : PX.gray600 }}>{label}</span><strong style={{ color: darkMode ? "#f3f4f6" : PX.navy800, textAlign: "right" }}>{value}</strong></div>)}
+                          </div>
+                        </>;
+                      })()}
                       
                       {(() => {
                         const rev = previewBooking.quote?.result?.finalPrice || previewBooking.quote?.result?.finalFare || 0;
@@ -3347,13 +3592,15 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         const profitMargin = (netProfit / baseForMargin) * 100;
 
                         return (
-                          <>
-                            <div style={{ fontSize: 11, fontWeight: 800, color: darkMode ? "#6b7280" : PX.gray400, textTransform: "uppercase", letterSpacing: 1, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                          <div style={{ display: quoteDetailTab === "costs" ? "block" : "none" }}>
+                            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 0.9fr) minmax(0, 1.1fr)", gap: 16, alignItems: "start" }}>
+                              <div>
+                            <div style={{ fontSize: 10, fontWeight: 800, color: darkMode ? "#6b7280" : PX.gray400, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
                               <span>Financial Margins</span>
                               <div style={{ flex: 1, height: 1, background: darkMode ? "#1f2937" : "#f1f5f9" }} />
                             </div>
                             
-                            <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse", marginBottom: 24 }}>
+                            <table style={{ width: "100%", fontSize: 11, borderCollapse: "collapse", marginBottom: 0 }}>
                               <thead>
                                 <tr style={{ borderBottom: `1px solid ${darkMode ? "#374151" : "#e2e8f0"}`, color: darkMode ? "#9ca3af" : PX.gray500, fontSize: 11 }}>
                                   <th style={{ textAlign: "left", paddingBottom: 8, fontWeight: 700 }}>METRIC</th>
@@ -3386,11 +3633,13 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                               </tbody>
                             </table>
 
-                            <div style={{ fontSize: 11, fontWeight: 800, color: darkMode ? "#6b7280" : PX.gray400, textTransform: "uppercase", letterSpacing: 1, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                              </div>
+                              <div>
+                            <div style={{ fontSize: 10, fontWeight: 800, color: darkMode ? "#6b7280" : PX.gray400, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
                               <span>Cost Breakdown</span>
                               <div style={{ flex: 1, height: 1, background: darkMode ? "#1f2937" : "#f1f5f9" }} />
                             </div>
-                            <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse", marginBottom: 24 }}>
+                            <table style={{ width: "100%", fontSize: 11, borderCollapse: "collapse", marginBottom: 0 }}>
                               <tbody>
                                 {[
                                   ['Fuel cost', fuelCostVal],
@@ -3424,7 +3673,9 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                 </tr>
                               </tbody>
                             </table>
-                          </>
+                              </div>
+                            </div>
+                          </div>
                         );
                       })()}
 
