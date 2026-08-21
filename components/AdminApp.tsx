@@ -782,8 +782,8 @@ function MapPickerModal({ isOpen, onClose, onConfirm, initialSearch }) {
         
         {/* Header */}
         <div style={{ padding:"16px 20px",borderBottom:"1px solid #e2e8f0",display:"flex",justifyContent:"space-between",alignItems:"center", flexShrink:0 }}>
-          <div style={{ fontWeight:700,color: PX.navy800,fontSize:16, display:"flex", alignItems:"center", gap:6 }}><SvgMapPinRed /> Pinpoint Location</div>
-          <button type="button" onClick={onClose} style={{ background:"none",border:"none",fontSize:20,cursor:"pointer",color: PX.gray400,lineHeight:1, display:"flex", alignItems:"center" }}><SvgClose size={18} /></button>
+          <div style={{ fontWeight:700,color: PX.navy800,fontSize:18, display:"flex", alignItems:"center", gap:6 }}><SvgMapPinRed /> Pinpoint Location</div>
+          <button type="button" onClick={onClose} style={{ background:"none",border:"none",fontSize:22,cursor:"pointer",color: PX.gray400,lineHeight:1, display:"flex", alignItems:"center" }}><SvgClose size={18} /></button>
         </div>
 
         {/* Search Bar */}
@@ -796,7 +796,7 @@ function MapPickerModal({ isOpen, onClose, onConfirm, initialSearch }) {
               placeholder="Search for a location or click map to drop pin..." 
               value={selectedAddr} 
               onChange={e => setSelectedAddr(e.target.value)}
-              style={{ flex:1, border:"none", outline:"none", fontSize:14, fontWeight:500, color: PX.navy800, background:"transparent", width:"100%" }}
+              style={{ flex:1, border:"none", outline:"none", fontSize:16, fontWeight:500, color: PX.navy800, background:"transparent", width:"100%" }}
             />
           </div>
         </div>
@@ -928,7 +928,7 @@ function Btn({ children, onClick, variant="primary", size="md", disabled, full, 
     danger:  {background:PX.red700,    color:"#fff", border:"none"},
   };
   const pad = size==="sm" ? "7px 16px" : size==="lg" ? "12px 28px" : "9px 20px";
-  const fs  = size==="sm" ? 12 : size==="lg" ? 14.5 : 13;
+  const fs  = size==="sm" ? 14 : size==="lg" ? 16.5 : 15;
   return (
     <button onClick={!disabled?onClick:undefined} disabled={disabled}
       style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", gap:6,
@@ -1140,16 +1140,16 @@ function GoogleMapPreview({ result, journey, gv, height=320, minimal=false, dark
     <div style={{ position:"relative" }}>
       <div ref={mapRef} style={{ width: '100%', height, borderRadius: minimal ? 0 : 12, border: minimal ? 'none' : `1.5px solid ${darkMode ? "#374151" : PX.gray200}` }}></div>
       <div style={{ position:"absolute", top:10, left:10, display:"flex", gap:6, flexWrap:"wrap", pointerEvents:"none" }}>
-        <span style={{ background:"rgba(15,23,42,.88)", color:"#fff", borderRadius:12, padding:"4px 8px", fontSize:9, fontWeight:800 }}>A OUTWARD</span>
-        {getJourneyStops(journey).length > 0 && <span style={{ background:"rgba(15,23,42,.88)", color:"#fff", borderRadius:12, padding:"4px 8px", fontSize:9, fontWeight:800 }}>{getJourneyStops(journey).length} {getJourneyStops(journey).length === 1 ? "STOP" : "STOPS"}</span>}
-        {journey?.journeyType === "return" && <span style={{ background:"rgba(167,55,70,.92)", color:"#fff", borderRadius:12, padding:"4px 8px", fontSize:9, fontWeight:800 }}>RETURN</span>}
+        <span style={{ background:"rgba(15,23,42,.88)", color:"#fff", borderRadius:12, padding:"4px 8px", fontSize:11, fontWeight:800 }}>A OUTWARD</span>
+        {getJourneyStops(journey).length > 0 && <span style={{ background:"rgba(15,23,42,.88)", color:"#fff", borderRadius:12, padding:"4px 8px", fontSize:11, fontWeight:800 }}>{getJourneyStops(journey).length} {getJourneyStops(journey).length === 1 ? "STOP" : "STOPS"}</span>}
+        {journey?.journeyType === "return" && <span style={{ background:"rgba(167,55,70,.92)", color:"#fff", borderRadius:12, padding:"4px 8px", fontSize:11, fontWeight:800 }}>RETURN</span>}
       </div>
       {!minimal && result && <div style={{ display:"grid", gridTemplateColumns:"repeat(4, 1fr)", gap:8, marginTop:12 }}>
         {[["Total route",result.totalKm+" "+(gv?.distanceUnit === "miles" ? "mi" : "km")],[`Live ${gv?.distanceUnit === "miles" ? "mi" : "km"}`,result.revenueKm+" "+(gv?.distanceUnit === "miles" ? "mi" : "km")],
           ["Duration",result.totalShiftHrs+"h"],["Est. Days",result.opDays]].map(([l,v])=>(
           <div key={l} style={{ background: PX.gray50, border: `1px solid ${PX.gray200}`, borderRadius:8, padding:"8px", textAlign:"center" }}>
-            <div style={{ fontSize:10, fontWeight:700, color: PX.gray400, textTransform:"uppercase", marginBottom:2 }}>{l}</div>
-            <div style={{ fontSize:13, fontWeight:800, color: PX.navy800 }}>{v}</div>
+            <div style={{ fontSize:12, fontWeight:700, color: PX.gray400, textTransform:"uppercase", marginBottom:2 }}>{l}</div>
+            <div style={{ fontSize:15, fontWeight:800, color: PX.navy800 }}>{v}</div>
           </div>
         ))}
       </div>}
@@ -1164,7 +1164,7 @@ function RouteMap({ result, journey, gv, height=320, minimal=false, darkMode=fal
   }
   if (savedRoutePoints.length < 2) return <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height, gap:10, color: PX.gray400, border: minimal ? 'none' : `1.5px dashed ${darkMode ? "#374151" : PX.gray200}`, borderRadius: minimal ? 0 : 12 }}>
       <SvgMap size={36} color={PX.gray400} />
-      <p style={{ fontSize:13, fontWeight:600, textAlign:"center", padding:"0 18px" }}>{journey?.origin && journey?.destination ? "Route preview was not saved for this quotation." : "Pickup and drop-off locations are required for a route preview."}</p>
+      <p style={{ fontSize:15, fontWeight:600, textAlign:"center", padding:"0 18px" }}>{journey?.origin && journey?.destination ? "Route preview was not saved for this quotation." : "Pickup and drop-off locations are required for a route preview."}</p>
     </div>;
 
   const W=370, H=310, PAD=32;
@@ -1228,12 +1228,12 @@ function RouteMap({ result, journey, gv, height=320, minimal=false, darkMode=fal
       {[["Total route",`${result.totalKm} ${gv?.distanceUnit === "miles" ? "mi" : "km"}`],[`Revenue ${gv?.distanceUnit === "miles" ? "mi" : "km"}`,`${result.revenueKm} ${gv?.distanceUnit === "miles" ? "mi" : "km"}`],
         ["Duration",`${result.totalShiftHrs}h`],["Days",result.opDays]].map(([l,v])=>(
         <div key={l} style={{ background: darkMode ? "#111827" : PX.gray50, border: `1px solid ${darkMode ? "#374151" : PX.gray200}`, borderRadius:8, padding:"8px", textAlign:"center" }}>
-          <div style={{ fontSize:10, fontWeight:700, color: darkMode ? "#6b7280" : PX.gray400, textTransform:"uppercase", marginBottom:2 }}>{l}</div>
-          <div style={{ fontSize:13, fontWeight:800, color:PX.navy700 }}>{v}</div>
+          <div style={{ fontSize:12, fontWeight:700, color: darkMode ? "#6b7280" : PX.gray400, textTransform:"uppercase", marginBottom:2 }}>{l}</div>
+          <div style={{ fontSize:15, fontWeight:800, color:PX.navy700 }}>{v}</div>
         </div>
       ))}
     </div>
-    <div style={{ display:"flex", gap:14, marginTop:10, justifyContent:"center", fontSize:11, color: darkMode ? "#9ca3af" : PX.gray600 }}>
+    <div style={{ display:"flex", gap:14, marginTop:10, justifyContent:"center", fontSize:13, color: darkMode ? "#9ca3af" : PX.gray600 }}>
       <span style={{ display:"flex",alignItems:"center",gap:5 }}><span style={{ width:12,height:3,background:PX.navy600,borderRadius:2,display:"inline-block" }}/>Live Route</span>
       <span style={{ display:"flex",alignItems:"center",gap:5 }}><span style={{ width:12,height:1.5,background:"#cbd5e1",borderRadius:2,borderTop:"1.5px dashed #cbd5e1",display:"inline-block" }}/>Dead Mileage</span>
       <span style={{ display:"flex",alignItems:"center",gap:5 }}><span style={{ width:8,height:8,background:PX.navy800,transform:"rotate(45deg)",display:"inline-block" }}/>Depot</span>
@@ -1254,24 +1254,24 @@ function JourneyRouteDetails({ journey, darkMode=false }) {
   const text = darkMode ? "#f3f4f6" : PX.navy800;
   const muted = darkMode ? "#9ca3af" : PX.gray500;
   return <div className="journey-route-details" style={{ marginBottom:12 }}>
-    <div style={{ fontSize:10, fontWeight:800, color:darkMode ? "#94a3b8" : PX.gray400, textTransform:"uppercase", letterSpacing:1, marginBottom:8, display:"flex", alignItems:"center", gap:8 }}>
+    <div style={{ fontSize:12, fontWeight:800, color:darkMode ? "#94a3b8" : PX.gray400, textTransform:"uppercase", letterSpacing:1, marginBottom:8, display:"flex", alignItems:"center", gap:8 }}>
       <span>Route & Schedule</span><div style={{ flex:1, height:1, background:border }}/>
     </div>
     <div style={{ background:panel, border:`1px solid ${border}`, borderRadius:12, overflow:"hidden" }}>
       <div style={{ display:"flex", justifyContent:"space-between", gap:12, padding:"8px 11px", borderBottom:`1px solid ${border}` }}>
-        <strong style={{ color:text, fontSize:12 }}>{typeLabel}</strong>
-        <span style={{ color:muted, fontSize:11 }}>{formatDateTime(journey?.departureDate)}</span>
+        <strong style={{ color:text, fontSize:14 }}>{typeLabel}</strong>
+        <span style={{ color:muted, fontSize:13 }}>{formatDateTime(journey?.departureDate)}</span>
       </div>
       <div style={{ padding:"9px 11px" }}>
         <div style={{ display:"grid", gridTemplateColumns:"20px 1fr", gap:"5px 6px", alignItems:"start" }}>
-          <span style={{ width:20, height:20, borderRadius:"50%", background:"#0f766e", color:"white", display:"grid", placeItems:"center", fontSize:10, fontWeight:900 }}>A</span>
-          <div><div style={{ color:muted, fontSize:10, fontWeight:700, textTransform:"uppercase" }}>Pickup</div><div style={{ color:text, fontSize:12, fontWeight:700 }}>{journey?.origin || "Not set"}</div></div>
-          {stops.map((stop, index) => <Fragment key={`${stop.place || stop.name || "stop"}-${index}`}><span style={{ width:20, height:20, borderRadius:"50%", background:"#334155", color:"white", display:"grid", placeItems:"center", fontSize:10, fontWeight:900 }}>{index + 1}</span><div><div style={{ color:muted, fontSize:10, fontWeight:700, textTransform:"uppercase" }}>Stop {index + 1}{stop.wait ? ` - ${stop.wait} min wait` : ""}</div><div style={{ color:text, fontSize:12, fontWeight:700 }}>{stop.place || stop.name || "Saved stop"}</div></div></Fragment>)}
-          <span style={{ width:20, height:20, borderRadius:"50%", background:PX.brandRed, color:"white", display:"grid", placeItems:"center", fontSize:10, fontWeight:900 }}>B</span>
-          <div><div style={{ color:muted, fontSize:10, fontWeight:700, textTransform:"uppercase" }}>Destination</div><div style={{ color:text, fontSize:12, fontWeight:700 }}>{journey?.destination || "Not set"}</div></div>
-          {journey?.journeyType === "return" && <><span style={{ width:20, height:20, borderRadius:"50%", border:"2px dashed #E5485D", color:"#E5485D", display:"grid", placeItems:"center", fontSize:9, fontWeight:900 }}>R</span><div><div style={{ color:"#E5485D", fontSize:10, fontWeight:800, textTransform:"uppercase" }}>Return - {formatDateTime(journey?.returnDate)}</div><div style={{ color:text, fontSize:12, fontWeight:700 }}>{journey?.destination || "Destination"} to {journey?.origin || "pickup"}</div></div></>}
+          <span style={{ width:20, height:20, borderRadius:"50%", background:"#0f766e", color:"white", display:"grid", placeItems:"center", fontSize:12, fontWeight:900 }}>A</span>
+          <div><div style={{ color:muted, fontSize:12, fontWeight:700, textTransform:"uppercase" }}>Pickup</div><div style={{ color:text, fontSize:14, fontWeight:700 }}>{journey?.origin || "Not set"}</div></div>
+          {stops.map((stop, index) => <Fragment key={`${stop.place || stop.name || "stop"}-${index}`}><span style={{ width:20, height:20, borderRadius:"50%", background:"#334155", color:"white", display:"grid", placeItems:"center", fontSize:12, fontWeight:900 }}>{index + 1}</span><div><div style={{ color:muted, fontSize:12, fontWeight:700, textTransform:"uppercase" }}>Stop {index + 1}{stop.wait ? ` - ${stop.wait} min wait` : ""}</div><div style={{ color:text, fontSize:14, fontWeight:700 }}>{stop.place || stop.name || "Saved stop"}</div></div></Fragment>)}
+          <span style={{ width:20, height:20, borderRadius:"50%", background:PX.brandRed, color:"white", display:"grid", placeItems:"center", fontSize:12, fontWeight:900 }}>B</span>
+          <div><div style={{ color:muted, fontSize:12, fontWeight:700, textTransform:"uppercase" }}>Destination</div><div style={{ color:text, fontSize:14, fontWeight:700 }}>{journey?.destination || "Not set"}</div></div>
+          {journey?.journeyType === "return" && <><span style={{ width:20, height:20, borderRadius:"50%", border:"2px dashed #E5485D", color:"#E5485D", display:"grid", placeItems:"center", fontSize:11, fontWeight:900 }}>R</span><div><div style={{ color:"#E5485D", fontSize:12, fontWeight:800, textTransform:"uppercase" }}>Return - {formatDateTime(journey?.returnDate)}</div><div style={{ color:text, fontSize:14, fontWeight:700 }}>{journey?.destination || "Destination"} to {journey?.origin || "pickup"}</div></div></>}
         </div>
-        {Number(journey?.waitingMins) > 0 && <div style={{ marginTop:7, paddingTop:7, borderTop:`1px solid ${border}`, color:muted, fontSize:11 }}><strong style={{ color:text }}>Additional waiting:</strong> {Number(journey.waitingMins)} minutes</div>}
+        {Number(journey?.waitingMins) > 0 && <div style={{ marginTop:7, paddingTop:7, borderTop:`1px solid ${border}`, color:muted, fontSize:13 }}><strong style={{ color:text }}>Additional waiting:</strong> {Number(journey.waitingMins)} minutes</div>}
       </div>
     </div>
   </div>;
@@ -1377,23 +1377,43 @@ function printBookingPdf(booking) {
   const bounds = fallbackPoints.reduce((box, point) => ({ minLat:Math.min(box.minLat, point.lat), maxLat:Math.max(box.maxLat, point.lat), minLng:Math.min(box.minLng, point.lng), maxLng:Math.max(box.maxLng, point.lng) }), { minLat:90, maxLat:-90, minLng:180, maxLng:-180 });
   const latSpan = Math.max(bounds.maxLat - bounds.minLat, 0.01);
   const lngSpan = Math.max(bounds.maxLng - bounds.minLng, 0.01);
-  const project = point => `${12 + ((point.lng - bounds.minLng) / lngSpan) * 876},${368 - ((point.lat - bounds.minLat) / latSpan) * 336}`;
-  const fallbackRoute = fallbackPoints.map(project).join(" ");
-  const fallbackMarkers = points.map((point, index) => `<circle cx="${project(point).split(",")[0]}" cy="${project(point).split(",")[1]}" r="8" fill="${index === 0 ? "#0f766e" : index === points.length - 1 ? "#d2232a" : "#475569"}"/><text x="${project(point).split(",")[0]}" y="${Number(project(point).split(",")[1]) + 3}" text-anchor="middle" fill="#fff" font-size="8" font-weight="700">${index === 0 ? "A" : index === points.length - 1 ? "B" : index}</text>`).join("");
   const mapCenterLat = fallbackPoints.length ? (bounds.minLat + bounds.maxLat) / 2 : 52.5;
   const mapCenterLng = fallbackPoints.length ? (bounds.minLng + bounds.maxLng) / 2 : -1.5;
-  const maxSpan = Math.max(latSpan, lngSpan);
-  const tileZoom = maxSpan > 10 ? 5 : maxSpan > 5 ? 6 : maxSpan > 2.5 ? 7 : 8;
+  // Pick the deepest zoom where the route still fits inside the 3-tiles-wide,
+  // 2-tiles-tall grid on BOTH axes. A single width/height-agnostic threshold
+  // (the old `maxSpan` check) can pick a zoom that fits the wider axis but
+  // still runs a point off the shorter (2-tile) axis, since the grid isn't
+  // square and Mercator compresses latitude differently than longitude.
+  // The center tile is picked by rounding to the nearest tile (below), which
+  // can shift the grid up to half a tile off the true center on each axis —
+  // so a full tile is reserved per axis as a round-off safety margin, on
+  // top of the actual span, rather than just leaving a flat % of slack.
+  const mercatorY = lat => (1 - Math.asinh(Math.tan(lat * Math.PI / 180)) / Math.PI) / 2;
+  const mercatorLatSpan = Math.max(Math.abs(mercatorY(bounds.maxLat) - mercatorY(bounds.minLat)), 1e-6);
+  const maxScaleForLng = 2.0 / (lngSpan / 360); // 3 tiles wide, minus 1 reserved for round-off
+  const maxScaleForLat = 1.0 / mercatorLatSpan; // 2 tiles tall, minus 1 reserved for round-off
+  const idealScale = Math.min(maxScaleForLng, maxScaleForLat);
+  const tileZoom = Math.max(3, Math.min(9, Math.floor(Math.log2(idealScale))));
   const tileScale = 2 ** tileZoom;
-  const tileX = Math.floor(((mapCenterLng + 180) / 360) * tileScale);
-  const tileY = Math.floor((1 - Math.asinh(Math.tan(mapCenterLat * Math.PI / 180)) / Math.PI) / 2 * tileScale);
+  const tileX = Math.round(((mapCenterLng + 180) / 360) * tileScale);
+  const tileY = Math.round(mercatorY(mapCenterLat) * tileScale);
+  // Project with the exact same Web Mercator math used to pick the tiles
+  // below, relative to those same tiles, so the route line lands on the
+  // real roads instead of floating in its own, unrelated coordinate space.
+  const worldPxX = lng => ((lng + 180) / 360) * tileScale * 256;
+  const worldPxY = lat => ((1 - Math.asinh(Math.tan(lat * Math.PI / 180)) / Math.PI) / 2) * tileScale * 256;
+  const gridLeft = (tileX - 1) * 256;
+  const gridTop = (tileY - 1) * 256;
+  const project = point => `${((worldPxX(point.lng) - gridLeft) / 768) * 900},${((worldPxY(point.lat) - gridTop) / 512) * 380}`;
+  const fallbackRoute = fallbackPoints.map(project).join(" ");
+  const fallbackMarkers = points.map((point, index) => `<circle cx="${project(point).split(",")[0]}" cy="${project(point).split(",")[1]}" r="8" fill="${index === 0 ? "#0f766e" : index === points.length - 1 ? "#d2232a" : "#475569"}"/><text x="${project(point).split(",")[0]}" y="${Number(project(point).split(",")[1]) + 3}" text-anchor="middle" fill="#fff" font-size="8" font-weight="700">${index === 0 ? "A" : index === points.length - 1 ? "B" : index}</text>`).join("");
   const tileMarkup = Array.from({ length: 6 }, (_, index) => {
     const column = index % 3, row = Math.floor(index / 3);
     const x = (tileX + column - 1 + tileScale) % tileScale;
     const y = Math.max(0, Math.min(tileScale - 1, tileY + row - 1));
     return `<img src="https://tile.openstreetmap.org/${tileZoom}/${x}/${y}.png" alt="" style="position:absolute;left:${column * 33.333}%;top:${row * 50}%;width:33.333%;height:50%;object-fit:cover">`;
   }).join("");
-  const fallbackMap = `<div style="position:relative;width:100%;height:100%;overflow:hidden;background:#eaf5f3" role="img" aria-label="Saved route map">${tileMarkup}<svg style="position:absolute;inset:0;display:block;width:100%;height:100%" viewBox="0 0 900 380"><polyline points="${fallbackRoute}" fill="none" stroke="#fff" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/><polyline points="${fallbackRoute}" fill="none" stroke="#16205c" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>${fallbackMarkers}<text x="20" y="30" fill="#16205c" font-size="16" font-weight="700" stroke="#fff" stroke-width="4" paint-order="stroke">SAVED ROUTE</text></svg><small style="position:absolute;right:4px;bottom:2px;background:rgba(255,255,255,.8);color:#475569;font-size:7px">© OpenStreetMap contributors</small></div>`;
+  const fallbackMap = `<div style="position:relative;width:100%;height:100%;overflow:hidden;background:#eaf5f3" role="img" aria-label="Saved route map">${tileMarkup}<svg style="position:absolute;inset:0;display:block;width:100%;height:100%" viewBox="0 0 900 380" preserveAspectRatio="none"><polyline points="${fallbackRoute}" fill="none" stroke="#fff" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/><polyline points="${fallbackRoute}" fill="none" stroke="#16205c" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>${fallbackMarkers}<text x="20" y="30" fill="#16205c" font-size="16" font-weight="700" stroke="#fff" stroke-width="4" paint-order="stroke">SAVED ROUTE</text></svg><small style="position:absolute;right:4px;bottom:2px;background:rgba(255,255,255,.8);color:#475569;font-size:7px">© OpenStreetMap contributors</small></div>`;
   const mapMarkup = `<div id="pdf-map" style="width:100%;height:100%;position:relative;background:#eaf5f3"><div id="pdf-map-fallback" style="display:block;width:100%;height:100%">${fallbackMap}</div></div>`;
   const distanceUnit = result.distanceUnit === "miles" ? "mi" : "km";
   const finalFare = result.finalPrice ?? result.finalFare;
@@ -1431,7 +1451,7 @@ function printBookingPdf(booking) {
     ["Discount %", has(result, "discountPct") ? `${result.discountPct}%` : null]
   ].filter(([, value]) => value !== null).map(([label, value]) => `<div><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("");
   const reportHtml = `<header class="report-header"><img src="/carolean%20image.png" alt="Carolean Coaches"><div class="report-heading"><div class="eyebrow">QUOTATION REPORT</div><h1>#${esc(booking.id)}</h1><div class="badges"><span>${esc(String(booking.status || "NEW").toUpperCase())}</span><span>${esc(journey.journeyType === "return" ? "RETURN" : stops.length ? "MULTI-STOP" : "ONE-WAY")}</span></div></div></header><section class="route-head"><div><span class="eyebrow">JOURNEY</span><h2>${esc(journey.origin || "Pickup")} <i>→</i> ${esc(journey.destination || "Destination")}</h2></div><div class="route-dates"><strong>${esc(dateOnly(journey.departureDate))}</strong><span>Departure ${esc(timeOnly(journey.departureDate))}${journey.journeyType === "return" ? ` · Return ${esc(timeOnly(journey.returnDate))}` : ""}</span></div></section><section class="section route-section"><div class="section-title">ROUTE &amp; JOURNEY</div><div class="route-grid"><div class="map-wrap">${mapMarkup}</div>${timeline}</div></section><div class="metrics">${metric("Total distance", `${text(result.totalKm)} ${distanceUnit}`)}${metric("Est. duration", `${text(result.totalShiftHrs)} h`)}${metric("Live miles", `${text(result.revenueKm)} ${distanceUnit}`)}${metric("Revenue miles", `${text(result.revenueKm)} ${distanceUnit}`)}${has(result, "deadKm") ? metric("Dead miles", `${text(result.deadKm)} ${distanceUnit}`) : ""}</div><section class="section"><div class="section-title">CUSTOMER &amp; BOOKING</div><div class="three-col"><div>${field("Customer", booking.customer?.name)}${field("Phone", booking.customer?.phone)}${field("Email", booking.customer?.email)}</div><div>${field("Passengers", journey.passengers)}${field("Suitcases 23KG+", journey.suitcaseCount)}${field("Handbags", journey.handbagCount)}</div><div>${field("Vehicle", vehicleName)}${field("Capacity", vehicleCapacity ? `${vehicleCapacity} seats` : "--")}${field("Vehicles", result.vehicleCount || quote.vehicleCount || "--")}</div></div>${journey.specialRequests ? `<div class="special"><span>Special request</span>${esc(journey.specialRequests)}</div>` : ""}</section><section class="section fare-section"><div class="section-title">FARE SUMMARY</div><div class="fare-grid"><div>${has(result, "baseFare") ? `<div class="fare-line"><span>Base rate${vehicleName ? ` · ${esc(vehicleName)}` : ""}</span><strong>${money(result.baseFare)}</strong></div>` : ""}${has(result, "surchargeTotal") ? `<div class="fare-line"><span>Surcharges</span><strong>${money(result.surchargeTotal)}</strong></div>` : ""}${has(result, "subtotal") ? `<div class="fare-line"><span>Subtotal</span><strong>${money(result.subtotal)}</strong></div>` : ""}${has(result, "upperBoundPrice") || has(result, "upperBoundFare") ? `<div class="fare-line"><span>Upper price bound</span><strong>${money(result.upperBoundPrice ?? result.upperBoundFare)}</strong></div>` : ""}</div><div class="fare-total"><span>NET FARE</span><strong>${money(finalFare)}</strong><div class="vat-line"><span>VAT</span><b>${money(resultVat)}</b></div><div class="customer-total"><span>CUSTOMER TOTAL</span><strong>${money(customerTotal)}</strong></div></div></div></section><section class="section transparent-section"><div class="section-title">TRANSPARENT PRICE BREAKDOWN</div><div class="transparent-grid">${transparentRows || `<div class="empty">No additional stored pricing details for this quotation</div>`}</div></section><div class="bottom-grid"><section class="section"><div class="section-title">COST BREAKDOWN</div><div class="money-table">${costRows || `<div class="empty">No stored cost breakdown for this quotation</div>`}</div></section><section class="section"><div class="section-title">PROFITABILITY</div><div class="money-table">${profitabilityRows || `<div class="empty">No stored profitability values for this quotation</div>`}</div></section></div><section class="section operational"><div class="section-title">OPERATIONAL PRICING DETAILS</div><div class="operational-grid">${operationalRows || `<div class="empty">No additional pricing-engine details for this quotation</div>`}</div></section><footer><span>Carolean Coaches · Internal Quotation Report</span><span>Generated ${esc(dateTime(new Date()))} · Quote #${esc(booking.id)}</span></footer>`;
-  const reportCss = `@page{size:A4 portrait;margin:10mm}*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0;padding:0;background:#fff;color:#17233f;font-family:Arial,Helvetica,sans-serif;font-size:9px;line-height:1.35}body{max-width:190mm;margin:0 auto}.report-header{height:19mm;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #d2232a}.report-header img{width:47mm;max-height:15mm;object-fit:contain;object-position:left}.report-heading{text-align:right}.eyebrow,.section-title{font-size:8px;font-weight:800;letter-spacing:1.1px;color:#64748b}.report-heading h1{font-size:16px;line-height:1;margin:2px 0 4px;color:#16205c}.badges{display:flex;justify-content:flex-end;gap:4px}.badges span{padding:2px 6px;border-radius:3px;background:#eef2f7;color:#16205c;font-size:7px;font-weight:800;letter-spacing:.5px}.badges span:first-child{background:#fce8eb;color:#b91c2a}.route-head{display:flex;justify-content:space-between;gap:12px;padding:5mm 0 3mm}.route-head h2{font-size:16px;line-height:1.1;margin:3px 0 0;color:#16205c}.route-head h2 i{font-style:normal;color:#d2232a;padding:0 5px}.route-dates{text-align:right;padding-top:3px}.route-dates strong,.route-dates span{display:block}.route-dates strong{font-size:11px;color:#16205c}.route-dates span{margin-top:2px;color:#64748b}.section{border:1px solid #e2e8f0;border-radius:5px;padding:3mm;background:#fff;break-inside:avoid;page-break-inside:avoid}.section-title{border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:6px;color:#16205c}.route-section{padding-bottom:2.5mm}.route-grid{display:grid;grid-template-columns:1.18fr .82fr;gap:3mm}.map-wrap{height:39mm;overflow:hidden;border:1px solid #dbe2ef;border-radius:4px;background:#f8fafc}.map-wrap img{display:block;width:100%;height:100%;object-fit:cover}.map-missing{height:100%;display:grid;place-items:center;color:#94a3b8;font-size:8px}.timeline{display:flex;flex-direction:column;justify-content:center;gap:2px}.timeline-row{display:grid;grid-template-columns:16px 1fr;gap:6px;align-items:start;position:relative}.timeline-row:not(:last-child):after{content:"";position:absolute;left:7px;top:17px;height:calc(100% + 1px);border-left:1px solid #cbd5e1}.timeline-row b{z-index:1;width:15px;height:15px;display:grid;place-items:center;border-radius:50%;background:#0f766e;color:#fff;font-size:7px}.timeline-row b.end{background:#d2232a}.timeline-row.return b{background:#fff;border:1px dashed #d2232a;color:#d2232a}.timeline-row small{display:block;color:#64748b;font-size:7px;font-weight:800;letter-spacing:.4px}.timeline-row strong{display:block;color:#16205c;font-size:9px}.timeline-row span{display:block;color:#64748b;font-size:8px}.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:2mm;margin:2.5mm 0}.metric{background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:2.5mm}.metric span{display:block;color:#64748b;font-size:7px;text-transform:uppercase;letter-spacing:.35px}.metric strong{display:block;margin-top:1px;color:#16205c;font-size:12px}.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:5mm}.field{margin:0 0 4px}.field span,.special span{display:block;color:#64748b;font-size:7px;text-transform:uppercase;letter-spacing:.35px}.field strong{display:block;color:#16205c;font-size:9px;font-weight:700;overflow-wrap:anywhere}.special{margin-top:3px;padding-top:4px;border-top:1px solid #eef2f7;color:#334155}.special span{display:inline;margin-right:6px}.fare-section{background:#f8fafc}.fare-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:8mm;align-items:stretch}.fare-line,.money-row{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #e8edf3;padding:3px 0}.fare-line strong,.money-row strong{font-variant-numeric:tabular-nums;color:#16205c}.fare-total{border-left:1px solid #dbe2ef;padding-left:6mm}.fare-total>span,.vat-line span,.customer-total span{display:block;color:#64748b;font-size:7px;font-weight:800;letter-spacing:.5px}.fare-total>strong{display:block;color:#16205c;font-size:19px;line-height:1.05;margin:2px 0 5px}.vat-line{display:flex;justify-content:space-between;color:#64748b;border-bottom:1px solid #dbe2ef;padding-bottom:3px}.customer-total{display:flex;justify-content:space-between;align-items:end;padding-top:4px}.customer-total strong{color:#d2232a;font-size:14px}.transparent-section{margin-top:3mm;background:#fbfcfd}.transparent-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px 8mm}.transparent-grid>div{display:flex;justify-content:space-between;border-bottom:1px solid #eef2f7;padding:2px 0;gap:4px}.transparent-grid span{color:#64748b}.transparent-grid strong{color:#16205c;font-variant-numeric:tabular-nums}.bottom-grid{display:grid;grid-template-columns:1.14fr .86fr;gap:3mm;margin-top:3mm}.bottom-grid .section{min-width:0}.money-table{font-size:8px}.empty{color:#94a3b8;font-style:italic;padding:3px 0}.operational{margin-top:3mm;background:#fbfcfd}.operational-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px 8mm}.operational-grid>div{display:flex;justify-content:space-between;border-bottom:1px solid #eef2f7;padding:2px 0;gap:4px}.operational-grid span{color:#64748b}.operational-grid strong{color:#16205c;font-variant-numeric:tabular-nums}.report-header,.route-head,.section,.metrics,footer{break-inside:avoid;page-break-inside:avoid}footer{display:flex;justify-content:space-between;border-top:1px solid #e2e8f0;margin-top:3mm;padding-top:2.5mm;color:#64748b;font-size:7px}@media print{body{max-width:none}a{color:inherit;text-decoration:none}}`;
+  const reportCss = `@page{size:A4 portrait;margin:7mm}*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0;padding:0;background:#fff;color:#17233f;font-family:Arial,Helvetica,sans-serif;font-size:9px;line-height:1.28}body{max-width:196mm;margin:0 auto}.report-header{height:15mm;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #d2232a}.report-header img{width:47mm;max-height:15mm;object-fit:contain;object-position:left}.report-heading{text-align:right}.eyebrow,.section-title{font-size:8px;font-weight:800;letter-spacing:1.1px;color:#64748b}.report-heading h1{font-size:16px;line-height:1;margin:2px 0 4px;color:#16205c}.badges{display:flex;justify-content:flex-end;gap:4px}.badges span{padding:2px 6px;border-radius:3px;background:#eef2f7;color:#16205c;font-size:7px;font-weight:800;letter-spacing:.5px}.badges span:first-child{background:#fce8eb;color:#b91c2a}.route-head{display:flex;justify-content:space-between;gap:12px;padding:3mm 0 2mm}.route-head h2{font-size:16px;line-height:1.1;margin:3px 0 0;color:#16205c}.route-head h2 i{font-style:normal;color:#d2232a;padding:0 5px}.route-dates{text-align:right;padding-top:3px}.route-dates strong,.route-dates span{display:block}.route-dates strong{font-size:11px;color:#16205c}.route-dates span{margin-top:2px;color:#64748b}.section{border:1px solid #e2e8f0;border-radius:5px;padding:2.2mm;background:#fff;break-inside:avoid;page-break-inside:avoid}.section-title{border-bottom:1px solid #e2e8f0;padding-bottom:3px;margin-bottom:4px;color:#16205c}.route-section{padding-bottom:1.5mm}.route-grid{display:grid;grid-template-columns:1.18fr .82fr;gap:3mm}.map-wrap{height:30mm;overflow:hidden;border:1px solid #dbe2ef;border-radius:4px;background:#f8fafc}.map-wrap img{display:block;width:100%;height:100%;object-fit:cover}.map-missing{height:100%;display:grid;place-items:center;color:#94a3b8;font-size:8px}.timeline{display:flex;flex-direction:column;justify-content:center;gap:2px}.timeline-row{display:grid;grid-template-columns:16px 1fr;gap:6px;align-items:start;position:relative}.timeline-row:not(:last-child):after{content:"";position:absolute;left:7px;top:17px;height:calc(100% + 1px);border-left:1px solid #cbd5e1}.timeline-row b{z-index:1;width:15px;height:15px;display:grid;place-items:center;border-radius:50%;background:#0f766e;color:#fff;font-size:7px}.timeline-row b.end{background:#d2232a}.timeline-row.return b{background:#fff;border:1px dashed #d2232a;color:#d2232a}.timeline-row small{display:block;color:#64748b;font-size:7px;font-weight:800;letter-spacing:.4px}.timeline-row strong{display:block;color:#16205c;font-size:9px}.timeline-row span{display:block;color:#64748b;font-size:8px}.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:1.5mm;margin:1.8mm 0}.metric{background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:1.8mm}.metric span{display:block;color:#64748b;font-size:7px;text-transform:uppercase;letter-spacing:.35px}.metric strong{display:block;margin-top:1px;color:#16205c;font-size:12px}.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:5mm}.field{margin:0 0 3px}.field span,.special span{display:block;color:#64748b;font-size:7px;text-transform:uppercase;letter-spacing:.35px}.field strong{display:block;color:#16205c;font-size:9px;font-weight:700;overflow-wrap:anywhere}.special{margin-top:3px;padding-top:4px;border-top:1px solid #eef2f7;color:#334155}.special span{display:inline;margin-right:6px}.fare-section{background:#f8fafc}.fare-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:8mm;align-items:stretch}.fare-line,.money-row{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #e8edf3;padding:3px 0}.fare-line strong,.money-row strong{font-variant-numeric:tabular-nums;color:#16205c}.fare-total{border-left:1px solid #dbe2ef;padding-left:6mm}.fare-total>span,.vat-line span,.customer-total span{display:block;color:#64748b;font-size:7px;font-weight:800;letter-spacing:.5px}.fare-total>strong{display:block;color:#16205c;font-size:19px;line-height:1.05;margin:2px 0 5px}.vat-line{display:flex;justify-content:space-between;color:#64748b;border-bottom:1px solid #dbe2ef;padding-bottom:3px}.customer-total{display:flex;justify-content:space-between;align-items:end;padding-top:4px}.customer-total strong{color:#d2232a;font-size:14px}.transparent-section{margin-top:2mm;background:#fbfcfd}.transparent-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px 8mm}.transparent-grid>div{display:flex;justify-content:space-between;border-bottom:1px solid #eef2f7;padding:2px 0;gap:4px}.transparent-grid span{color:#64748b}.transparent-grid strong{color:#16205c;font-variant-numeric:tabular-nums}.bottom-grid{display:grid;grid-template-columns:1.14fr .86fr;gap:3mm;margin-top:2mm}.bottom-grid .section{min-width:0}.money-table{font-size:8px}.empty{color:#94a3b8;font-style:italic;padding:3px 0}.operational{margin-top:2mm;background:#fbfcfd}.operational-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px 8mm}.operational-grid>div{display:flex;justify-content:space-between;border-bottom:1px solid #eef2f7;padding:2px 0;gap:4px}.operational-grid span{color:#64748b}.operational-grid strong{color:#16205c;font-variant-numeric:tabular-nums}.report-header,.route-head,.section,.metrics,footer{break-inside:avoid;page-break-inside:avoid}footer{display:flex;justify-content:space-between;border-top:1px solid #e2e8f0;margin-top:1.8mm;padding-top:1.8mm;color:#64748b;font-size:7px}@media print{body{max-width:none}a{color:inherit;text-decoration:none}}`;
   const popup = window.open("", "_blank");
   if (!popup) return;
   popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Carolean Coaches - Quote #${esc(booking.id)}</title><style>${reportCss}</style></head><body>${reportHtml}</body></html>`);
@@ -1440,21 +1460,27 @@ function printBookingPdf(booking) {
   const print = () => { popup.focus(); popup.print(); };
   const printWhenImagesReady = () => {
     const images = Array.from(popup.document.images);
-    const ready = images.length ? Promise.all(images.map(image => image.complete ? Promise.resolve() : new Promise(resolve => { image.onload = resolve; image.onerror = resolve; }))) : Promise.resolve();
+    const ready = images.length ? Promise.all(images.map(image => image.complete ? Promise.resolve() : new Promise(resolve => { image.addEventListener("load", resolve, { once: true }); image.addEventListener("error", resolve, { once: true }); }))) : Promise.resolve();
     ready.then(() => setTimeout(print, 150));
+  };
+  let printTriggered = false;
+  const triggerPrint = () => {
+    if (printTriggered) return;
+    printTriggered = true;
+    printWhenImagesReady();
   };
   if (mapKey) {
     popup.__caroleanPdfMapReady = false;
     popup.__caroleanPdfMap = () => {
       const mapElement = popup.document.getElementById("pdf-map");
-      if (!mapElement || !popup.google?.maps) return;
+      if (!mapElement || !popup.google?.maps) { triggerPrint(); return; }
       const map = new popup.google.maps.Map(mapElement, { disableDefaultUI:true, streetViewControl:false, mapTypeControl:false, fullscreenControl:false, styles:[] });
       let path = [];
       if (result.geometry && popup.google.maps.geometry?.encoding?.decodePath) {
         try { path = popup.google.maps.geometry.encoding.decodePath(result.geometry); } catch (_) { path = []; }
       }
       if (path.length < 2) path = points.map(point => ({ lat:Number(point.lat), lng:Number(point.lng) }));
-      if (path.length < 2) { printWhenImagesReady(); return; }
+      if (path.length < 2) { triggerPrint(); return; }
       new popup.google.maps.Polyline({ map, path, geodesic:true, strokeColor:"#16205c", strokeOpacity:1, strokeWeight:5 });
       const bounds = new popup.google.maps.LatLngBounds();
       path.forEach(point => bounds.extend(point));
@@ -1464,19 +1490,32 @@ function printBookingPdf(booking) {
         bounds.extend(position);
       });
       map.fitBounds(bounds, 32);
-      const fallback = popup.document.getElementById("pdf-map-fallback");
-      if (fallback) fallback.style.display = "none";
-      popup.__caroleanPdfMapReady = true;
-      printWhenImagesReady();
+      // The Map object existing only means the JS library loaded — the tile
+      // imagery still paints in asynchronously after that. Printing right
+      // after fitBounds (the old behavior) fired before tiles ever painted,
+      // which is why the PDF showed a near-blank map. Wait for the map's own
+      // "tilesloaded" event instead, with a bounded fallback so a stalled
+      // tile load can't hang the print indefinitely.
+      const reveal = () => {
+        if (popup.__caroleanPdfMapReady) return;
+        popup.__caroleanPdfMapReady = true;
+        const fallback = popup.document.getElementById("pdf-map-fallback");
+        if (fallback) fallback.style.display = "none";
+        triggerPrint();
+      };
+      popup.google.maps.event.addListenerOnce(map, "tilesloaded", reveal);
+      setTimeout(reveal, 4000);
     };
     const script = popup.document.createElement("script");
     script.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(mapKey) + "&libraries=geometry&callback=__caroleanPdfMap";
     script.async = true;
     script.defer = true;
     popup.document.head.appendChild(script);
-    setTimeout(() => { if (!popup.__caroleanPdfMapReady) printWhenImagesReady(); }, 2500);
+    // Guards the case the script itself never loads/calls back at all (blocked,
+    // offline, ad-blocker) — separate from the in-callback tile-load wait above.
+    setTimeout(() => { if (!popup.__caroleanPdfMapReady) triggerPrint(); }, 6000);
   } else {
-    printWhenImagesReady();
+    triggerPrint();
   }
 }
 
@@ -1555,6 +1594,22 @@ function StaffAccessPanel({ setToast }) {
   const formatDate = value => value ? new Date(value).toLocaleString('en-GB', {dateStyle:'medium',timeStyle:'short'}) : 'Never';
   const formatUsage = minutes => Number(minutes) < 1 ? '—' : `${Math.floor(Number(minutes)/60)}h ${Math.round(Number(minutes)%60)}m`;
   const formatSeconds = seconds => `${Math.floor(Number(seconds)/3600)}h ${Math.floor(Number(seconds)%3600/60)}m ${Math.floor(Number(seconds)%60)}s`;
+  // Works for any field key across the whole dashboard, not a per-page lookup:
+  // splits camelCase/snake_case into words so raw keys like "marginWeekday"
+  // read as "Margin Weekday" without needing a maintained label map.
+  const prettyField = key => String(key || '').replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/[_-]+/g, ' ').trim().replace(/^./, c => c.toUpperCase()) || 'Field';
+  // The backend sometimes sends the literal placeholder "Updated" instead of
+  // a real value when it only knows a section changed, not the specific old
+  // and new values — treat that placeholder as "no value", not a real one,
+  // so it renders as a plain "changed" instead of a fake "added Updated".
+  const hasValue = value => value !== null && value !== undefined && value !== '' && value !== 'Updated';
+  const describeChange = change => {
+    const before = hasValue(change.before), after = hasValue(change.after);
+    if (before && after) return <>was <b className="font-bold text-slate-700 dark:text-slate-300">{String(change.before)}</b> {'→'} now <b className="font-bold text-slate-900 dark:text-white">{String(change.after)}</b></>;
+    if (after) return <>{'→'} added <b className="font-bold text-emerald-700 dark:text-emerald-400">{String(change.after)}</b></>;
+    if (before) return <>was <b className="font-bold text-slate-700 dark:text-slate-300">{String(change.before)}</b> {'→'} <b className="font-bold text-red-600 dark:text-red-400">removed</b></>;
+    return 'updated';
+  };
 
   const bounds = (() => {
     if (activityRange === 'overall') return [null, null];
@@ -1574,12 +1629,12 @@ function StaffAccessPanel({ setToast }) {
 
   return <>
     <section className="settings-staff col-span-12 rounded-xl border-[1.5px] border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-      <div className="mb-5 flex flex-wrap items-start justify-between gap-3"><div><h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Staff Access</h3><p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Invite staff, control access, and review account activity.</p></div><button type="button" onClick={()=>setShowInvite(value=>!value)} className="rounded-lg bg-primary px-3 py-2 text-[11px] font-extrabold text-white"><Plus size={13} className="inline mr-1"/> Add member</button></div>
-      {showInvite && <form onSubmit={invite} className="mb-5 grid grid-cols-1 gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900 md:grid-cols-4"><label className="text-[10px] font-bold text-slate-500">NAME<input required value={form.name} onChange={e=>setForm({...form,name:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900"/></label><label className="text-[10px] font-bold text-slate-500">EMAIL<input required type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900"/></label><label className="text-[10px] font-bold text-slate-500">ROLE<select value={form.role} onChange={e=>setForm({...form,role:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900"><option value="quotes">Quotations</option><option value="admin">Administrator</option><option value="custom">Custom access</option></select></label><div className="flex items-end gap-2"><button disabled={busy} className="rounded-lg bg-primary px-4 py-2 text-xs font-bold text-white disabled:opacity-50">Send invitation</button><button type="button" onClick={()=>setShowInvite(false)} className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold">Cancel</button></div>{form.role==='custom' && <div className="md:col-span-4 flex flex-wrap gap-2">{permissions.map(permission=><label key={permission} className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-bold"><input type="checkbox" checked={form.permissions.includes(permission)} onChange={e=>setForm({...form,permissions:e.target.checked?[...form.permissions,permission]:form.permissions.filter(item=>item!==permission)})}/>{STAFF_PERMISSION_LABELS[permission]||permission}</label>)}</div>}</form>}
-      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700"><table className="w-full min-w-[680px] text-left"><thead className="bg-slate-50 text-[9px] uppercase tracking-wide text-slate-500 dark:bg-slate-900"><tr><th className="p-3">Member</th><th>Access</th><th>Status</th><th>Last active</th><th>Usage</th></tr></thead><tbody>{staff.map(member=><tr key={member.id} role="button" tabIndex={0} onClick={()=>setSelected(member)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' ')setSelected(member)}} className="cursor-pointer border-t border-slate-100 text-xs hover:bg-slate-50 focus:bg-slate-50 focus:outline-none dark:border-slate-700 dark:hover:bg-slate-800"><td className="p-3"><strong className="block text-slate-900 dark:text-white">{member.name}</strong><span className="text-[10px] text-slate-500">{member.email}</span></td><td className="capitalize">{member.role}</td><td><span className={`rounded-full px-2 py-1 text-[9px] font-extrabold uppercase ${member.status==='active'?'bg-emerald-50 text-emerald-700':member.status==='suspended'?'bg-red-50 text-red-700':'bg-amber-50 text-amber-700'}`}>{member.status}</span></td><td>{formatDate(member.lastActiveAt)}</td><td>{formatSeconds(Number(member.usageByDate?.[today]?.minutes||0)*60+Number(member.usageByDate?.[today]?.seconds||0)+(member.sessionLastSeenAt&&clock-new Date(member.sessionLastSeenAt).getTime()<15000?Math.max(0,Math.floor((clock-new Date(member.sessionLastSeenAt).getTime())/1000)):0))}</td></tr>)}</tbody></table>{staff.length===0&&<p className="p-6 text-center text-xs text-slate-500">No staff accounts found.</p>}</div>
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-3"><div><h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Staff Access</h3><p className="mt-1 text-[13px] text-slate-500 dark:text-slate-400">Invite staff, control access, and review account activity.</p></div><button type="button" onClick={()=>setShowInvite(value=>!value)} className="rounded-lg bg-primary px-3 py-2 text-[13px] font-extrabold text-white"><Plus size={13} className="inline mr-1"/> Add member</button></div>
+      {showInvite && <form onSubmit={invite} className="mb-5 grid grid-cols-1 gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900 md:grid-cols-4"><label className="text-[12px] font-bold text-slate-500">NAME<input required value={form.name} onChange={e=>setForm({...form,name:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900"/></label><label className="text-[12px] font-bold text-slate-500">EMAIL<input required type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900"/></label><label className="text-[12px] font-bold text-slate-500">ROLE<select value={form.role} onChange={e=>setForm({...form,role:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900"><option value="quotes">Quotations</option><option value="admin">Administrator</option><option value="custom">Custom access</option></select></label><div className="flex items-end gap-2"><button disabled={busy} className="rounded-lg bg-primary px-4 py-2 text-xs font-bold text-white disabled:opacity-50">Send invitation</button><button type="button" onClick={()=>setShowInvite(false)} className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold">Cancel</button></div>{form.role==='custom' && <div className="md:col-span-4 flex flex-wrap gap-2">{permissions.map(permission=><label key={permission} className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-bold"><input type="checkbox" checked={form.permissions.includes(permission)} onChange={e=>setForm({...form,permissions:e.target.checked?[...form.permissions,permission]:form.permissions.filter(item=>item!==permission)})}/>{STAFF_PERMISSION_LABELS[permission]||permission}</label>)}</div>}</form>}
+      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700"><table className="w-full min-w-[680px] text-left"><thead className="bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500 dark:bg-slate-900"><tr><th className="p-3">Member</th><th>Access</th><th>Status</th><th>Last active</th><th>Usage</th></tr></thead><tbody>{staff.map(member=><tr key={member.id} role="button" tabIndex={0} onClick={()=>setSelected(member)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' ')setSelected(member)}} className="cursor-pointer border-t border-slate-100 text-xs hover:bg-slate-50 focus:bg-slate-50 focus:outline-none dark:border-slate-700 dark:hover:bg-slate-800"><td className="p-3"><strong className="block text-slate-900 dark:text-white">{member.name}</strong><span className="text-[12px] text-slate-500">{member.email}</span></td><td className="capitalize">{member.role}</td><td><span className={`rounded-full px-2 py-1 text-[11px] font-extrabold uppercase ${member.status==='active'?'bg-emerald-50 text-emerald-700':member.status==='suspended'?'bg-red-50 text-red-700':'bg-amber-50 text-amber-700'}`}>{member.status}</span></td><td>{formatDate(member.lastActiveAt)}</td><td>{formatSeconds(Number(member.usageByDate?.[today]?.minutes||0)*60+Number(member.usageByDate?.[today]?.seconds||0)+(member.sessionLastSeenAt&&clock-new Date(member.sessionLastSeenAt).getTime()<15000?Math.max(0,Math.floor((clock-new Date(member.sessionLastSeenAt).getTime())/1000)):0))}</td></tr>)}</tbody></table>{staff.length===0&&<p className="p-6 text-center text-xs text-slate-500">No staff accounts found.</p>}</div>
     </section>
-    {selected && typeof document !== 'undefined' && createPortal(<div className="fixed inset-0 z-[10000] bg-slate-950/35" onMouseDown={e=>{if(e.target===e.currentTarget)setSelected(null)}}><aside className="absolute right-0 top-0 h-full w-full max-w-md overflow-y-auto bg-white text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-slate-100"><header className="sticky top-0 z-10 flex items-start justify-between border-b border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900"><div><h2 className="font-extrabold text-slate-900 dark:text-white">{selected.name}</h2><p className="text-xs text-slate-500">{selected.email}</p></div><button onClick={()=>setSelected(null)} aria-label="Close activity" className="rounded-lg p-2 text-slate-500"><SvgClose size={17}/></button></header><div className="space-y-5 p-5"><div className="grid grid-cols-2 gap-2">{[['Last login',formatDate(selected.lastLoginAt)],['Usage',formatUsage(selected.usageMinutes)],['Logins',selected.loginCount||0],['Status',selected.status]].map(([label,value])=><div key={label} className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800"><span className="block text-[9px] font-bold uppercase text-slate-400">{label}</span><strong className="mt-1 block text-xs capitalize">{value}</strong></div>)}</div>{selected.role!=='owner'&&<><div><label className="text-[10px] font-bold text-slate-500">ACCESS ROLE<select value={selected.role} onChange={e=>setSelected({...selected,role:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900"><option value="quotes">Quotations</option><option value="admin">Administrator</option><option value="custom">Custom access</option></select></label>{selected.role==='custom'&&<div className="mt-3 flex flex-wrap gap-2">{permissions.map(permission=><label key={permission} className="flex items-center gap-1 rounded-full border px-2 py-1 text-[10px]"><input type="checkbox" checked={(selected.permissions||[]).includes(permission)} onChange={e=>setSelected({...selected,permissions:e.target.checked?[...(selected.permissions||[]),permission]:(selected.permissions||[]).filter(item=>item!==permission)})}/>{STAFF_PERMISSION_LABELS[permission]}</label>)}</div>}<button disabled={busy} onClick={()=>memberAction(selected,'update',{role:selected.role,permissions:selected.permissions,status:selected.status})} className="mt-3 rounded-lg bg-primary px-3 py-2 text-xs font-bold text-white">Save access</button></div><div className="flex flex-wrap gap-2">{selected.status==='invited'&&<button disabled={busy} onClick={()=>memberAction(selected,'resend')} className="rounded-lg border px-3 py-2 text-xs font-bold">Resend invite</button>}{selected.status==='active'&&<button disabled={busy} onClick={()=>memberAction(selected,'reset')} className="rounded-lg border px-3 py-2 text-xs font-bold">Send password reset</button>}<button disabled={busy} onClick={()=>memberAction(selected,'update',{status:selected.status==='suspended'?'active':'suspended'})} className="rounded-lg border px-3 py-2 text-xs font-bold">{selected.status==='suspended'?'Reactivate':'Suspend'}</button><button disabled={busy} onClick={()=>{if(window.confirm(`Remove ${selected.name}?`))memberAction(selected,'remove')}} className="rounded-lg border border-red-200 px-3 py-2 text-xs font-bold text-red-700">Remove</button></div></>}
-      <div><h3 className="mb-3 text-xs font-extrabold uppercase tracking-wide text-slate-500">Activity by date</h3><div className="mb-3 flex flex-wrap gap-2">{[['today','Today'],['week','7 days'],['month','Month'],['custom','Custom'],['overall','Overall']].map(([value,label])=><button key={value} onClick={()=>setActivityRange(value)} className={`rounded-lg px-3 py-1.5 text-[10px] font-bold ${activityRange===value?'bg-primary text-white':'border border-slate-200'}`}>{label}</button>)}</div>{activityRange==='custom'&&<div className="mb-3 grid grid-cols-2 gap-2"><label className="text-[9px] font-bold text-slate-500">FROM<input type="date" value={dateFrom} onChange={e=>setDateFrom(e.target.value)} className="mt-1 w-full rounded-lg border px-2 py-2 text-xs"/></label><label className="text-[9px] font-bold text-slate-500">TO<input type="date" min={dateFrom} value={dateTo} onChange={e=>setDateTo(e.target.value)} className="mt-1 w-full rounded-lg border px-2 py-2 text-xs"/></label></div>}<div className="mb-4 grid grid-cols-2 gap-2"><div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800"><span className="block text-[9px] font-bold uppercase text-slate-400">Usage</span><strong className="mt-1 block text-xs">{formatSeconds(selectedUsage)}</strong></div><div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800"><span className="block text-[9px] font-bold uppercase text-slate-400">Logins</span><strong className="mt-1 block text-xs">{selectedLogins}</strong></div></div><div className="space-y-3">{selectedActivities.map(activity=><div key={activity.id} className="border-l-2 border-primary pl-3"><strong className="block text-xs text-slate-900 dark:text-white">{activity.message}</strong><span className="text-[10px] text-slate-400">{formatDate(activity.createdAt)}</span>{activity.changes?.map((change,index)=><p key={index} className="mt-1 text-[10px] text-slate-500">{change.field}: {String(change.before??'—')} → {String(change.after??'Updated')}</p>)}</div>)}{!selectedActivities.length&&<p className="text-xs text-slate-500">No recorded changes for this period.</p>}</div></div></div></aside></div>,document.body)}
+    {selected && typeof document !== 'undefined' && createPortal(<div className="fixed inset-0 z-[10000] bg-slate-950/35" onMouseDown={e=>{if(e.target===e.currentTarget)setSelected(null)}}><aside className="absolute right-0 top-0 h-full w-full max-w-md overflow-y-auto bg-white text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-slate-100"><header className="sticky top-0 z-10 flex items-start justify-between border-b border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900"><div><h2 className="font-extrabold text-slate-900 dark:text-white">{selected.name}</h2><p className="text-xs text-slate-500">{selected.email}</p></div><button onClick={()=>setSelected(null)} aria-label="Close activity" className="rounded-lg p-2 text-slate-500"><SvgClose size={17}/></button></header><div className="space-y-5 p-5"><div className="grid grid-cols-2 gap-2">{[['Last login',formatDate(selected.lastLoginAt)],['Usage',formatUsage(selected.usageMinutes)],['Logins',selected.loginCount||0],['Status',selected.status]].map(([label,value])=><div key={label} className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800"><span className="block text-[11px] font-bold uppercase text-slate-400">{label}</span><strong className="mt-1 block text-xs capitalize">{value}</strong></div>)}</div>{selected.role!=='owner'&&<><div><label className="text-[12px] font-bold text-slate-500">ACCESS ROLE<select value={selected.role} onChange={e=>setSelected({...selected,role:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900"><option value="quotes">Quotations</option><option value="admin">Administrator</option><option value="custom">Custom access</option></select></label>{selected.role==='custom'&&<div className="mt-3 flex flex-wrap gap-2">{permissions.map(permission=><label key={permission} className="flex items-center gap-1 rounded-full border px-2 py-1 text-[12px]"><input type="checkbox" checked={(selected.permissions||[]).includes(permission)} onChange={e=>setSelected({...selected,permissions:e.target.checked?[...(selected.permissions||[]),permission]:(selected.permissions||[]).filter(item=>item!==permission)})}/>{STAFF_PERMISSION_LABELS[permission]}</label>)}</div>}<button disabled={busy} onClick={()=>memberAction(selected,'update',{role:selected.role,permissions:selected.permissions,status:selected.status})} className="mt-3 rounded-lg bg-primary px-3 py-2 text-xs font-bold text-white">Save access</button></div><div className="flex flex-wrap gap-2">{selected.status==='invited'&&<button disabled={busy} onClick={()=>memberAction(selected,'resend')} className="rounded-lg border px-3 py-2 text-xs font-bold">Resend invite</button>}{selected.status==='active'&&<button disabled={busy} onClick={()=>memberAction(selected,'reset')} className="rounded-lg border px-3 py-2 text-xs font-bold">Send password reset</button>}<button disabled={busy} onClick={()=>memberAction(selected,'update',{status:selected.status==='suspended'?'active':'suspended'})} className="rounded-lg border px-3 py-2 text-xs font-bold">{selected.status==='suspended'?'Reactivate':'Suspend'}</button><button disabled={busy} onClick={()=>{if(window.confirm(`Remove ${selected.name}?`))memberAction(selected,'remove')}} className="rounded-lg border border-red-200 px-3 py-2 text-xs font-bold text-red-700">Remove</button></div></>}
+      <div><h3 className="mb-3 text-xs font-extrabold uppercase tracking-wide text-slate-500">Activity by date</h3><div className="mb-3 flex flex-wrap gap-2">{[['today','Today'],['week','7 days'],['month','Month'],['custom','Custom'],['overall','Overall']].map(([value,label])=><button key={value} onClick={()=>setActivityRange(value)} className={`rounded-lg px-3 py-1.5 text-[12px] font-bold ${activityRange===value?'bg-primary text-white':'border border-slate-200'}`}>{label}</button>)}</div>{activityRange==='custom'&&<div className="mb-3 grid grid-cols-2 gap-2"><label className="text-[11px] font-bold text-slate-500">FROM<input type="date" value={dateFrom} onChange={e=>setDateFrom(e.target.value)} className="mt-1 w-full rounded-lg border px-2 py-2 text-xs"/></label><label className="text-[11px] font-bold text-slate-500">TO<input type="date" min={dateFrom} value={dateTo} onChange={e=>setDateTo(e.target.value)} className="mt-1 w-full rounded-lg border px-2 py-2 text-xs"/></label></div>}<div className="mb-4 grid grid-cols-2 gap-2"><div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800"><span className="block text-[11px] font-bold uppercase text-slate-400">Usage</span><strong className="mt-1 block text-xs">{formatSeconds(selectedUsage)}</strong></div><div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800"><span className="block text-[11px] font-bold uppercase text-slate-400">Logins</span><strong className="mt-1 block text-xs">{selectedLogins}</strong></div></div><div className="space-y-3">{selectedActivities.map(activity=><div key={activity.id} className="border-l-2 border-primary pl-3"><strong className="block text-xs text-slate-900 dark:text-white">{activity.message}</strong><span className="text-[12px] text-slate-400">{formatDate(activity.createdAt)}</span>{activity.changes?.map((change,index)=><p key={index} className="mt-1 text-[12px] text-slate-500">{prettyField(change.field)}: {describeChange(change)}</p>)}</div>)}{!selectedActivities.length&&<p className="text-xs text-slate-500">No recorded changes for this period.</p>}</div></div></div></aside></div>,document.body)}
   </>;
 }
 
@@ -2849,7 +2904,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
             <img src="/carolean%20image.png" alt="Carolean Logo" style={{ height: "48px", objectFit: "contain" }} />
           </div>
           <h1 className="font-title-md text-title-md font-bold text-primary dark:text-white" style={{ fontSize: "17px", lineHeight: 1.2 }}>Carolean Admin Panel</h1>
-          <p className="font-label-caps text-[10px] text-on-surface-variant dark:text-[#9CA3AF] tracking-widest mt-xs uppercase mt-2">Management Suite</p>
+          <p className="font-label-caps text-[12px] text-on-surface-variant dark:text-[#9CA3AF] tracking-widest mt-xs uppercase mt-2">Management Suite</p>
         </div>
         <nav className="flex-1 space-y-1">
           {navItems.map(({ k, label, icon }) => {
@@ -2867,7 +2922,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     {[...(hasPermission('settings') ? [['company', 'Business'], ['pricing', 'Pricing']] : []), ...(hasPermission('staff') ? [['staff', 'Staff Access']] : [])].map(([key, subLabel]) => {
                       const subSel = tab === 'settings' && settingsSection === key;
                       return (
-                        <button key={key} onClick={() => { setTab('settings'); setSettingsSection(key); }} className={`w-full text-left px-sm py-1.5 rounded text-[11px] font-bold transition-colors duration-200 ${subSel ? "text-primary dark:text-[#60A5FA] bg-surface-container-low dark:bg-[#1F2937]" : "text-on-surface-variant dark:text-[#9CA3AF] hover:bg-surface-container-low dark:hover:bg-[#1F2937] hover:text-primary dark:hover:text-white"}`}>
+                        <button key={key} onClick={() => { setTab('settings'); setSettingsSection(key); }} className={`w-full text-left px-sm py-1.5 rounded text-[13px] font-bold transition-colors duration-200 ${subSel ? "text-primary dark:text-[#60A5FA] bg-surface-container-low dark:bg-[#1F2937]" : "text-on-surface-variant dark:text-[#9CA3AF] hover:bg-surface-container-low dark:hover:bg-[#1F2937] hover:text-primary dark:hover:text-white"}`}>
                           <span className="sidebar-settings-subnav-icon hidden" aria-hidden="true">{key === 'company' ? <SvgGrid size={16} color="currentColor" /> : key === 'pricing' ? <SvgPricing size={16} color="currentColor" /> : <SvgUser size={16} color="currentColor" />}</span>
                           <span className="sidebar-settings-subnav-label">{subLabel}</span>
                         </button>
@@ -2989,7 +3044,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
             <div className="dashboard-premium flex flex-col gap-6 flex-1 min-h-0 overflow-y-auto p-7 bg-slate-50 dark:bg-slate-900/50">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 px-6 py-5 shadow-sm">
                 <div>
-                  <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-blue-600 dark:text-blue-400 mb-1.5">Operations overview</div>
+                  <div className="text-[13px] font-bold uppercase tracking-[0.14em] text-blue-600 dark:text-blue-400 mb-1.5">Operations overview</div>
                   <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Good morning, Carolean</h2>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Live figures calculated from saved quotations and fleet configuration.</p>
                 </div>
@@ -3007,7 +3062,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 {/* Card 1: total persisted quotation value */}
                 <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm flex flex-col justify-between">
                   <div className="flex justify-end items-start mb-4">
-                    <span className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[11px] font-bold px-2 py-1 rounded-full">All saved quotes</span>
+                    <span className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-bold px-2 py-1 rounded-full">All saved quotes</span>
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-1">Total Quotation Value</div>
@@ -3018,7 +3073,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 {/* Card 2: configured fleet availability */}
                 <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm flex flex-col justify-between">
                   <div className="flex justify-end items-start mb-4">
-                    <span className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[11px] font-bold px-2 py-1 rounded-full">Configured units</span>
+                    <span className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[13px] font-bold px-2 py-1 rounded-full">Configured units</span>
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-1">Available Fleet</div>
@@ -3031,7 +3086,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 {/* Card 3: all persisted quotations */}
                 <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm flex flex-col justify-between">
                   <div className="flex justify-end items-start mb-4">
-                    <span className="bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:purple-400 text-[11px] font-bold px-2 py-1 rounded-full">Backend</span>
+                    <span className="bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:purple-400 text-[13px] font-bold px-2 py-1 rounded-full">Backend</span>
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-1">Saved Quotations</div>
@@ -3071,8 +3126,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     <div className="border-b border-slate-100 dark:border-slate-700/50 absolute w-full top-3/4"></div>
                     <div className="border-b border-slate-100 dark:border-slate-700/50 absolute w-full bottom-0"></div>
                     
-                    <div className="absolute left-0 top-5 bottom-7 flex flex-col justify-between text-[9px] text-slate-400 dark:text-slate-500"><span>{dashboardMetrics.activityMax}</span><span>{Math.ceil(dashboardMetrics.activityMax * .75)}</span><span>{Math.ceil(dashboardMetrics.activityMax * .5)}</span><span>{Math.ceil(dashboardMetrics.activityMax * .25)}</span><span>0</span></div>
-                    <div className="fleet-chart-legend absolute top-2 right-0 flex items-center gap-3 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                    <div className="absolute left-0 top-5 bottom-7 flex flex-col justify-between text-[11px] text-slate-400 dark:text-slate-500"><span>{dashboardMetrics.activityMax}</span><span>{Math.ceil(dashboardMetrics.activityMax * .75)}</span><span>{Math.ceil(dashboardMetrics.activityMax * .5)}</span><span>{Math.ceil(dashboardMetrics.activityMax * .25)}</span><span>0</span></div>
+                    <div className="fleet-chart-legend absolute top-2 right-0 flex items-center gap-3 text-[12px] font-semibold text-slate-500 dark:text-slate-400">
                       <span className="flex items-center gap-1.5"><span className="fleet-legend-standard w-2 h-2 rounded-sm"></span>Scheduled journeys</span>
                       <span className="flex items-center gap-1.5"><span className="fleet-legend-peak w-2 h-2 rounded-sm"></span>Highest interval</span>
                     </div>
@@ -3082,17 +3137,17 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           <div title={`${dashboardMetrics.activityCounts[i]} scheduled journeys`} style={{ height: `${height}%` }} className={`fleet-activity-bar ${dashboardMetrics.activityCounts[i] === dashboardMetrics.activityMax && dashboardMetrics.activityCounts[i] > 0 ? "fleet-activity-bar-peak" : ""} absolute bottom-0 w-full rounded-t-[5px] transition-all duration-300`}>
                             <span aria-hidden="true" className="fleet-bar-side" />
                             <span aria-hidden="true" className="fleet-bar-top" />
-                            <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-600 dark:text-slate-300 opacity-100 whitespace-nowrap">{dashboardMetrics.activityCounts[i]}</span>
+                            <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-[12px] font-bold text-slate-600 dark:text-slate-300 opacity-100 whitespace-nowrap">{dashboardMetrics.activityCounts[i]}</span>
                           </div>
-                          <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[9px] text-slate-400 dark:text-slate-500 whitespace-nowrap">{dashboardMetrics.activityLabels[i]}</span>
+                          <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[11px] text-slate-400 dark:text-slate-500 whitespace-nowrap">{dashboardMetrics.activityLabels[i]}</span>
                         </div>
                       ))}
                     </div>
                   </div>
                   <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/50 grid grid-cols-3 gap-3">
-                    <div><div className="text-[10px] text-slate-500 dark:text-slate-400">Highest interval</div><div className="fleet-peak-value text-sm font-bold text-slate-900 dark:text-white">{dashboardMetrics.activityCounts.some(Boolean) ? dashboardMetrics.activityLabels[dashboardMetrics.activityCounts.indexOf(dashboardMetrics.activityMax)] : "No activity"}</div></div>
-                    <div><div className="text-[10px] text-slate-500 dark:text-slate-400">Average per interval</div><div className="text-sm font-bold text-slate-900 dark:text-white">{(dashboardMetrics.activityCounts.reduce((sum, count) => sum + count, 0) / dashboardMetrics.activityCounts.length).toFixed(1)}</div></div>
-                    <div><div className="text-[10px] text-slate-500 dark:text-slate-400">Journeys in period</div><div className="text-sm font-bold text-slate-900 dark:text-white">{dashboardMetrics.activityCounts.reduce((sum, count) => sum + count, 0)}</div></div>
+                    <div><div className="text-[12px] text-slate-500 dark:text-slate-400">Highest interval</div><div className="fleet-peak-value text-sm font-bold text-slate-900 dark:text-white">{dashboardMetrics.activityCounts.some(Boolean) ? dashboardMetrics.activityLabels[dashboardMetrics.activityCounts.indexOf(dashboardMetrics.activityMax)] : "No activity"}</div></div>
+                    <div><div className="text-[12px] text-slate-500 dark:text-slate-400">Average per interval</div><div className="text-sm font-bold text-slate-900 dark:text-white">{(dashboardMetrics.activityCounts.reduce((sum, count) => sum + count, 0) / dashboardMetrics.activityCounts.length).toFixed(1)}</div></div>
+                    <div><div className="text-[12px] text-slate-500 dark:text-slate-400">Journeys in period</div><div className="text-sm font-bold text-slate-900 dark:text-white">{dashboardMetrics.activityCounts.reduce((sum, count) => sum + count, 0)}</div></div>
                   </div>
                 </div>
 
@@ -3106,8 +3161,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     {/* Simple CSS Donut representation */}
                     <div className="financial-donut w-36 h-36 rounded-full relative flex items-center justify-center">
                       <div className="financial-donut-center rounded-full text-center flex flex-col items-center justify-center">
-                        <div className="text-[16px] leading-none whitespace-nowrap font-extrabold text-slate-900 dark:text-white">£{fmt(dashboardMetrics.allQuoteValue)}</div>
-                        <div className="text-[9px] text-slate-500 dark:text-slate-400 uppercase tracking-wide font-semibold">Saved Quote Value</div>
+                        <div className="text-[18px] leading-none whitespace-nowrap font-extrabold text-slate-900 dark:text-white">£{fmt(dashboardMetrics.allQuoteValue)}</div>
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 uppercase tracking-wide font-semibold">Saved Quote Value</div>
                       </div>
                     </div>
                     <div className="financial-total-caption text-xs font-semibold text-slate-500 dark:text-slate-400 mt-3">{bookingsData.length} saved quotations</div>
@@ -3158,7 +3213,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     <div className="flex justify-between items-start mb-5">
                       <div>
                         <div className="text-base font-bold text-slate-900 dark:text-white">Fleet Configuration</div>
-                        <div className="mt-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Saved vehicle and availability data</div>
+                        <div className="mt-1 text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Saved vehicle and availability data</div>
                       </div>
                       <button onClick={() => setTab("fleet")} className="px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors">
                         View fleet →
@@ -3168,24 +3223,24 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     <div className="grid grid-cols-3 gap-2 mb-5">
                       <div className="rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/40 p-3">
                         <div className="text-xl font-extrabold text-emerald-700 dark:text-emerald-400">{dashboardMetrics.availableFleet}</div>
-                        <div className="text-[10px] font-semibold text-emerald-700/70 dark:text-emerald-400/70">Available</div>
+                        <div className="text-[12px] font-semibold text-emerald-700/70 dark:text-emerald-400/70">Available</div>
                       </div>
                       <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/40 p-3">
                         <div className="text-xl font-extrabold text-amber-700 dark:text-amber-400">{dashboardMetrics.blockedUnits}</div>
-                        <div className="text-[10px] font-semibold text-amber-700/70 dark:text-amber-400/70">Blocked today</div>
+                        <div className="text-[12px] font-semibold text-amber-700/70 dark:text-amber-400/70">Blocked today</div>
                       </div>
                       <div className="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/40 p-3">
                         <div className="text-xl font-extrabold text-red-700 dark:text-red-400">{vehicles.length}</div>
-                        <div className="text-[10px] font-semibold text-red-700/70 dark:text-red-400/70">Vehicle tiers</div>
+                        <div className="text-[12px] font-semibold text-red-700/70 dark:text-red-400/70">Vehicle tiers</div>
                       </div>
                     </div>
 
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">Configured tiers</div>
+                    <div className="text-[12px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">Configured tiers</div>
                     <div className="space-y-2 flex-1">
                       {vehicles.length === 0 ? <div className="text-xs text-slate-500 dark:text-slate-400">No vehicle tiers configured.</div> : vehicles.slice(0, 3).map(vehicle => (
                         <button key={vehicle.id} onClick={() => { setActiveVehicleId(vehicle.id); setTab("fleet"); }} className="w-full flex items-center gap-3 rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50/90 dark:bg-slate-900/50 p-3 text-left hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
                           <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
-                          <span className="min-w-0 flex-1"><span className="block text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{vehicle.name}</span><span className="block text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{Number(vehicle.fleetCount) || 0} units · capacity {Number(vehicle.capacity) || 0}</span></span>
+                          <span className="min-w-0 flex-1"><span className="block text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{vehicle.name}</span><span className="block text-[12px] text-slate-500 dark:text-slate-400 mt-0.5">{Number(vehicle.fleetCount) || 0} units · capacity {Number(vehicle.capacity) || 0}</span></span>
                           <span className="text-slate-400">›</span>
                         </button>
                       ))}
@@ -3205,7 +3260,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 <div className="py-4 px-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
                   <div className="flex items-center gap-3">
                     <h2 className="m-0 text-lg font-extrabold text-slate-900 dark:text-slate-100">Quotations</h2>
-                    <span className="bg-slate-100 dark:bg-slate-700 py-1 px-2 rounded-xl text-[11px] font-bold text-slate-500 dark:text-slate-400">{filteredBookingsData.length} Total</span>
+                    <span className="bg-slate-100 dark:bg-slate-700 py-1 px-2 rounded-xl text-[13px] font-bold text-slate-500 dark:text-slate-400">{filteredBookingsData.length} Total</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Btn variant="ghost" size="sm" style={{ color: bookingLast30Days ? "#fff" : (darkMode ? "#cbd5e1" : PX.navy800), background: bookingLast30Days ? PX.brandRed : "transparent", borderColor: bookingLast30Days ? PX.brandRed : (darkMode ? "#475569" : PX.gray200) }} onClick={() => setBookingLast30Days(v=>!v)}><CalendarDays size={14}/> Last 30 Days</Btn>
@@ -3737,33 +3792,33 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
               <div className="grid grid-cols-4 gap-4">
                 
                 <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-4 shadow-sm">
-                  <div className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">Active Rules</div>
+                  <div className="text-[12px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">Active Rules</div>
                   <div className="text-3xl font-black text-red-600 dark:text-red-400 leading-none">{templatesData.length + matrixData.filter(m=>m.status==='active').length}</div>
-                  <div className="text-[11px] font-bold text-primary dark:text-primary-fixed mt-2 flex items-center gap-1">
+                  <div className="text-[13px] font-bold text-primary dark:text-primary-fixed mt-2 flex items-center gap-1">
                     <TrendingUp size={13} className="inline-block" /> +12% vs last month
                   </div>
                 </div>
 
                 <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-4 shadow-sm">
-                  <div className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">Avg Multiplier</div>
+                  <div className="text-[12px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">Avg Multiplier</div>
                   <div className="text-3xl font-black text-slate-900 dark:text-slate-100 leading-none">
                     {seasonalData.length > 0 ? (seasonalData.reduce((acc, curr) => acc + (curr.multiplier || 1), 0) / seasonalData.length).toFixed(2) : "1.00"}x
                   </div>
-                  <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 mt-2">Dynamic pricing active</div>
+                  <div className="text-[13px] font-bold text-slate-500 dark:text-slate-400 mt-2">Dynamic pricing active</div>
                 </div>
 
                 <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-4 shadow-sm">
-                  <div className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">Blocked Dates</div>
+                  <div className="text-[12px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">Blocked Dates</div>
                   <div className="text-3xl font-black text-slate-900 dark:text-slate-100 leading-none">{blocks.length}</div>
-                  <div className="text-[11px] font-bold text-red-600 dark:text-red-400 mt-2 flex items-center gap-1">
+                  <div className="text-[13px] font-bold text-red-600 dark:text-red-400 mt-2 flex items-center gap-1">
                     <SvgMapPinRed size={12} /> Next: Christmas Peak
                   </div>
                 </div>
 
                 <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-4 shadow-sm">
-                  <div className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">Global Base Fare</div>
+                  <div className="text-[12px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">Global Base Fare</div>
                   <div className="text-3xl font-black text-primary dark:text-primary-fixed leading-none">£{gv?.baseRate || 45}</div>
-                  <div className="text-[11px] font-bold text-primary dark:text-primary-fixed mt-2">Optimized current fleet</div>
+                  <div className="text-[13px] font-bold text-primary dark:text-primary-fixed mt-2">Optimized current fleet</div>
                 </div>
 
               </div>
@@ -3774,9 +3829,9 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 {/* Fixed Route Templates */}
                 <div id="pricing-routes" onPointerDownCapture={() => recordFeatureUsage('routes')} className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden shadow-sm">
                   <div className="py-3 px-5 flex justify-between items-center border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
-                    <div><h3 className="m-0 text-[13px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wide">Fixed Route Templates</h3><p className="pricing-section-subtitle">Manage premiums for key routes and zones.</p></div>
+                    <div><h3 className="m-0 text-[15px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wide">Fixed Route Templates</h3><p className="pricing-section-subtitle">Manage premiums for key routes and zones.</p></div>
                     <div style={{ display: "flex", gap: 8 }}>
-                      <button onClick={()=>downloadCsv('fixed-route-templates.csv', ['Pickup','Drop-off','Vehicle','Trip Type','Price'], templatesData.map(t=>[t.pickupArea,t.dropArea,db.vehicles.find(v=>v.id===t.vehicleId)?.name || t.vehicleId,t.tripType,t.price]))} className="bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 py-1.5 px-3 rounded-md text-[10px] font-extrabold cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"><Download size={13}/> Export CSV</button>
+                      <button onClick={()=>downloadCsv('fixed-route-templates.csv', ['Pickup','Drop-off','Vehicle','Trip Type','Price'], templatesData.map(t=>[t.pickupArea,t.dropArea,db.vehicles.find(v=>v.id===t.vehicleId)?.name || t.vehicleId,t.tripType,t.price]))} className="bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 py-1.5 px-3 rounded-md text-[12px] font-extrabold cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"><Download size={13}/> Export CSV</button>
                       <button className="bg-primary text-on-primary hover:opacity-90 transition-opacity" style={{border: "none", padding: "6px 12px", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer" }} onClick={() => { setShowTemplateForm(!showTemplateForm); if(!showTemplateForm) setNT({...blankTemplate, vehicleId:db.vehicles[0]?.id}); }}>{showTemplateForm ? "Cancel" : <><Plus size={13}/> New Template</>}</button>
                     </div>
                   </div>
@@ -3785,40 +3840,40 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     <div className="p-5 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
                       <div className="adm-form-grid" style={{ marginBottom: 16, gap: 16 }}>
                         <div className="span2">
-                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Pickup Location</label>
+                          <label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Pickup Location</label>
                           <div className="custom-places-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md">
                             <PlacesInput value={newTemplate.pickupArea||""} mapsLoaded={mapsLoaded} onChange={(v,geo)=>setNT(x=>({...x,pickupArea:v,pickupGeo:geo}))} icon={<SvgMapPinGreen />} />
                           </div>
                         </div>
                         <div className="span2">
-                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Drop-off Location</label>
+                          <label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Drop-off Location</label>
                           <div className="custom-places-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md">
                             <PlacesInput value={newTemplate.dropArea||""} mapsLoaded={mapsLoaded} onChange={(v,geo)=>setNT(x=>({...x,dropArea:v,dropGeo:geo}))} icon={<SvgMapPinRed />} />
                           </div>
                         </div>
                         <div>
-                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Trip Type</label>
+                          <label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Trip Type</label>
                           <select className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none" value={newTemplate.tripType||"one-way"} onChange={e=>setNT(x=>({...x,tripType:e.target.value}))}>
                             <option value="one-way">One Way</option>
                             <option value="return">Return</option>
                           </select>
                         </div>
                         <div>
-                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Eligible Vehicle</label>
+                          <label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Eligible Vehicle</label>
                           <select className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none" value={newTemplate.vehicleId||""} onChange={e=>setNT(x=>({...x,vehicleId:e.target.value}))}>
                             {db.vehicles.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}
                           </select>
                         </div>
                         <div>
-                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Fixed Price (£)</label>
+                          <label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Fixed Price (£)</label>
                           <input type="number" className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none" value={newTemplate.price||0} onChange={e=>setNT(x=>({...x,price:Number(e.target.value)}))} />
                         </div>
                         <div>
-                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Route Radius ({distanceUnitShort})</label>
+                          <label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Route Radius ({distanceUnitShort})</label>
                           <input type="number" min="0" step="1" className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none" value={newTemplate.radiusKm ?? 15} onChange={e=>setNT(x=>({...x,radiusKm:Number(e.target.value)}))} />
                         </div>
                         <div>
-                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Waiting Charge (£/hr)</label>
+                          <label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Waiting Charge (£/hr)</label>
                           <input type="number" min="0" step="0.5" className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none" value={newTemplate.waitingChargePerHour ?? 0} onChange={e=>setNT(x=>({...x,waitingChargePerHour:Number(e.target.value)}))} />
                         </div>
                       </div>
@@ -3837,11 +3892,11 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   <table className="w-full border-collapse text-left">
                     <thead>
                       <tr>
-                        <th className="py-2.5 px-5 text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">Route Name</th>
-                        <th className="py-2.5 px-5 text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">Zone</th>
-                        <th className="py-2.5 px-5 text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">Base Rate</th>
-                        <th className="py-2.5 px-5 text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">Status</th>
-                        <th className="py-2.5 px-5 text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50" width={60}>Act</th>
+                        <th className="py-2.5 px-5 text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">Route Name</th>
+                        <th className="py-2.5 px-5 text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">Zone</th>
+                        <th className="py-2.5 px-5 text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">Base Rate</th>
+                        <th className="py-2.5 px-5 text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">Status</th>
+                        <th className="py-2.5 px-5 text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50" width={60}>Act</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -3852,16 +3907,16 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         <tr key={t.id} className={`border-b border-slate-100 dark:border-slate-700/50 ${idx % 2 === 0 ? "bg-white dark:bg-slate-800" : "bg-slate-50 dark:bg-slate-800/80"} border-b-last-none`}>
                           <td className="py-2.5 px-5">
                             <div className="text-xs font-bold text-slate-900 dark:text-slate-100">{String(t.pickupArea).split(',')[0]} - {String(t.dropArea).split(',')[0]}</div>
-                            <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-1">{db.vehicles.find(v=>v.id===t.vehicleId)?.name}</div>
+                            <div className="text-[12px] font-semibold text-slate-500 dark:text-slate-400 mt-1">{db.vehicles.find(v=>v.id===t.vehicleId)?.name}</div>
                           </td>
                           <td className="py-2.5 px-5">
-                            <span className="py-1 px-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-[9px] font-extrabold uppercase tracking-wide">{t.tripType === 'return' ? 'GLOBAL' : 'PREMIUM'}</span>
+                            <span className="py-1 px-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-[11px] font-extrabold uppercase tracking-wide">{t.tripType === 'return' ? 'GLOBAL' : 'PREMIUM'}</span>
                           </td>
                           <td className="py-2.5 px-5 text-xs font-bold text-slate-900 dark:text-slate-100">
                             £{fmt(t.price)}
                           </td>
                           <td className="py-2.5 px-5">
-                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-primary dark:text-primary-fixed">
+                            <div className="flex items-center gap-1.5 text-[12px] font-bold text-primary dark:text-primary-fixed">
                               <span style={{ width: 6, height: 6, borderRadius: "50%", background: "currentColor" }}></span> Active
                             </div>
                           </td>
@@ -3881,7 +3936,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 {/* Blocked Dates */}
                 <div id="pricing-availability" className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
                   <div className="flex justify-between items-center mb-5">
-                    <h3 className="m-0 text-[13px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wide">Blocked Dates</h3>
+                    <h3 className="m-0 text-[15px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wide">Blocked Dates</h3>
                     <button className="bg-transparent border-none cursor-pointer text-slate-900 dark:text-slate-100 text-lg hover:text-primary transition-colors" onClick={() => setShowBlockForm(v=>!v)}>⊕</button>
                   </div>
                   {showBlockForm && <div className="grid gap-2 mb-4 p-3 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700">
@@ -3901,12 +3956,12 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       return (
                         <div key={block.id} style={{ display: "flex", gap: 12, alignItems: "center" }}>
                           <div className="bg-red-100 dark:bg-red-900/30 rounded-md overflow-hidden min-w-[44px] text-center">
-                            <div className="bg-red-300 dark:bg-red-800 text-red-900 dark:text-red-100 text-[9px] font-extrabold py-0.5 tracking-wide">{month}</div>
+                            <div className="bg-red-300 dark:bg-red-800 text-red-900 dark:text-red-100 text-[11px] font-extrabold py-0.5 tracking-wide">{month}</div>
                             <div className="text-red-600 dark:text-red-400 text-sm font-black py-1 bg-white dark:bg-red-900/10">{day}</div>
                           </div>
                           <div className="flex-1">
                             <div className="text-xs font-bold text-slate-900 dark:text-slate-100">{block.reason || "Fleet Block"}</div>
-                            <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">{vehicles.find(v=>v.id===block.vehicleId)?.name || 'Global Block'}</div>
+                            <div className="text-[12px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">{vehicles.find(v=>v.id===block.vehicleId)?.name || 'Global Block'}</div>
                           </div>
                         </div>
                       )
@@ -3915,8 +3970,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
                   <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
                     <div className="flex justify-between mb-1.5">
-                      <span className="text-[10px] font-bold text-slate-900 dark:text-slate-100 uppercase">Availability records</span>
-                      <span className="text-[10px] font-bold text-primary dark:text-primary-fixed uppercase">{blocks.length} loaded</span>
+                      <span className="text-[12px] font-bold text-slate-900 dark:text-slate-100 uppercase">Availability records</span>
+                      <span className="text-[12px] font-bold text-primary dark:text-primary-fixed uppercase">{blocks.length} loaded</span>
                     </div>
                     <div className="h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                       <div className="w-full h-full bg-primary rounded-full"></div>
@@ -3929,9 +3984,9 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
               {/* ROW 3: Seasonal Multipliers */}
               <div id="pricing-seasonal" onPointerDownCapture={() => recordFeatureUsage('seasonal')}>
                 <div className="flex justify-between items-center mb-3">
-                  <div><h2 className="m-0 text-[13px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wide">Seasonal Multipliers</h2><p className="pricing-section-subtitle">Apply time-based multipliers across all zones.</p></div>
+                  <div><h2 className="m-0 text-[15px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wide">Seasonal Multipliers</h2><p className="pricing-section-subtitle">Apply time-based multipliers across all zones.</p></div>
                   <div style={{ display: "flex", gap: 12 }}>
-                    <button className="bg-transparent border-none cursor-pointer text-slate-900 dark:text-slate-100 text-[11px] font-bold hover:text-primary transition-colors" onClick={()=>setToast(`${seasonalData.length} seasonal rule${seasonalData.length===1?'':'s'} configured.`)}><History size={13}/> View History</button>
+                    <button className="bg-transparent border-none cursor-pointer text-slate-900 dark:text-slate-100 text-[13px] font-bold hover:text-primary transition-colors" onClick={()=>setToast(`${seasonalData.length} seasonal rule${seasonalData.length===1?'':'s'} configured.`)}><History size={13}/> View History</button>
                     <button className="bg-primary text-on-primary hover:opacity-90 transition-opacity" style={{border: "none", padding: "4px 12px", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer" }} onClick={() => setNS({ ...blankSeasonal, id: 'new_'+Date.now() })}><Plus size={13}/> Add Rule</button>
                   </div>
                 </div>
@@ -3942,27 +3997,27 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     <h4 className="m-0 mb-4 text-xs font-bold text-slate-900 dark:text-slate-100 uppercase">{newSeasonal.name ? "Edit Multiplier" : "New Multiplier Rule"}</h4>
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                       <div>
-                         <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Name</label>
+                         <label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Name</label>
                          <input type="text" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none" value={newSeasonal.name||""} onChange={e=>setNS(x=>({...x,name:e.target.value}))} />
                       </div>
                       <div>
-                         <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Multiplier (e.g. 1.5)</label>
+                         <label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Multiplier (e.g. 1.5)</label>
                          <input type="number" step="0.1" placeholder="Not used with override" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none" value={newSeasonal.multiplier ?? ''} onChange={e=>setNS(x=>({...x,multiplier:e.target.value===''?undefined:Number(e.target.value),overrideFare:null}))} />
                       </div>
                       <div>
-                         <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Applicable Vehicle</label>
+                         <label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Applicable Vehicle</label>
                          <select className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none" value={newSeasonal.applicableVehicles?.[0]||'Any'} onChange={e=>setNS(x=>({...x,applicableVehicles:[e.target.value]}))}><option value="Any">All vehicles</option>{vehicles.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select>
                       </div>
-                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Start Date & Time</label><input type="datetime-local" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={(newSeasonal.startDate||'').slice(0,16)} onChange={e=>setNS(x=>({...x,startDate:e.target.value}))}/></div>
-                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">End Date & Time</label><input type="datetime-local" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={(newSeasonal.endDate||'').slice(0,16)} onChange={e=>setNS(x=>({...x,endDate:e.target.value}))}/></div>
-                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Override Fare (£, optional)</label><input type="number" min="0" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={newSeasonal.overrideFare ?? ''} onChange={e=>setNS(x=>({...x,overrideFare:e.target.value===''?null:Number(e.target.value),multiplier:e.target.value===''?(x.multiplier??1.2):undefined}))}/></div>
-                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Priority</label><input type="number" min="1" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={newSeasonal.priority ?? 1} onChange={e=>setNS(x=>({...x,priority:Number(e.target.value)}))}/></div>
-                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Applicable Routes</label><input type="text" placeholder="Any or route IDs" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={newSeasonal.applicableRoutes?.join(', ')||'Any'} onChange={e=>setNS(x=>({...x,applicableRoutes:e.target.value.split(',').map(s=>s.trim()).filter(Boolean)}))}/></div>
-                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Status</label><select className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={newSeasonal.enabled===false?'inactive':'active'} onChange={e=>setNS(x=>({...x,enabled:e.target.value==='active',status:e.target.value}))}><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+                      <div><label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Start Date & Time</label><input type="datetime-local" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={(newSeasonal.startDate||'').slice(0,16)} onChange={e=>setNS(x=>({...x,startDate:e.target.value}))}/></div>
+                      <div><label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">End Date & Time</label><input type="datetime-local" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={(newSeasonal.endDate||'').slice(0,16)} onChange={e=>setNS(x=>({...x,endDate:e.target.value}))}/></div>
+                      <div><label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Override Fare (£, optional)</label><input type="number" min="0" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={newSeasonal.overrideFare ?? ''} onChange={e=>setNS(x=>({...x,overrideFare:e.target.value===''?null:Number(e.target.value),multiplier:e.target.value===''?(x.multiplier??1.2):undefined}))}/></div>
+                      <div><label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Priority</label><input type="number" min="1" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={newSeasonal.priority ?? 1} onChange={e=>setNS(x=>({...x,priority:Number(e.target.value)}))}/></div>
+                      <div><label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Applicable Routes</label><input type="text" placeholder="Any or route IDs" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={newSeasonal.applicableRoutes?.join(', ')||'Any'} onChange={e=>setNS(x=>({...x,applicableRoutes:e.target.value.split(',').map(s=>s.trim()).filter(Boolean)}))}/></div>
+                      <div><label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Status</label><select className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs" value={newSeasonal.enabled===false?'inactive':'active'} onChange={e=>setNS(x=>({...x,enabled:e.target.value==='active',status:e.target.value}))}><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
                     </div>
                     <div style={{ display: "flex", gap: 12 }}>
                       <button className="bg-primary text-on-primary hover:opacity-90 transition-opacity" style={{border: "none", padding: "8px 16px", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: "pointer" }} onClick={saveSeasonalRule}>{String(newSeasonal.id).startsWith('new_') ? 'Add Rule' : 'Done'}</button>
-                      <button className="bg-slate-100 dark:bg-slate-700 border-none text-slate-900 dark:text-slate-100 py-1.5 px-3 rounded-md text-[10px] font-extrabold cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors" onClick={()=>setNS(blankSeasonal)}>Cancel</button>
+                      <button className="bg-slate-100 dark:bg-slate-700 border-none text-slate-900 dark:text-slate-100 py-1.5 px-3 rounded-md text-[12px] font-extrabold cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors" onClick={()=>setNS(blankSeasonal)}>Cancel</button>
                     </div>
                   </div>
                 )}
@@ -3974,11 +4029,11 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   {seasonalData.map(s => (
                     <div key={s.id} className="pricing-seasonal-rule-tab bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 flex flex-col shadow-sm">
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-                        <span className="py-1 px-2 bg-orange-100 dark:bg-slate-700 text-orange-700 dark:text-slate-200 rounded text-[9px] font-extrabold uppercase tracking-wide">{s.name || "Seasonal Rule"}</span>
+                        <span className="py-1 px-2 bg-orange-100 dark:bg-slate-700 text-orange-700 dark:text-slate-200 rounded text-[11px] font-extrabold uppercase tracking-wide">{s.name || "Seasonal Rule"}</span>
                         <span className="text-xl font-black text-slate-900 dark:text-slate-100">{s.multiplier}x</span>
                       </div>
                       <div className="pricing-seasonal-date">{s.startDate ? new Date(`${s.startDate.split('T')[0]}T00:00:00`).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : 'Start date'} – {s.endDate ? new Date(`${s.endDate.split('T')[0]}T00:00:00`).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : 'End date'}</div>
-                      <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 leading-relaxed flex-1">Applies to {s.applicableVehicles?.join(', ')} across all zones.</div>
+                      <div className="text-[13px] font-semibold text-slate-500 dark:text-slate-400 leading-relaxed flex-1">Applies to {s.applicableVehicles?.join(', ')} across all zones.</div>
                       <div className="pricing-seasonal-rule-actions">
                         <button type="button" className="admin-icon-action admin-icon-edit" aria-label={`Edit ${s.name || 'seasonal rule'}`} title="Edit rule" onClick={() => { setNS(s); }}><Edit3 size={12}/></button>
                         <button type="button" className="admin-icon-action admin-icon-delete" aria-label={`Delete ${s.name || 'seasonal rule'}`} title="Delete rule" onClick={async()=>{ if (!window.confirm(`Delete ${s.name || 'this seasonal rule'}?`)) return; await saveApi('seasonal', s, true); setSeasonalData(data=>data.filter(rule=>rule.id!==s.id)); setToast('Seasonal rule deleted.'); }}><SvgTrash size={12}/></button>
@@ -3999,10 +4054,10 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 <div className="p-5 flex justify-between items-start border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
                   <div>
                     <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: darkMode ? "#F3F4F6" : "#0f172a", marginBottom: 4 }}>Dynamic Pricing Matrix</h3>
-                    <p className="m-0 text-[11px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Fleet-wide cross-calculation based on demand and distance.</p>
+                    <p className="m-0 text-[13px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Fleet-wide cross-calculation based on demand and distance.</p>
                   </div>
                   <div className="flex bg-slate-100 dark:bg-slate-900 rounded-lg p-1 border border-slate-200 dark:border-slate-700">
-                    {['global','fleet'/*,'city'*/].map(view=><button key={view} onClick={()=>{setMatrixView(view); setShowMatrixForm(false);}} className={`${matrixView===view?'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm':'bg-transparent text-slate-500 dark:text-slate-400'} border-none py-1 px-3 rounded-md text-[10px] font-bold`}>{view==='global'?'Global':view==='fleet'?'By Fleet':'By City'}</button>)}
+                    {['global','fleet'/*,'city'*/].map(view=><button key={view} onClick={()=>{setMatrixView(view); setShowMatrixForm(false);}} className={`${matrixView===view?'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm':'bg-transparent text-slate-500 dark:text-slate-400'} border-none py-1 px-3 rounded-md text-[12px] font-bold`}>{view==='global'?'Global':view==='fleet'?'By Fleet':'By City'}</button>)}
                   </div>
                 </div>
                 
@@ -4010,22 +4065,22 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   <div className="p-5 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
                     <div className="flex justify-between items-center mb-4">
                       <h4 className="m-0 text-xs font-bold text-slate-900 dark:text-slate-100 uppercase">{newMatrix.id ? 'Edit Matrix Rule' : 'New Matrix Rule'} ({matrixView === 'global' ? 'Global Scope' : matrixView === 'fleet' ? 'Fleet Specific' : 'City to City'})</h4>
-                      <div className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-2 py-1 rounded">Rule Type is set by active tab above</div>
+                      <div className="text-[12px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-2 py-1 rounded">Rule Type is set by active tab above</div>
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 16 }}>
                       <div>
-                         <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Target Vehicle</label>
+                         <label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Target Vehicle</label>
                          <select value={newMatrix.vehicleId||''} onChange={e=>setNM(x=>({...x,vehicleId:e.target.value}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none">
                             {db.vehicles.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}
                          </select>
                       </div>
                       <div>
-                         <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Base Fare Drop (£)</label>
+                         <label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Base Fare Drop (£)</label>
                          <input type="number" value={newMatrix.baseFare||0} onChange={e=>setNM(x=>({...x,baseFare:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none" placeholder="e.g. 50" />
                       </div>
                       {matrixBands(newMatrix).map((band, bandIndex) => (
                         <div key={bandIndex}>
-                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">
+                          <label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">
                             {band.max == null ? `${band.min}${distanceUnitShort}+` : `${band.min}-${band.max}${distanceUnitShort}`} Rate (£/{distanceUnitShort})
                           </label>
                           <input
@@ -4043,30 +4098,30 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         </div>
                       ))}
                       {matrixView === 'city' && <>
-                        <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">From City</label><input value={newMatrix.pickupArea||''} onChange={e=>setNM(x=>({...x,pickupArea:e.target.value}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md" placeholder="e.g. Birmingham"/></div>
-                        <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">To City</label><input value={newMatrix.dropArea||''} onChange={e=>setNM(x=>({...x,dropArea:e.target.value}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md" placeholder="e.g. London"/></div>
+                        <div><label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">From City</label><input value={newMatrix.pickupArea||''} onChange={e=>setNM(x=>({...x,pickupArea:e.target.value}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md" placeholder="e.g. Birmingham"/></div>
+                        <div><label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">To City</label><input value={newMatrix.dropArea||''} onChange={e=>setNM(x=>({...x,dropArea:e.target.value}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md" placeholder="e.g. London"/></div>
                       </>}
-                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Trip Type</label><select value={newMatrix.tripType||'one-way'} onChange={e=>setNM(x=>({...x,tripType:e.target.value}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"><option value="one-way">One Way</option><option value="return">Return</option></select></div>
-                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Included Live {distanceUnitShort}</label><input type="number" min="0" value={newMatrix.includedLiveMileage??0} onChange={e=>setNM(x=>({...x,includedLiveMileage:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
-                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Included Dead {distanceUnitShort}</label><input type="number" min="0" value={newMatrix.includedDeadMileage??0} onChange={e=>setNM(x=>({...x,includedDeadMileage:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
-                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Waiting Charge (£/hr)</label><input type="number" min="0" step="0.5" value={newMatrix.waitingChargePerHour??0} onChange={e=>setNM(x=>({...x,waitingChargePerHour:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
-                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Night Multiplier</label><input type="number" min="0" step="0.1" value={newMatrix.nightRateMultiplier??1} onChange={e=>setNM(x=>({...x,nightRateMultiplier:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
-                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Weekend Multiplier</label><input type="number" min="0" step="0.1" value={newMatrix.weekendRateMultiplier??1} onChange={e=>setNM(x=>({...x,weekendRateMultiplier:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
-                      <div><label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Rule Status</label><select value={newMatrix.status||'active'} onChange={e=>setNM(x=>({...x,status:e.target.value}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+                      <div><label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Trip Type</label><select value={newMatrix.tripType||'one-way'} onChange={e=>setNM(x=>({...x,tripType:e.target.value}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"><option value="one-way">One Way</option><option value="return">Return</option></select></div>
+                      <div><label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Included Live {distanceUnitShort}</label><input type="number" min="0" value={newMatrix.includedLiveMileage??0} onChange={e=>setNM(x=>({...x,includedLiveMileage:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
+                      <div><label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Included Dead {distanceUnitShort}</label><input type="number" min="0" value={newMatrix.includedDeadMileage??0} onChange={e=>setNM(x=>({...x,includedDeadMileage:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
+                      <div><label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Waiting Charge (£/hr)</label><input type="number" min="0" step="0.5" value={newMatrix.waitingChargePerHour??0} onChange={e=>setNM(x=>({...x,waitingChargePerHour:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
+                      <div><label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Night Multiplier</label><input type="number" min="0" step="0.1" value={newMatrix.nightRateMultiplier??1} onChange={e=>setNM(x=>({...x,nightRateMultiplier:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
+                      <div><label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Weekend Multiplier</label><input type="number" min="0" step="0.1" value={newMatrix.weekendRateMultiplier??1} onChange={e=>setNM(x=>({...x,weekendRateMultiplier:Number(e.target.value)}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"/></div>
+                      <div><label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Rule Status</label><select value={newMatrix.status||'active'} onChange={e=>setNM(x=>({...x,status:e.target.value}))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md py-1.5 px-2.5 text-xs"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
                     </div>
                     <div style={{ display: "flex", gap: 12 }}>
                       <button className="bg-primary text-on-primary hover:opacity-90 transition-opacity" style={{border: "none", padding: "8px 16px", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: "pointer" }} onClick={saveMatrixRule}>{newMatrix.id ? 'Done' : 'Add Matrix Rule'}</button>
-                      <button className="bg-slate-100 dark:bg-slate-700 border-none text-slate-900 dark:text-slate-100 py-1.5 px-3 rounded-md text-[10px] font-extrabold cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors" onClick={()=>setShowMatrixForm(false)}>Cancel</button>
+                      <button className="bg-slate-100 dark:bg-slate-700 border-none text-slate-900 dark:text-slate-100 py-1.5 px-3 rounded-md text-[12px] font-extrabold cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors" onClick={()=>setShowMatrixForm(false)}>Cancel</button>
                     </div>
                   </div>
                 )}
 
                 <div className="p-5 overflow-x-auto">
                    <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr_80px] gap-4 mb-4 min-w-[640px]">
-                      <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{matrixView === 'city' ? 'City Route' : matrixView === 'fleet' ? 'Fleet / Tier' : 'Category / Tier'}</div>
-                      {matrixHeaderBands.map((band, index) => <div key={index} className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{band.max == null ? `${band.min}${distanceUnitShort}+` : `${band.min}-${band.max}${distanceUnitShort}`}</div>)}
-                      <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Base Drop</div>
-                      <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-right">Actions</div>
+                      <div className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{matrixView === 'city' ? 'City Route' : matrixView === 'fleet' ? 'Fleet / Tier' : 'Category / Tier'}</div>
+                      {matrixHeaderBands.map((band, index) => <div key={index} className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{band.max == null ? `${band.min}${distanceUnitShort}+` : `${band.min}-${band.max}${distanceUnitShort}`}</div>)}
+                      <div className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Base Drop</div>
+                      <div className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-right">Actions</div>
                    </div>
 
                    {matrixRulesForView.length === 0 ? (
@@ -4083,7 +4138,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       </div>
                    ))}
                    <div style={{ marginTop: 16 }}>
-                      <button className="bg-slate-100 dark:bg-slate-700 border-none text-slate-900 dark:text-slate-100 py-1.5 px-3 rounded-md text-[10px] font-extrabold cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors" onClick={() => { setShowMatrixForm(!showMatrixForm); if(!showMatrixForm) setNM({...blankMatrix,vehicleId:vehicles[0]?.id||''}); }}>{showMatrixForm ? "Cancel" : <><Plus size={13}/> Add Matrix Rule</>}</button>
+                      <button className="bg-slate-100 dark:bg-slate-700 border-none text-slate-900 dark:text-slate-100 py-1.5 px-3 rounded-md text-[12px] font-extrabold cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors" onClick={() => { setShowMatrixForm(!showMatrixForm); if(!showMatrixForm) setNM({...blankMatrix,vehicleId:vehicles[0]?.id||''}); }}>{showMatrixForm ? "Cancel" : <><Plus size={13}/> Add Matrix Rule</>}</button>
                    </div>
                 </div>
               </div>
@@ -4116,7 +4171,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${activeVehicleId === v.id ? "bg-primary/10 dark:bg-blue-900/40" : "bg-slate-100 dark:bg-slate-700"}`}>
                           {v.emoji === "coach" ? <SvgCoach size={18} className={activeVehicleId === v.id ? "text-primary dark:text-blue-400" : "text-slate-500 dark:text-slate-400"} /> : v.emoji === "minibus" ? <SvgMinibus size={18} className={activeVehicleId === v.id ? "text-primary dark:text-blue-400" : "text-slate-500 dark:text-slate-400"} /> : <SvgBus size={18} className={activeVehicleId === v.id ? "text-primary dark:text-blue-400" : "text-slate-500 dark:text-slate-400"} />}
                         </div>
-                        <div className="text-[13px] font-extrabold text-slate-900 dark:text-slate-100 whitespace-nowrap overflow-hidden text-ellipsis flex-1">{v.name || "Tier"}</div>
+                        <div className="text-[15px] font-extrabold text-slate-900 dark:text-slate-100 leading-tight flex-1">{v.name || "Tier"}</div>
                         {vehicles.length > 1 && (
                           <button type="button" className="fleet-tier-remove admin-icon-action admin-icon-delete" title={`Remove ${v.name || "tier"}`} aria-label={`Remove ${v.name || "tier"}`} onClick={e=>{
                             e.stopPropagation();
@@ -4127,14 +4182,14 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           }}><SvgTrash size={12} /></button>
                         )}
                       </div>
-                      <div className="flex justify-between text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">
+                      <div className="flex justify-between text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase">
                           <span>Margin <b className="text-emerald-600 dark:text-emerald-400">{margin.toFixed(1)}%</b></span>
                           <span>Count <b className="text-slate-900 dark:text-slate-100">{v.fleetCount || 1}</b></span>
                       </div>
                     </div>
                   );
                 })}
-                <button type="button" className="shrink-0 w-28 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-primary dark:text-primary-fixed text-[11px] font-extrabold hover:border-primary" onClick={()=>{
+                <button type="button" className="shrink-0 w-28 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-primary dark:text-primary-fixed text-[13px] font-extrabold hover:border-primary" onClick={()=>{
                   const source=vehicles[0]||{}; const id=`vehicle_${Date.now()}`;
                   const created=injectDefaults({...source,id,name:'New vehicle tier',description:'',emoji:'minibus',fleetCount:1,annualFixedCosts:(source.annualFixedCosts||[]).map((cost,index)=>({...cost,id:`${id}_cost_${index}`}))});
                   setV(list=>[...list,created]); setActiveVehicleId(id); setShowVehicleDetails(true);
@@ -4153,19 +4208,19 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
               </div>
 
               {showVehicleDetails && (()=>{ const selected=vehicles.find(v=>v.id===activeVehicleId)||vehicles[0]; if(!selected)return null; return <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr_180px_auto] gap-3 items-end p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm">
-                <div><label className="block text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-1">Tier name</label><input className="w-full rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-2.5 py-2 text-xs font-bold" value={selected.name||''} onChange={e=>updateV(selected.id,'name',e.target.value)}/></div>
-                <div><label className="block text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-1">Description</label><input className="w-full rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-2.5 py-2 text-xs" value={selected.description||''} onChange={e=>updateV(selected.id,'description',e.target.value)}/></div>
-                <div><label className="block text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-1">Vehicle icon</label><select className="w-full rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-2.5 py-2 text-xs" value={selected.emoji||'bus'} onChange={e=>updateV(selected.id,'emoji',e.target.value)}><option value="minibus">Minibus</option><option value="bus">Bus</option><option value="coach">Coach</option></select></div>
+                <div><label className="block text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-1">Tier name</label><input className="w-full rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-2.5 py-2 text-xs font-bold" value={selected.name||''} onChange={e=>updateV(selected.id,'name',e.target.value)}/></div>
+                <div><label className="block text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-1">Description</label><input className="w-full rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-2.5 py-2 text-xs" value={selected.description||''} onChange={e=>updateV(selected.id,'description',e.target.value)}/></div>
+                <div><label className="block text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-1">Vehicle icon</label><select className="w-full rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-2.5 py-2 text-xs" value={selected.emoji||'bus'} onChange={e=>updateV(selected.id,'emoji',e.target.value)}><option value="minibus">Minibus</option><option value="bus">Bus</option><option value="coach">Coach</option></select></div>
                                   <div className="flex gap-2">
                     {selected.id.startsWith('vehicle_') && (
-                      <button className="rounded-md bg-transparent border border-slate-200 dark:border-slate-600 px-3 py-2 text-[10px] font-extrabold cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500" onClick={()=>{
+                      <button className="rounded-md bg-transparent border border-slate-200 dark:border-slate-600 px-3 py-2 text-[12px] font-extrabold cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500" onClick={()=>{
                         const remaining = vehicles.filter(x=>x.id!==selected.id);
                         setV(remaining);
                         if (activeVehicleId === selected.id) setActiveVehicleId(remaining[0]?.id || "");
                         setShowVehicleDetails(false);
                       }}>Cancel</button>
                     )}
-                    <button className="rounded-md bg-slate-100 dark:bg-slate-700 px-3 py-2 text-[10px] font-extrabold cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600" onClick={()=>setShowVehicleDetails(false)}>Done</button>
+                    <button className="rounded-md bg-slate-100 dark:bg-slate-700 px-3 py-2 text-[12px] font-extrabold cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600" onClick={()=>setShowVehicleDetails(false)}>Done</button>
                   </div>
               </div>})()}
 
@@ -4189,18 +4244,18 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         
                         {/* Minimum Target Hire Box (Ultra Dense) */}
                         <div className="fleet-inline-breakeven bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
-                          <div className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">Breakeven Target</div>
+                          <div className="text-[12px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">Breakeven Target</div>
                           <div className="text-4xl font-black text-slate-900 dark:text-slate-100 leading-none">£{ecoV?.minHirePerDay.toFixed(2) || "0.00"}</div>
                           <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1">Minimum Hire per Day</div>
                           <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg py-2.5 px-3 mt-4 flex justify-between">
                               <div>
-                                <div className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase">Overhead</div>
-                                <div className="text-[13px] text-primary dark:text-primary-fixed font-extrabold">£{ecoV?.dailyOverhead.toFixed(2) || "0.00"}</div>
+                                <div className="text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase">Overhead</div>
+                                <div className="text-[15px] text-primary dark:text-primary-fixed font-extrabold">£{ecoV?.dailyOverhead.toFixed(2) || "0.00"}</div>
                               </div>
                               <div className="w-[1px] bg-slate-200 dark:bg-slate-700"></div>
                               <div>
-                                <div className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase">Standing</div>
-                                <div className="text-[13px] text-slate-900 dark:text-slate-100 font-extrabold">£{ecoV?.dailyStanding.toFixed(2) || "0.00"}</div>
+                                <div className="text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase">Standing</div>
+                                <div className="text-[15px] text-slate-900 dark:text-slate-100 font-extrabold">£{ecoV?.dailyStanding.toFixed(2) || "0.00"}</div>
                               </div>
                           </div>
                         </div>
@@ -4218,8 +4273,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                             <div className="flex flex-col gap-3">
                                 <div className="fleet-range-control">
                                   <div className="flex justify-between mb-1">
-                                    <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Fleet Count</label>
-                                    <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100">{activeV.fleetCount} Units</span>
+                                    <label className="text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase">Fleet Count</label>
+                                    <span className="text-[13px] font-extrabold text-slate-900 dark:text-slate-100">{activeV.fleetCount} Units</span>
                                   </div>
                                   <input type="range" min="1" max="100" aria-label="Fleet count" value={activeV.fleetCount ?? 1} onChange={e=>{
                                       const fleetCount=Math.max(1,Number(e.target.value)||1);
@@ -4230,8 +4285,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
                                 <div className="fleet-range-control">
                                   <div className="flex justify-between mb-1">
-                                    <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Annual Utilisation</label>
-                                    <span className="text-[11px] font-extrabold text-primary dark:text-primary-fixed">{activeV.utilisationDays} Days</span>
+                                    <label className="text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase">Annual Utilisation</label>
+                                    <span className="text-[13px] font-extrabold text-primary dark:text-primary-fixed">{activeV.utilisationDays} Days</span>
                                   </div>
                                   <input type="range" min="1" max="365" aria-label="Annual utilisation days" value={activeV.utilisationDays ?? 225} onChange={e=>{
                                       const utilDays = Number(e.target.value) || 225;
@@ -4241,18 +4296,18 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                     }} className="w-full h-1 accent-primary" />
                                 </div>
                                 
-                                <div className="grid grid-cols-[1fr_1.2fr_1.5fr] gap-2 mt-1">
+                                <div className="fleet-compact-row mt-1">
                                   <div className="fleet-compact-field">
-                                    <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">Seats</label>
-                                    <input className="hide-spinners w-8 bg-transparent border-none text-slate-900 dark:text-slate-100 text-[11px] font-extrabold outline-none text-right p-0" type="number" value={activeV.capacity} onChange={e=>updateV(activeV.id,"capacity",Number(e.target.value))} />
+                                    <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Seats</label>
+                                    <input className="hide-spinners w-8 bg-transparent border-none text-slate-900 dark:text-slate-100 text-[13px] font-extrabold outline-none text-right p-0" type="number" value={activeV.capacity} onChange={e=>updateV(activeV.id,"capacity",Number(e.target.value))} />
                                   </div>
                                   <div className="fleet-compact-field">
-                                    <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">Multiplier</label>
-                                    <input className="hide-spinners w-9 bg-transparent border-none text-slate-900 dark:text-slate-100 text-[11px] font-extrabold outline-none text-right p-0" type="number" step="0.1" value={activeV.commercialWeight ?? 1} onChange={e=>updateV(activeV.id,"commercialWeight",Number(e.target.value))} />
+                                    <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Mult.</label>
+                                    <input className="hide-spinners w-9 bg-transparent border-none text-slate-900 dark:text-slate-100 text-[13px] font-extrabold outline-none text-right p-0" type="number" step="0.1" value={activeV.commercialWeight ?? 1} onChange={e=>updateV(activeV.id,"commercialWeight",Number(e.target.value))} />
                                   </div>
                                   <div className="fleet-compact-field">
-                                    <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">RATE/{distanceUnitShort}</label>
-                                    <input aria-label="Commercial vehicle rate per kilometre" className="hide-spinners w-full bg-transparent border-none text-slate-900 dark:text-slate-100 text-[11px] font-extrabold outline-none text-right p-0 cursor-default" type="number" readOnly value={Number((((activeV.fuelPricePerLitre ?? gv?.fuelPricePerLitre ?? 1.52) / (activeV.fuelKpl || 1)) + ((activeV.maintenanceSetCost || 0) / (activeV.expectedMaintenanceLifeKm || 1)) + ((activeV.tyreSetCost || 0) / (activeV.expectedTyreLifeKm || 1))).toFixed(4))} title="Calculated automatically from variable costs" />
+                                    <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">RATE/{distanceUnitShort}</label>
+                                    <input aria-label="Commercial vehicle rate per kilometre" className="hide-spinners w-full bg-transparent border-none text-slate-900 dark:text-slate-100 text-[13px] font-extrabold outline-none text-right p-0 cursor-default" type="number" readOnly value={Number((((activeV.fuelPricePerLitre ?? gv?.fuelPricePerLitre ?? 1.52) / (activeV.fuelKpl || 1)) + ((activeV.maintenanceSetCost || 0) / (activeV.expectedMaintenanceLifeKm || 1)) + ((activeV.tyreSetCost || 0) / (activeV.expectedTyreLifeKm || 1))).toFixed(4))} title="Calculated automatically from variable costs" />
                                   </div>
                                 </div>
                             </div>
@@ -4296,7 +4351,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           </div>
                           
                           <div className="p-0 bg-white dark:bg-slate-800">
-                            <div className="fleet-cost-columns grid grid-cols-[1fr_120px_40px] gap-4 py-2.5 px-5 text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
+                            <div className="fleet-cost-columns grid grid-cols-[1fr_120px_40px] gap-4 py-2.5 px-5 text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
                                 <div>Standing Item</div>
                                 <div className="text-right">Baseline (Annual)</div>
                                 <div></div>
@@ -4312,7 +4367,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                   
                                   <div className="flex items-center justify-end gap-1">
                                       <span className="text-xs font-bold text-slate-400 dark:text-slate-500">£</span>
-                                      <input className="hide-spinners w-20 bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 text-[13px] font-extrabold text-right py-1" type="number" value={fc.amount} onChange={e => {
+                                      <input className="hide-spinners w-20 bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 text-[15px] font-extrabold text-right py-1" type="number" value={fc.amount} onChange={e => {
                                         const newFc = [...(activeV.annualFixedCosts||[])];
                                         newFc[idx] = { ...newFc[idx], amount: Number(e.target.value) };
                                         const sum = newFc.reduce((s, x) => s + (Number(x.amount)||0), 0);
@@ -4333,7 +4388,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           ))}
                           </div>
                           <div className="fleet-cost-total flex justify-between items-center py-4 px-5 bg-primary/5 dark:bg-primary/10">
-                              <span className="text-[10px] font-extrabold text-primary dark:text-primary-fixed uppercase tracking-wide">Gross Standing Total</span>
+                              <span className="text-[12px] font-extrabold text-primary dark:text-primary-fixed uppercase tracking-wide">Gross Standing Total</span>
                               <span className="text-lg font-black text-primary dark:text-primary-fixed">£{((activeV.annualFixedCosts||[]).reduce((s,x)=>s+(Number(x.amount)||0),0)).toLocaleString()}</span>
                           </div>
                         </div>
@@ -4342,26 +4397,29 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       {/* Variable Costs Grid (4-Column Compact Style) */}
                       <div onPointerDownCapture={() => recordFeatureUsage('fleetVariables')} className="fleet-variable-costs grid grid-cols-4 gap-3">
                           <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex flex-wrap items-center justify-between gap-y-1.5">
-                              <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Fuel Economy</div>
+                              <div className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Fuel Economy</div>
                               <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
+                              <div className="flex items-center shrink-0">
                               <div className="fleet-variable-value !w-auto flex items-center shrink-0">
-                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">£</span>
+                                <span className="text-[12px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">£</span>
                                 <input aria-label="Fuel price" className="variable-cost-input hide-spinners w-[26px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" step="0.01" value={activeV.fuelPricePerLitre ?? gv?.fuelPricePerLitre ?? 1.52} onChange={e=>updateV(activeV.id,"fuelPricePerLitre",Number(e.target.value))} />
-                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5 mr-0.5">/L</span>
+                                <span className="text-[12px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5 mr-0.5">/L</span>
                                 <div className="text-slate-300 dark:text-slate-600 font-light mx-0.5">/</div>
                                 <input aria-label="Fuel economy" className="variable-cost-input hide-spinners w-[26px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" step="0.1" value={activeV.fuelKpl ?? 5} onChange={e=>updateV(activeV.id,"fuelKpl",Number(e.target.value))} />
-                                <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{gv?.distanceUnit === 'miles' ? 'mpl' : 'kpl'}</span>
+                                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{gv?.distanceUnit === 'miles' ? 'mpl' : 'kpl'}</span>
                               </div>
-                              <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5 h-[36px]">
+                              <div className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5 h-[36px]">
                                   = £{((activeV.fuelPricePerLitre ?? gv?.fuelPricePerLitre ?? 1.52) / (activeV.fuelKpl || 1)).toFixed(3)}/{distanceUnitShort}
+                              </div>
                               </div>
                           </div>
 
                           <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex flex-wrap items-center justify-between gap-y-1.5">
-                              <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Maint. Lifecycle</div>
+                              <div className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Maint. Lifecycle</div>
                               <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
+                              <div className="flex items-center shrink-0">
                               <div className="fleet-variable-value !w-auto flex items-center shrink-0">
-                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">£</span>
+                                <span className="text-[12px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">£</span>
                                 <input aria-label="Maintenance set cost" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="0" value={activeV.maintenanceSetCost??0} onChange={e=>{
                                   const val = Number(e.target.value);
                                   setV(vs=>vs.map(v=>v.id===activeV.id?{...v, maintenanceSetCost: val, maintenanceCostPerKm: 0}:v));
@@ -4371,18 +4429,20 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                   const val = Number(e.target.value);
                                   setV(vs=>vs.map(v=>v.id===activeV.id?{...v, expectedMaintenanceLifeKm: val, maintenanceCostPerKm: 0}:v));
                                 }}/>
-                                <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{distanceUnitShort}</span>
+                                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{distanceUnitShort}</span>
                               </div>
-                              <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5 h-[36px]">
+                              <div className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5 h-[36px]">
                                   = £{((activeV.maintenanceSetCost || 0) / (activeV.expectedMaintenanceLifeKm || 1)).toFixed(3)}/{distanceUnitShort}
+                              </div>
                               </div>
                           </div>
 
                           <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex flex-wrap items-center justify-between gap-y-1.5">
-                              <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Tyre Lifecycle</div>
+                              <div className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Tyre Lifecycle</div>
                               <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
+                              <div className="flex items-center shrink-0">
                               <div className="fleet-variable-value !w-auto flex items-center shrink-0">
-                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">£</span>
+                                <span className="text-[12px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">£</span>
                                 <input aria-label="Tyre set cost" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="0" value={activeV.tyreSetCost??0} onChange={e=>{
                                   const val = Number(e.target.value);
                                   setV(vs=>vs.map(v=>v.id===activeV.id?{...v, tyreSetCost: val, tyreCostPerKm: 0}:v));
@@ -4392,32 +4452,35 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                   const val = Number(e.target.value);
                                   setV(vs=>vs.map(v=>v.id===activeV.id?{...v, expectedTyreLifeKm: val, tyreCostPerKm: 0}:v));
                                 }}/>
-                                <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{distanceUnitShort}</span>
+                                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{distanceUnitShort}</span>
                               </div>
-                              <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5 h-[36px]">
+                              <div className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5 h-[36px]">
                                   = £{((activeV.tyreSetCost || 0) / (activeV.expectedTyreLifeKm || 1)).toFixed(3)}/{distanceUnitShort}
+                              </div>
                               </div>
                           </div>
 
                           <div className="bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-3 shadow-sm flex flex-wrap items-center justify-between gap-y-1.5">
-                              <div className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Luggage Profit</div>
+                              <div className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Luggage Profit</div>
                               <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
+                              <div className="flex items-center shrink-0">
                               <div className="fleet-variable-value !w-auto flex items-center gap-1 shrink-0">
                                   <input aria-label="Luggage profit multiplier" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" step="0.05" value={activeV.extraLuggageProfitPct ?? 0.2} onChange={e=>updateV(activeV.id,"extraLuggageProfitPct",Number(e.target.value))} />
-                                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 pb-0.5">Mult.</span>
+                                  <span className="text-[12px] font-bold text-slate-500 dark:text-slate-400 pb-0.5">Mult.</span>
                               </div>
-                              <div className="text-[9px] font-bold text-slate-500 dark:text-slate-400 ml-1.5 whitespace-nowrap shrink-0 border-l border-slate-200 dark:border-slate-700 pl-1.5">Extra bag</div>
+                              <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 ml-1.5 whitespace-nowrap shrink-0 border-l border-slate-200 dark:border-slate-700 pl-1.5">Extra bag</div>
+                              </div>
                           </div>
                       </div>
 
                         {/* Revenue Projections / System Context Card */}
                       <div className="fleet-profitability bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-dashed border-slate-300 dark:border-slate-600 p-5 flex justify-between items-center shadow-sm">
                           <div className="fleet-profitability-copy">
-                             <div className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wide mb-1">Fleet Profitability & Revenue</div>
-                             <div className="text-[11px] text-slate-500 dark:text-slate-400">Calculations assume {activeV.utilisationDays} operating days at {(gv.marginWeekday ?? gv.profitMarginPct ?? 20)}% weekday margin</div>
+                             <div className="text-[13px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wide mb-1">Fleet Profitability & Revenue</div>
+                             <div className="text-[13px] text-slate-500 dark:text-slate-400">Calculations assume {activeV.utilisationDays} operating days at {(gv.marginWeekday ?? gv.profitMarginPct ?? 20)}% weekday margin</div>
                           </div>
                           <div className="text-right">
-                             <div className="text-[9px] font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide mb-0.5">Target Daily Revenue</div>
+                             <div className="text-[11px] font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide mb-0.5">Target Daily Revenue</div>
                              <div className="text-2xl font-black text-slate-900 dark:text-slate-100">£{(ecoV?.minHirePerDay * (1 + (gv.marginWeekday ?? gv.profitMarginPct ?? 20)/100)).toFixed(2) || "0.00"}</div>
                           </div>
                           <div className="fleet-profit-kpis">
@@ -4475,20 +4538,20 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   <div className="flex items-center gap-3 mb-4">
                     <div>
                       <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Company Details</h3>
-                      <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Legal and contact information</p>
+                      <p className="text-[12px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Legal and contact information</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-x-6 gap-y-4">
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Legal Entity Name</label>
+                      <label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Legal Entity Name</label>
                       <input type="text" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none focus:border-primary transition-colors" value={operatorDetails.companyName} onChange={e=>setOperatorDetails(x=>({...x,companyName:e.target.value}))} />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">PSV Operator Licence</label>
+                      <label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">PSV Operator Licence</label>
                       <input type="text" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none focus:border-primary transition-colors" value={operatorDetails.operatorLicence} onChange={e=>setOperatorDetails(x=>({...x,operatorLicence:e.target.value}))} />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Notification Email</label>
+                      <label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Notification Email</label>
                       <input type="email" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none focus:border-primary transition-colors" value={operatorDetails.notificationEmail} onChange={e=>setOperatorDetails(x=>({...x,notificationEmail:e.target.value}))} />
                     </div>
                   </div>
@@ -4497,7 +4560,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 {/* ── CARD 2: Operations (Col-span 4) ── */}
                 <div className="settings-operations col-span-12 lg:col-span-4 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
                   <div className="flex items-center gap-3 mb-4">
-                    <div><h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Depot Setup</h3><p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Location and mileage units</p></div>
+                    <div><h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Depot Setup</h3><p className="text-[12px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Location and mileage units</p></div>
                   </div>
                   <div className="space-y-3 mb-4 hidden">
                     {roadCharges.map(charge => (
@@ -4538,7 +4601,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   <button
                     type="button"
                     onClick={() => setRoadCharges(rows => [...rows, { key: makeRoadChargeKey("Custom charge", new Set(rows.map(row => row.key))), label: "Custom charge", color: "#64748B", amount: 0, locked: false }])}
-                    className="hidden mb-4 text-[11px] font-extrabold text-primary dark:text-primary-fixed hover:opacity-80 transition-opacity flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 w-max uppercase"
+                    className="hidden mb-4 text-[13px] font-extrabold text-primary dark:text-primary-fixed hover:opacity-80 transition-opacity flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 w-max uppercase"
                   >
                     <Plus size={13} />
                     Add Charge
@@ -4558,60 +4621,87 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   </div>
                 </div>
 
-                {/* ── CARD 3: Margins (Col-span 4) ── */}
-                <div className="settings-pricing col-span-12 lg:col-span-4 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div><h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Profit & Margin Controls</h3><p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Admin targets applied automatically to quotations</p></div>
+                {/* ── CARD 3a: Core Rates (Col-span 6) ── */}
+                <div className="settings-pricing col-span-12 lg:col-span-6 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/15 dark:text-primary-fixed"><CalendarDays size={15}/></div>
+                      <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Core Rates</h3>
+                    </div>
+                    <select aria-label="Vehicle quotation tier" value={vehicles.some(vehicle=>vehicle.id===selectedPricingVehicleId)?selectedPricingVehicleId:vehicles[0]?.id||''} onChange={event=>setSelectedPricingVehicleId(event.target.value)} className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-[13px] font-bold text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">{vehicles.map(vehicle=><option key={vehicle.id} value={vehicle.id}>{vehicle.name}</option>)}</select>
                   </div>
-                  <div className="mb-4 border-b border-slate-200 pb-4 dark:border-slate-700">
-                    <div className="flex flex-wrap items-end justify-between gap-2"><div><h4 className="text-xs font-extrabold text-slate-900 dark:text-slate-100">Vehicle quotation rates</h4><p className="mt-0.5 text-[10px] font-semibold text-slate-500 dark:text-slate-400">Fallback quotation settings</p></div><select aria-label="Vehicle quotation tier" value={vehicles.some(vehicle=>vehicle.id===selectedPricingVehicleId)?selectedPricingVehicleId:vehicles[0]?.id||''} onChange={event=>setSelectedPricingVehicleId(event.target.value)} className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-[11px] font-bold text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">{vehicles.map(vehicle=><option key={vehicle.id} value={vehicle.id}>{vehicle.name}</option>)}</select></div>
-                    {(()=>{const vehicle=vehicles.find(item=>item.id===selectedPricingVehicleId)||vehicles[0];if(!vehicle)return null;const autoMinHire=eco.vehicleBreakdown.find(v=>v.id===vehicle.id)?.minHirePerDay;return <div className="vehicle-quotation-grid mt-3 grid gap-2">
-                      <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50" title="Auto-calculated from standing cost + overhead per day. Update fleet economics to change it.">
-                        <span className="block text-[9px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">Minimum hire (auto)</span>
-                        <span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600">
-                          <span className="min-w-0 w-full text-right text-sm font-extrabold text-slate-900 dark:text-white">{(autoMinHire ?? vehicle.minimumHire ?? 0).toFixed(2)}</span>
-                          <span className="ml-1 whitespace-nowrap text-[9px] font-bold text-slate-400">£</span>
-                        </span>
-                      </div>
-                      {[
-                      ['sellingRateOneWay','One-way rate',`£/${distanceUnitShort}`,0.01],
-                      ['sellingRateReturn','Return rate',`£/${distanceUnitShort}`,0.01],
-                      ['includedKmOneWay','Included one-way',distanceUnitShort,1],
-                      ['includedKmReturn','Included return',distanceUnitShort,1]
-                    ].map(([field,label,suffix,step])=><label key={field} className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50"><span className="block text-[9px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">{label}</span><span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600"><input aria-label={`${vehicle.name} ${label}`} type="number" min="0" step={step} value={vehicle[field]??0} onChange={event=>updateV(vehicle.id,field,Math.max(0,Number(event.target.value)||0))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/><span className="ml-1 whitespace-nowrap text-[9px] font-bold text-slate-400">{suffix}</span></span></label>)}</div>})()}
-                  </div>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
-                      {[
-                        ['marginWeekday','Gross margin','Weekday',30,'%'],
-                        ['marginWeekend','Gross margin','Weekend',30,'%'],
-                        ['marginHoliday','Gross margin','Holiday',30,'%'],
-                        ['netMarginPct','Net margin','Minimum',5,'%'],
-                        ['netProfitTarget','Net profit','Minimum',0,'£']
-                      ].map(([key,label,context,fallback,suffix]) => (
-                        <label key={key} className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50">
-                          <span className="block text-[9px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">{label}</span>
-                          <span className="mt-0.5 block text-[9px] font-semibold text-slate-400 dark:text-slate-500">{context}</span>
-                          <span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600">
-                            {suffix === '£' && <span className="mr-1 text-[11px] font-bold text-slate-400">£</span>}
-                            <input aria-label={`${label} ${context}`} type="number" min={key === 'netMarginPct' ? 5 : 0} max={key === 'netProfitTarget' ? undefined : 95} step={key === 'netProfitTarget' ? 5 : 0.5} value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/>
-                            {suffix === '%' && <span className="ml-1 text-[10px] font-bold text-slate-400">%</span>}
-                          </span>
-                        </label>
-                      ))}
+                  {(()=>{const vehicle=vehicles.find(item=>item.id===selectedPricingVehicleId)||vehicles[0];if(!vehicle)return null;const autoMinHire=eco.vehicleBreakdown.find(v=>v.id===vehicle.id)?.minHirePerDay;return <div className="vehicle-quotation-grid grid gap-2">
+                    <div className="rounded-lg border border-slate-200 bg-slate-100/80 p-2.5 dark:border-slate-700 dark:bg-slate-900" title="Auto-calculated from standing cost + overhead per day. Update fleet economics to change it.">
+                      <span className="block min-h-[26px] text-[11px] font-extrabold uppercase tracking-wide text-slate-500 dark:text-slate-400">Minimum hire (auto)</span>
+                      <span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600">
+                        <span className="min-w-0 w-full text-right text-sm font-extrabold text-slate-600 dark:text-slate-300">{(autoMinHire ?? vehicle.minimumHire ?? 0).toFixed(2)}</span>
+                        <span className="ml-1 whitespace-nowrap text-[11px] font-bold text-slate-400">£</span>
+                      </span>
                     </div>
                     {[
-                      ['driverWageWeekday','Driver wage - weekday',18],
-                      ['driverWageWeekend','Driver wage - weekend',22],
-                      ['driverWageHoliday','Driver wage - holiday',25]
-                    ].map(([key,label,fallback]) => <div key={key} className="flex justify-between items-center pt-3 border-t border-outline-variant dark:border-[#1F2937]"><span className="text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span><div className="flex items-center gap-1"><span className="text-slate-500 dark:text-slate-400">£</span><input type="number" step="0.5" className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))}/><span className="text-[10px] text-slate-500 dark:text-slate-400">/hr</span></div></div>)}
+                    ['sellingRateOneWay','One-way rate',`£/${distanceUnitShort}`,0.01],
+                    ['sellingRateReturn','Return rate',`£/${distanceUnitShort}`,0.01],
+                    ['includedKmOneWay','Included one-way',distanceUnitShort,1],
+                    ['includedKmReturn','Included return',distanceUnitShort,1]
+                  ].map(([field,label,suffix,step])=><label key={field} className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50"><span className="block min-h-[26px] text-[11px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">{label}</span><span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600"><input aria-label={`${vehicle.name} ${label}`} type="number" min="0" step={step} value={vehicle[field]??0} onChange={event=>updateV(vehicle.id,field,Math.max(0,Number(event.target.value)||0))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/><span className="ml-1 whitespace-nowrap text-[11px] font-bold text-slate-400">{suffix}</span></span></label>)}</div>})()}
+                </div>
+
+                {/* ── CARD 3b: Margins & Profit (Col-span 6) ── */}
+                <div className="settings-margins col-span-12 lg:col-span-6 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/15 dark:text-primary-fixed"><Target size={15}/></div>
+                    <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Margins & Profit</h3>
+                  </div>
+                  <div className="vehicle-quotation-grid grid gap-2">
                     {[
-                      ['emptyLegThresholdKm','Empty-leg threshold',20,'km'],
-                      ['dualDriverThresholdHours','Daily driving limit',9,'hr'],
-                      ['waitingWageFactor','Waiting wage factor',0.75,'×'],
-                      ['customerRangePct','Customer range uplift',12,'%'],
-                      ['walkaroundCheckMinutes','Walkaround check (each way)',30,'min']
-                    ].map(([key,label,fallback,suffix]) => <div key={key} className="flex justify-between items-center pt-3 border-t border-outline-variant dark:border-[#1F2937]"><span className="text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span><div className="flex items-center gap-1"><input type="number" min="0" step={key==='waitingWageFactor'?0.05:1} className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))}/><span className="text-[10px] text-slate-500 dark:text-slate-400">{suffix}</span></div></div>)}
+                      ['marginWeekday','Gross margin','Weekday',30,'%'],
+                      ['marginWeekend','Gross margin','Weekend',30,'%'],
+                      ['marginHoliday','Gross margin','Holiday',30,'%'],
+                      ['netMarginPct','Net margin','Minimum',5,'%'],
+                      ['netProfitTarget','Net profit','Minimum',0,'£']
+                    ].map(([key,label,context,fallback,suffix]) => (
+                      <label key={key} className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50">
+                        <span className="block text-[11px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">{label}</span>
+                        <span className="mt-0.5 block text-[11px] font-semibold text-slate-400 dark:text-slate-500">{context}</span>
+                        <span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600">
+                          {suffix === '£' && <span className="mr-1 text-[13px] font-bold text-slate-400">£</span>}
+                          <input aria-label={`${label} ${context}`} type="number" min={key === 'netMarginPct' ? 5 : 0} max={key === 'netProfitTarget' ? undefined : 95} step={key === 'netProfitTarget' ? 5 : 0.5} value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/>
+                          {suffix === '%' && <span className="ml-1 text-[12px] font-bold text-slate-400">%</span>}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ── CARD 3c: Driver & Pricing Rules (Col-span 6) ── */}
+                <div className="settings-driver-rules col-span-12 lg:col-span-6 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/15 dark:text-primary-fixed"><SvgUser size={15}/></div>
+                    <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Driver & Pricing Rules</h3>
+                  </div>
+                  <div className="space-y-2">
+                    {[
+                      ['driverWageWeekday','Driver wage - weekday',18,SvgUser],
+                      ['driverWageWeekend','Driver wage - weekend',22,CalendarDays],
+                      ['driverWageHoliday','Driver wage - holiday',25,Sun]
+                    ].map(([key,label,fallback,Icon]) => (
+                      <div key={key} className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2 dark:border-slate-700 dark:bg-slate-900/50">
+                        <div className="flex min-w-0 items-center gap-2"><Icon size={14} className="shrink-0 text-slate-400 dark:text-slate-500" /><span className="truncate text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span></div>
+                        <div className="flex shrink-0 items-center gap-1"><span className="text-[13px] font-bold text-slate-400">£</span><input type="number" step="0.5" className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))}/><span className="text-[12px] font-bold text-slate-400">/hr</span></div>
+                      </div>
+                    ))}
+                    {[
+                      ['emptyLegThresholdKm','Empty-leg threshold',20,'km',MapPinned],
+                      ['dualDriverThresholdHours','Daily driving limit',9,'hr',SlidersHorizontal],
+                      ['waitingWageFactor','Waiting wage factor',0.75,'×',RefreshCw],
+                      ['customerRangePct','Customer range uplift',12,'%',TrendingUp],
+                      ['walkaroundCheckMinutes','Walkaround check (each way)',30,'min',Eye]
+                    ].map(([key,label,fallback,suffix,Icon]) => (
+                      <div key={key} className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2 dark:border-slate-700 dark:bg-slate-900/50">
+                        <div className="flex min-w-0 items-center gap-2"><Icon size={14} className="shrink-0 text-slate-400 dark:text-slate-500" /><span className="truncate text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span></div>
+                        <div className="flex shrink-0 items-center gap-1"><input type="number" min="0" step={key==='waitingWageFactor'?0.05:1} className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))}/><span className="text-[12px] font-bold text-slate-400">{suffix}</span></div>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -4627,7 +4717,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       <div className="absolute inset-0 bg-slate-100 dark:bg-slate-900" />
                     )}
                     <div className="relative z-10 p-4 pt-12 flex flex-col justify-end">
-                      <label className="block text-[10px] font-bold text-primary dark:text-primary-fixed uppercase tracking-wide mb-1.5 drop-shadow-sm">Depot / Yard Location</label>
+                      <label className="block text-[12px] font-bold text-primary dark:text-primary-fixed uppercase tracking-wide mb-1.5 drop-shadow-sm">Depot / Yard Location</label>
                       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg flex items-center w-full p-1.5 shadow-sm custom-places-auto">
                         <PlacesInput 
                           value={depotLoc.address} 
@@ -4641,9 +4731,10 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   </div>
                 </div>
 
-                {/* ── CARD 5: Tolls (Col-span 4) ── */}
-                <div className="settings-tolls col-span-12 lg:col-span-4 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
-                  <div className="flex items-center gap-3 mb-4">
+                {/* ── CARD 5: Tolls (Col-span 6) ── */}
+                <div className="settings-tolls col-span-12 lg:col-span-6 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/15 dark:text-primary-fixed"><MapPinned size={15}/></div>
                     <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Road & Zone Charges</h3>
                   </div>
                   <div className="space-y-3 hidden">
@@ -4665,39 +4756,54 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       </div>
                     ))}
                   </div>
-                  <div className="space-y-3 mb-4">
-                    {roadCharges.map(charge => (
-                      <div key={charge.key} className="flex items-center justify-between gap-3 pb-2.5 border-b border-outline-variant dark:border-[#1F2937] last:border-0 last:pb-0">
-                        <div className="flex min-w-0 flex-1 items-center gap-2">
-                          <div className="h-2 w-2 shrink-0 rounded-[2px]" style={{ backgroundColor: charge.color }} />
-                          <input
-                            type="text"
-                            value={charge.label}
-                            onChange={event => setRoadCharges(rows => rows.map(row => row.key === charge.key ? { ...row, label: event.target.value } : row))}
-                            className="min-w-0 flex-1 border-b border-transparent bg-transparent text-xs font-bold text-slate-900 outline-none focus:border-primary dark:text-slate-100"
-                            aria-label="Charge name"
-                          />
-                        </div>
-                        <div className="flex shrink-0 items-center gap-2">
-                          <div className="flex items-center gap-1">
-                            <span className="text-slate-500 dark:text-slate-400">£</span>
-                            <input
-                              type="number"
-                              step="0.5"
-                              value={charge.amount ?? 0}
-                              onChange={event => setRoadCharges(rows => rows.map(row => row.key === charge.key ? { ...row, amount: Number(event.target.value) } : row))}
-                              className="w-12 bg-transparent text-right text-xs outline-none focus:border-b focus:border-primary dark:text-white"
-                              aria-label={`${charge.label} amount`}
-                            />
-                          </div>
-                          <button type="button" onClick={() => setRoadCharges(rows => rows.filter(row => row.key !== charge.key))} className="admin-icon-action admin-icon-delete" title={`Remove ${charge.label}`} aria-label={`Remove ${charge.label}`}>
-                            <SvgTrash size={12} />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="overflow-x-auto">
+                    <table className="w-full min-w-[380px] border-collapse text-xs">
+                      <thead>
+                        <tr className="border-b border-slate-200 dark:border-slate-700">
+                          <th className="pb-2 text-left text-[11px] font-extrabold uppercase tracking-wide text-slate-400 dark:text-slate-500">Charge</th>
+                          <th className="pb-2 text-right text-[11px] font-extrabold uppercase tracking-wide text-slate-400 dark:text-slate-500">Amount</th>
+                          <th className="pb-2 pl-3 text-right text-[11px] font-extrabold uppercase tracking-wide text-slate-400 dark:text-slate-500">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {roadCharges.map(charge => (
+                          <tr key={charge.key} className="border-b border-outline-variant last:border-0 dark:border-[#1F2937]">
+                            <td className="py-2.5 pr-2">
+                              <div className="flex min-w-0 items-center gap-2">
+                                <div className="h-2 w-2 shrink-0 rounded-[2px]" style={{ backgroundColor: charge.color }} />
+                                <input
+                                  type="text"
+                                  value={charge.label}
+                                  onChange={event => setRoadCharges(rows => rows.map(row => row.key === charge.key ? { ...row, label: event.target.value } : row))}
+                                  className="min-w-0 flex-1 border-b border-transparent bg-transparent text-xs font-bold text-slate-900 outline-none focus:border-primary dark:text-slate-100"
+                                  aria-label="Charge name"
+                                />
+                              </div>
+                            </td>
+                            <td className="py-2.5">
+                              <div className="flex items-center justify-end gap-1">
+                                <span className="text-slate-500 dark:text-slate-400">£</span>
+                                <input
+                                  type="number"
+                                  step="0.5"
+                                  value={charge.amount ?? 0}
+                                  onChange={event => setRoadCharges(rows => rows.map(row => row.key === charge.key ? { ...row, amount: Number(event.target.value) } : row))}
+                                  className="w-14 bg-transparent text-right text-xs outline-none focus:border-b focus:border-primary dark:text-white"
+                                  aria-label={`${charge.label} amount`}
+                                />
+                              </div>
+                            </td>
+                            <td className="py-2.5 pl-3 text-right">
+                              <button type="button" onClick={() => setRoadCharges(rows => rows.filter(row => row.key !== charge.key))} className="admin-icon-action admin-icon-delete" title={`Remove ${charge.label}`} aria-label={`Remove ${charge.label}`}>
+                                <SvgTrash size={12} />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                  <button type="button" onClick={() => setRoadCharges(rows => [...rows, { key: makeRoadChargeKey("Custom charge", new Set(rows.map(row => row.key))), label: "Custom charge", color: "#64748B", amount: 0, locked: false }])} className="flex w-max items-center gap-1 rounded-lg border border-slate-200 bg-slate-100 px-3 py-1.5 text-[11px] font-extrabold uppercase text-primary transition-opacity hover:opacity-80 dark:border-slate-700 dark:bg-slate-800 dark:text-primary-fixed">
+                  <button type="button" onClick={() => setRoadCharges(rows => [...rows, { key: makeRoadChargeKey("Custom charge", new Set(rows.map(row => row.key))), label: "Custom charge", color: "#64748B", amount: 0, locked: false }])} className="mt-4 flex w-max items-center gap-1 rounded-lg border border-slate-200 bg-slate-100 px-3 py-1.5 text-[13px] font-extrabold uppercase text-primary transition-opacity hover:opacity-80 dark:border-slate-700 dark:bg-slate-800 dark:text-primary-fixed">
                     <Plus size={13} /> Add Charge
                   </button>
                 </div>
@@ -4708,11 +4814,11 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     <div className="flex items-center gap-3">
                       <div>
                         <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Company Annual Overheads</h3>
-                        <p className="text-[10px] text-on-surface-variant dark:text-[#9CA3AF] mt-0.5">Aggregated and divided across fleet units.</p>
+                        <p className="text-[12px] text-on-surface-variant dark:text-[#9CA3AF] mt-0.5">Aggregated and divided across fleet units.</p>
                       </div>
                     </div>
                     <div className="text-right bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3 border border-slate-200 dark:border-slate-700">
-                      <span className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-0.5">Total Fleet Overheads</span>
+                      <span className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-0.5">Total Fleet Overheads</span>
                       <span className="text-lg font-black text-primary dark:text-primary-fixed leading-none">£{totalOverheads.toLocaleString()}</span>
                     </div>
                   </div>
@@ -4720,10 +4826,10 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
                     {overheads.map((oh, index) => (
                       <div key={oh.id} className="flex gap-2 items-center bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg p-2 group">
-                        <div className="w-6 h-6 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center text-[10px] font-extrabold shrink-0">{index + 1}</div>
+                        <div className="w-6 h-6 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center text-[12px] font-extrabold shrink-0">{index + 1}</div>
                         <input type="text" className="flex-1 bg-transparent text-xs outline-none border-b border-transparent focus:border-primary text-slate-900 dark:text-slate-100 font-bold" placeholder="Cost Name" value={oh.label} onChange={e => setOH(os => os.map(x => x.id === oh.id ? {...x, label: e.target.value} : x))} />
                         <div className="flex items-center bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 px-2 py-1 shrink-0">
-                          <span className="text-slate-500 dark:text-slate-400 text-[10px] font-bold mr-1">£</span>
+                          <span className="text-slate-500 dark:text-slate-400 text-[12px] font-bold mr-1">£</span>
                           <input type="number" className="w-16 bg-transparent text-xs font-bold outline-none text-right text-slate-900 dark:text-slate-100" value={oh.cost} onChange={e => setOH(os => os.map(x => x.id === oh.id ? {...x, cost: Number(e.target.value)} : x))} />
                         </div>
                         <button type="button" onClick={() => setOH(os => os.filter(x => x.id !== oh.id))} className="admin-icon-action admin-icon-delete shrink-0" title="Remove overhead" aria-label="Remove overhead">
@@ -4733,7 +4839,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     ))}
                   </div>
 
-                  <button onClick={() => setOH(os => [...os, {id: Date.now(), label:"New Overhead Item", cost:0}])} className="text-[11px] font-extrabold text-primary dark:text-primary-fixed hover:opacity-80 transition-opacity flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 w-max uppercase">
+                  <button onClick={() => setOH(os => [...os, {id: Date.now(), label:"New Overhead Item", cost:0}])} className="text-[13px] font-extrabold text-primary dark:text-primary-fixed hover:opacity-80 transition-opacity flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 w-max uppercase">
                     <Plus size={13}/> Add Overhead Item
                   </button>
 
@@ -4784,7 +4890,7 @@ function FleetEconomicsPanel({ eco, darkMode }) {
       {/* Per-vehicle breakdown table */}
       <div style={{ border: `1.5px solid ${darkMode ? "#374151" : PX.gray200}`,borderRadius:12,overflow:"hidden" }}>
         <div style={{ display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1fr 1fr 1.2fr",gap:0,
-          background: darkMode ? "#111827" : PX.gray50,padding:"12px 14px",fontSize:11,fontWeight:800,
+          background: darkMode ? "#111827" : PX.gray50,padding:"12px 14px",fontSize:13,fontWeight:800,
           color: darkMode ? "#9ca3af" : PX.gray600,textTransform:"uppercase",letterSpacing:.4 }}>
           <span>Vehicle tier</span>
           <span style={{ textTransform:"uppercase", textAlign:"center" }}>Units</span>
@@ -4799,22 +4905,22 @@ function FleetEconomicsPanel({ eco, darkMode }) {
             <div style={{ display:"flex",alignItems:"center",gap:8 }}>
               <span style={{ width:10,height:10,borderRadius:"50%",background:COLORS[i%4],display:"inline-block",flexShrink:0 }}/>
               <div>
-                <div style={{ fontSize:13,fontWeight:700,color: darkMode ? "#f3f4f6" : PX.navy800 }}>
+                <div style={{ fontSize:15,fontWeight:700,color: darkMode ? "#f3f4f6" : PX.navy800 }}>
                   {v.emoji === "minibus" ? <SvgMinibus size={18} style={{ marginRight: 6 }} /> : v.emoji === "coach" ? <SvgCoach size={18} style={{ marginRight: 6 }} /> : <SvgBus size={18} style={{ marginRight: 6 }} />}
                   {v.name}
                 </div>
-                <div style={{ fontSize:11,color: darkMode ? "#6b7280" : PX.gray400,fontWeight:600, marginLeft: 24 }}>{v.utilDays} days · {v.utilRate}% utilisation</div>
+                <div style={{ fontSize:13,color: darkMode ? "#6b7280" : PX.gray400,fontWeight:600, marginLeft: 24 }}>{v.utilDays} days · {v.utilRate}% utilisation</div>
               </div>
             </div>
             <div style={{ textAlign:"center" }}>
-              <span style={{ fontSize:12,fontWeight:800,color: darkMode ? "#f3f4f6" : PX.navy800,
+              <span style={{ fontSize:14,fontWeight:800,color: darkMode ? "#f3f4f6" : PX.navy800,
                 background:PX.gray100,padding:"4px 10px",borderRadius:6 }}>{v.count}</span>
             </div>
-            <div style={{ textAlign:"right",fontSize:13,color: darkMode ? "#9ca3af" : PX.gray600,fontWeight:600 }}>{fmtK(v.annualFixed)}</div>
-            <div style={{ textAlign:"right",fontSize:13,fontWeight:700,color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{v.dailyStanding.toFixed(2)}</div>
-            <div style={{ textAlign:"right",fontSize:13,color:"#5b21b6",fontWeight:600 }}>£{v.dailyOverhead.toFixed(2)}</div>
+            <div style={{ textAlign:"right",fontSize:15,color: darkMode ? "#9ca3af" : PX.gray600,fontWeight:600 }}>{fmtK(v.annualFixed)}</div>
+            <div style={{ textAlign:"right",fontSize:15,fontWeight:700,color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{v.dailyStanding.toFixed(2)}</div>
+            <div style={{ textAlign:"right",fontSize:15,color:"#5b21b6",fontWeight:600 }}>£{v.dailyOverhead.toFixed(2)}</div>
             <div style={{ textAlign:"right" }}>
-              <span style={{ fontSize:15,fontWeight:800,color:PX.amber500 }}>£{v.minHirePerDay.toFixed(2)}</span>
+              <span style={{ fontSize:17,fontWeight:800,color:PX.amber500 }}>£{v.minHirePerDay.toFixed(2)}</span>
             </div>
           </div>
         ))}
@@ -4828,27 +4934,27 @@ function FleetEconomicsPanel({ eco, darkMode }) {
           ["Total fleet units",`${eco.totalFleetUnits}`,`across ${eco.vehicleBreakdown.length} tiers`,PX.gray50,PX.gray200,PX.navy800,PX.gray400],
         ].map(([l,v,sub,bg,br,tc,sc])=>(
           <div key={l} style={{ background:bg,border:`1.5px solid ${br}`,borderRadius:9,padding:"14px" }}>
-            <div style={{ fontSize:10,color:sc,fontWeight:800,textTransform:"uppercase",letterSpacing:.4,marginBottom:4 }}>{l}</div>
-            <div style={{ fontSize:18,fontWeight:800,color:tc }}>{v}</div>
-            <div style={{ fontSize:11,color:sc,marginTop:2,fontWeight:500 }}>{sub}</div>
+            <div style={{ fontSize:12,color:sc,fontWeight:800,textTransform:"uppercase",letterSpacing:.4,marginBottom:4 }}>{l}</div>
+            <div style={{ fontSize:20,fontWeight:800,color:tc }}>{v}</div>
+            <div style={{ fontSize:13,color:sc,marginTop:2,fontWeight:500 }}>{sub}</div>
           </div>
         ))}
       </div>
 
       <div style={{ background:`linear-gradient(135deg,${PX.navy800},${PX.navy700})`,borderRadius:12,padding:"1.25rem 1.5rem" }}>
-        <div style={{ fontSize:11,color:"#7baed4",fontWeight:800,textTransform:"uppercase",letterSpacing:.5,marginBottom:"1rem" }}>
+        <div style={{ fontSize:13,color:"#7baed4",fontWeight:800,textTransform:"uppercase",letterSpacing:.5,marginBottom:"1rem" }}>
           Calculated Standing Min Hire Charge / Day
         </div>
         <div style={{ display:"flex",gap:12,flexWrap:"wrap",marginBottom:"1rem" }}>
           {eco.vehicleBreakdown.map(v=>(
             <div key={v.id} style={{ flex:1,minWidth:135,background:"rgba(255,255,255,.08)",
               borderRadius:9,padding:"10px 14px",textAlign:"center" }}>
-              <div style={{ fontSize:18,marginBottom:4 }}>
+              <div style={{ fontSize:20,marginBottom:4 }}>
                 {v.emoji === "minibus" ? <SvgMinibus size={22} color="#fff" /> : v.emoji === "coach" ? <SvgCoach size={22} color="#fff" /> : <SvgBus size={22} color="#fff" />}
               </div>
-              <div style={{ fontSize:11,color:"#7baed4",marginBottom:6,fontWeight:600 }}>{v.name}</div>
-              <div style={{ fontSize:20,fontWeight:800,color:PX.amber400 }}>£{v.minHirePerDay.toFixed(2)}</div>
-              <div style={{ fontSize:10,color:"rgba(255,255,255,.35)",marginTop:4 }}>
+              <div style={{ fontSize:13,color:"#7baed4",marginBottom:6,fontWeight:600 }}>{v.name}</div>
+              <div style={{ fontSize:22,fontWeight:800,color:PX.amber400 }}>£{v.minHirePerDay.toFixed(2)}</div>
+              <div style={{ fontSize:12,color:"rgba(255,255,255,.35)",marginTop:4 }}>
                 £{v.dailyStanding.toFixed(2)} + £{v.dailyOverhead.toFixed(2)}
               </div>
             </div>
@@ -4856,10 +4962,10 @@ function FleetEconomicsPanel({ eco, darkMode }) {
         </div>
         <div style={{ height:1,background:"rgba(255,255,255,.12)",marginBottom:"0.75rem" }}/>
         <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8 }}>
-          <div style={{ fontSize:12,color:"rgba(255,255,255,.6)" }}>
+          <div style={{ fontSize:14,color:"rgba(255,255,255,.6)" }}>
             Total Annual Operating Standing Fleet Cost: <strong style={{ color:"#fff" }}>{fmtK(eco.grandTotal)}</strong>
           </div>
-          <div style={{ fontSize:11,color:"#7baed4",fontWeight:600 }}>
+          <div style={{ fontSize:13,color:"#7baed4",fontWeight:600 }}>
             Allocated Overhead: {fmtK(eco.overheadPerUnit)}/unit/yr · {eco.totalFleetUnits} units
           </div>
         </div>
@@ -4879,7 +4985,9 @@ export default function AdminApp() {
   });
   const [adminUser, setAdminUser] = useState(null);
   const [backendStatus, setBackendStatus] = useState<'connecting' | 'online' | 'offline'>('connecting');
-  const [authRequired, setAuthRequired] = useState(false);
+  const [authRequired, setAuthRequired] = useState(() => {
+    return true;
+  });
   const [authVersion, setAuthVersion] = useState(0);
   const backendStatusRef = useRef<'connecting' | 'online' | 'offline'>('connecting');
   const mapsLoaded = useGoogleMaps(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "");
@@ -4916,7 +5024,7 @@ export default function AdminApp() {
     let requestRunning = false;
 
     const checkBackend = async () => {
-      if (authRequired) return;
+      if (authRequired && !window.localStorage.getItem(ADMIN_TOKEN_KEY)) return;
       if (requestRunning) return;
       requestRunning = true;
       const controller = new AbortController();

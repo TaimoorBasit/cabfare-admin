@@ -131,7 +131,7 @@ input, select, textarea {
   padding: 5px 10px;
   border-radius: 7px;
   color: #64748b;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 650;
   transition: color .15s ease, background .15s ease, box-shadow .15s ease;
 }
@@ -172,10 +172,10 @@ input, select, textarea {
 .admin-search-results button span:nth-child(2) { min-width: 0; }
 .admin-search-results strong,
 .admin-search-results small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.admin-search-results strong { color: #1e293b; font-size: 12px; font-weight: 750; line-height: 16px; }
-.admin-search-results small { margin-top: 1px; color: #7b899a; font-size: 10px; line-height: 14px; }
-.admin-search-arrow { color: #94a3b8; font-size: 17px; }
-.admin-search-empty { padding: 15px 12px; color: #7b899a; font-size: 12px; text-align: center; }
+.admin-search-results strong { color: #1e293b; font-size: 14px; font-weight: 750; line-height: 16px; }
+.admin-search-results small { margin-top: 1px; color: #7b899a; font-size: 12px; line-height: 14px; }
+.admin-search-arrow { color: #94a3b8; font-size: 19px; }
+.admin-search-empty { padding: 15px 12px; color: #7b899a; font-size: 14px; text-align: center; }
 .dark .admin-search-results { border-color: #334155; background: #182230; box-shadow: 0 16px 36px rgba(0, 0, 0, .34); }
 .dark .admin-search-results button { color: #94a3b8; }
 .dark .admin-search-results button:hover,
@@ -300,7 +300,7 @@ input, select, textarea {
 
 .adm-root .adm-main-content > div:first-child h1 {
   font-family: Geist, sans-serif !important;
-  font-size: 20px !important;
+  font-size: 22px !important;
   font-weight: 600 !important;
   color: var(--aurelian-ink) !important;
 }
@@ -330,12 +330,12 @@ input, select, textarea {
   border: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
-  font-size: 14px;
+  font-size: 16px;
 }
-.aurelian-quick-links { display: flex; gap: 24px; color: var(--aurelian-muted); font-size: 14px; }
+.aurelian-quick-links { display: flex; gap: 24px; color: var(--aurelian-muted); font-size: 16px; }
 .aurelian-quick-links button { border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; padding: 0; }
 .aurelian-quick-links button:hover { color: var(--aurelian-gold); }
-.aurelian-utility { color: var(--aurelian-muted); font-size: 20px; }
+.aurelian-utility { color: var(--aurelian-muted); font-size: 22px; }
 .aurelian-utility { border: 0; background: transparent; cursor: pointer; }
 .aurelian-context-label { color: var(--aurelian-muted); font: 600 11px/1 Geist, sans-serif; letter-spacing: .12em; }
 .aurelian-page-frame { max-width: 1440px; margin: 0 auto; width: 100%; }
@@ -361,7 +361,7 @@ input, select, textarea {
 .aurelian-fleet-layout > .adm-section { background: #fff; }
 .aurelian-fleet-layout > .adm-section { display: block !important; width: 100%; min-width: 0; }
 .aurelian-fleet-layout details summary { font-family: Geist, sans-serif !important; letter-spacing: .02em; }
-.aurelian-fleet-layout .adm-section-head h2 { font-size: 20px !important; }
+.aurelian-fleet-layout .adm-section-head h2 { font-size: 22px !important; }
 .fleet-reference-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .fleet-reference-card { display: grid; grid-template-columns: 48px 1fr; gap: 10px 12px; padding: 16px; background: #fff; border: 1px solid var(--aurelian-border); border-radius: 14px; cursor: pointer; transition: border-color .2s, box-shadow .2s; }
 .fleet-reference-card:hover, .fleet-reference-card.is-active { border-color: var(--aurelian-gold); box-shadow: 0 3px 12px rgb(162 45 58 / 10%); }
@@ -404,7 +404,7 @@ input, select, textarea {
 .aurelian-settings-layout > .adm-section:first-child { grid-column: 1; }
 .aurelian-settings-layout > .adm-section:nth-child(2) { grid-column: 1; }
 .aurelian-settings-layout > .adm-section:nth-child(3) { grid-column: 2; grid-row: 1 / span 2; }
-.aurelian-settings-layout .adm-section-head h2 { font-size: 20px !important; }
+.aurelian-settings-layout .adm-section-head h2 { font-size: 22px !important; }
 
 .adm-root .adm-main-content > div:last-child {
   background: var(--aurelian-surface) !important;
@@ -461,7 +461,7 @@ input, select, textarea {
 .quotations-table th:nth-child(5), .quotations-table td:nth-child(5) { width: 11%; padding-right: 18px !important; }
 .quotations-table th:nth-child(2) { padding-left: 14px !important; }
 .quotations-table th:nth-child(5), .quotations-table td:nth-child(5) { text-align: right; }
-.quotations-table td:nth-child(1) { font-size: 13px !important; font-weight: 800 !important; letter-spacing: .25px; }
+.quotations-table td:nth-child(1) { font-size: 15px !important; font-weight: 800 !important; letter-spacing: .25px; }
 .quotations-table tbody tr { border-bottom: 1px solid rgba(148,163,184,.14); }
 .quotations-table tbody tr:hover { background: rgba(59,130,246,.06) !important; }
 
@@ -485,19 +485,19 @@ input, select, textarea {
   border-radius: 7px !important;
   background: #fff !important;
   color: #14243a !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   line-height: 20px !important;
 }
 .quotation-fare-filter { display: grid; grid-template-columns: auto minmax(70px,1fr) auto minmax(70px,1fr); align-items: center; gap: 7px; }
-.quotation-fare-filter span { color: #52657c; font-size: 12px; line-height: 18px; font-weight: 700; white-space: nowrap; }
+.quotation-fare-filter span { color: #52657c; font-size: 14px; line-height: 18px; font-weight: 700; white-space: nowrap; }
 .quotation-fare-filter i { color: #91a0b2; font-style: normal; }
-.quotation-filters > button { height: 34px; min-height: 34px; padding: 6px 11px; border: 1px solid #d5dde7; border-radius: 7px; background: #fff; color: #52657c; font-size: 12px; font-weight: 700; }
+.quotation-filters > button { height: 34px; min-height: 34px; padding: 6px 11px; border: 1px solid #d5dde7; border-radius: 7px; background: #fff; color: #52657c; font-size: 14px; font-weight: 700; }
 .quotations-table thead th { height: 40px; background: #f4f6f9 !important; color: #52657c !important; border-bottom: 1px solid #dce3eb; }
 .quotations-table tbody tr { height: 64px; background: #fff; }
 .quotations-table tbody td { color: #1a2d45; }
 .quotations-table tbody td:nth-child(2) > div > div:first-child { flex: 0 0 32px; }
 .quotations-table tbody td:nth-child(3) > div:first-child { max-width: none !important; }
-.quotation-results-footer { padding: 12px 18px; border-top: 1px solid #e3e8ef; color: #607187; font-size: 12px; line-height: 18px; font-weight: 600; background: #fafbfd; }
+.quotation-results-footer { padding: 12px 18px; border-top: 1px solid #e3e8ef; color: #607187; font-size: 14px; line-height: 18px; font-weight: 600; background: #fafbfd; }
 .dark .quotation-filters { background: #0f172a !important; border-color: #334155 !important; }
 .dark .quotation-filters > input,
 .dark .quotation-fare-filter input,
@@ -522,7 +522,7 @@ input, select, textarea {
   padding: 0 18px !important;
   background: #f6f8fb !important;
   color: #52657c !important;
-  font-size: 11px !important;
+  font-size: 13px !important;
   font-weight: 750 !important;
   letter-spacing: .055em !important;
   border-top: 1px solid #e0e6ed;
@@ -542,10 +542,10 @@ input, select, textarea {
 .admin-premium-shell .quotations-table tbody tr:hover td { background: #f8fafc !important; }
 .admin-premium-shell .quotations-table tbody tr[style*="rgb(241, 245, 249)"] td,
 .admin-premium-shell .quotations-table tbody tr[style*="#f1f5f9"] td { background: #f3f6fa !important; }
-.quotation-ref { color: #b33143 !important; font-size: 12px !important; letter-spacing: .01em !important; white-space: nowrap; }
-.quotation-avatar { flex: 0 0 34px !important; width: 34px !important; height: 34px !important; background: #e9eef4 !important; color: #52657c !important; font-size: 12px !important; text-transform: uppercase; }
-.quotation-fleet span { display: inline-flex; min-height: 28px; align-items: center; padding: 4px 9px; border: 1px solid #dce3eb; border-radius: 7px; background: #f7f9fc; color: #40556d; font-size: 12px; font-weight: 650; white-space: nowrap; }
-.quotation-fare { color: #14243a !important; font-size: 13px !important; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.quotation-ref { color: #b33143 !important; font-size: 14px !important; letter-spacing: .01em !important; white-space: nowrap; }
+.quotation-avatar { flex: 0 0 34px !important; width: 34px !important; height: 34px !important; background: #e9eef4 !important; color: #52657c !important; font-size: 14px !important; text-transform: uppercase; }
+.quotation-fleet span { display: inline-flex; min-height: 28px; align-items: center; padding: 4px 9px; border: 1px solid #dce3eb; border-radius: 7px; background: #f7f9fc; color: #40556d; font-size: 14px; font-weight: 650; white-space: nowrap; }
+.quotation-fare { color: #14243a !important; font-size: 15px !important; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .quotation-results-footer { min-height: 44px; display: flex; align-items: center; padding: 0 18px; background: #f8fafc; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; }
 .dark .admin-premium-shell .quotations-table th { background: #172033 !important; color: #b6c2d1 !important; border-color: #334155; }
 .dark .admin-premium-shell .quotations-table td { background: #111827; border-color: #253247; }
@@ -557,7 +557,7 @@ input, select, textarea {
 /* Ref IDs need stronger emphasis without changing the rest of the table. */
 .admin-premium-shell .quotations-table td.quotation-ref {
   color: #ad2f40 !important;
-  font-size: 13px !important;
+  font-size: 15px !important;
   font-weight: 900 !important;
   letter-spacing: .015em !important;
 }
@@ -566,7 +566,7 @@ input, select, textarea {
 /* Settings hub layout */
 .settings-page { padding: 22px !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; background: #f4f6f9 !important; }
 .settings-page > div:first-of-type { margin-bottom: 18px !important; padding-bottom: 0 !important; border-bottom: 0 !important; }
-.settings-page > div:first-of-type h2 { font-size: 24px !important; line-height: 32px !important; letter-spacing: .035em !important; }
+.settings-page > div:first-of-type h2 { font-size: 26px !important; line-height: 32px !important; letter-spacing: .035em !important; }
 .settings-layout { grid-template-columns: repeat(12,minmax(0,1fr)) !important; align-items: stretch; }
 .settings-layout > div,
 .settings-system-rail > div { border: 1px solid #dce3eb !important; border-radius: 12px !important; background: #fff !important; box-shadow: 0 4px 14px rgba(28,43,61,.04) !important; }
@@ -578,20 +578,20 @@ input, select, textarea {
 .settings-overheads { grid-column: 1 / 10 !important; grid-row: 3 !important; }
 .settings-system-rail { grid-column: 10 / 13; grid-row: 1 / 4; display: flex; flex-direction: column; gap: 16px; }
 .settings-system-rail > div { padding: 16px; }
-.settings-system-rail h3 { margin: 0; color: #14243a; font-size: 12px !important; line-height: 18px !important; font-weight: 800; text-transform: uppercase; letter-spacing: .045em; }
-.settings-system-rail > div:first-child > p { margin: 3px 0 13px; color: #65768b; font-size: 11px !important; line-height: 16px !important; }
+.settings-system-rail h3 { margin: 0; color: #14243a; font-size: 14px !important; line-height: 18px !important; font-weight: 800; text-transform: uppercase; letter-spacing: .045em; }
+.settings-system-rail > div:first-child > p { margin: 3px 0 13px; color: #65768b; font-size: 13px !important; line-height: 16px !important; }
 .settings-system-rail section { padding: 12px; border: 1px solid #e0e6ed; border-radius: 10px; background: #fbfcfe; }
-.settings-rail-title { display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid #e3e8ef; color: #344960; font-size: 11px; text-transform: uppercase; }
-.settings-rail-title span { padding: 3px 7px; border-radius: 999px; background: #dff6e9; color: #16804f; font-size: 10px; font-weight: 800; }
+.settings-rail-title { display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid #e3e8ef; color: #344960; font-size: 13px; text-transform: uppercase; }
+.settings-rail-title span { padding: 3px 7px; border-radius: 999px; background: #dff6e9; color: #16804f; font-size: 12px; font-weight: 800; }
 .settings-system-rail dl { display: flex; flex-direction: column; gap: 9px; margin: 12px 0 0; }
-.settings-system-rail dl div { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; }.settings-system-rail dt { color: #607187; }.settings-system-rail dd { margin: 0; color: #14243a; font-weight: 750; }
+.settings-system-rail dl div { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }.settings-system-rail dt { color: #607187; }.settings-system-rail dd { margin: 0; color: #14243a; font-weight: 750; }
 .settings-system-rail > div:nth-child(2) { display: flex; flex-direction: column; gap: 9px; }
 .settings-system-rail > div:nth-child(2) h3 { margin-bottom: 3px; }
-.settings-system-rail button { width: 100%; min-height: 36px; padding: 7px 10px; border: 1px solid #dce3eb; border-radius: 7px; background: #f8fafc; color: #263d56; font-size: 11px; font-weight: 700; }
+.settings-system-rail button { width: 100%; min-height: 36px; padding: 7px 10px; border: 1px solid #dce3eb; border-radius: 7px; background: #f8fafc; color: #263d56; font-size: 13px; font-weight: 700; }
 .settings-system-rail button:hover { background: #eef2f6; border-color: #c7d2df; }
-.settings-health { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 9px; }.settings-health strong { color: #14243a; font-size: 25px; line-height: 29px; }.settings-health span { color: #159557; font-size: 11px; }
+.settings-health { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 9px; }.settings-health strong { color: #14243a; font-size: 27px; line-height: 29px; }.settings-health span { color: #159557; font-size: 13px; }
 .settings-health-track { height: 6px; margin-top: 8px; border-radius: 99px; background: #e3e8ef; overflow: hidden; }.settings-health-track i { display: block; width: 95%; height: 100%; border-radius: inherit; background: #13a05d; }
-.settings-system-rail ul { display: flex; flex-direction: column; gap: 12px; margin: 14px 0; padding: 0; list-style: none; }.settings-system-rail li { display: flex; justify-content: space-between; gap: 8px; color: #263d56; font-size: 11px; font-weight: 650; }.settings-system-rail time { color: #7a899b; font-weight: 500; white-space: nowrap; }
+.settings-system-rail ul { display: flex; flex-direction: column; gap: 12px; margin: 14px 0; padding: 0; list-style: none; }.settings-system-rail li { display: flex; justify-content: space-between; gap: 8px; color: #263d56; font-size: 13px; font-weight: 650; }.settings-system-rail time { color: #7a899b; font-weight: 500; white-space: nowrap; }
 .settings-page input:not([type="range"]), .settings-page select { min-height: 36px; }
 .settings-geo > div:last-child { min-height: 190px !important; }
 .dark .settings-page { background: #101722 !important; }.dark .settings-layout > div, .dark .settings-system-rail > div { background: #111827 !important; border-color: #334155 !important; }.dark .settings-system-rail section, .dark .settings-system-rail button { background: #182337 !important; border-color: #405069 !important; }.dark .settings-system-rail h3, .dark .settings-system-rail dd, .dark .settings-health strong { color: #f1f5f9 !important; }.dark .settings-system-rail dt, .dark .settings-system-rail li { color: #b6c2d1; }
@@ -637,21 +637,21 @@ input, select, textarea {
 .settings-dialog { width: min(460px,100%); overflow: hidden; border: 1px solid #d8e0e9; border-radius: 14px; background: #fff; box-shadow: 0 24px 70px rgba(8,18,32,.24); animation: settingsDialogIn .16s ease-out; }
 @keyframes settingsDialogIn { from { opacity: 0; transform: translateY(8px) scale(.985); } to { opacity: 1; transform: none; } }
 .settings-dialog header { display: flex; justify-content: space-between; gap: 16px; padding: 20px 22px 16px; border-bottom: 1px solid #e2e8ef; }
-.settings-dialog header h2 { margin: 0; color: #14243a; font-size: 19px !important; line-height: 25px !important; font-weight: 800; }.settings-dialog header p { margin: 3px 0 0; color: #65768b; font-size: 12px !important; line-height: 18px !important; }
-.settings-dialog header button { display: grid; flex: 0 0 32px; width: 32px; height: 32px; min-height: 32px !important; padding: 0 !important; place-items: center; border-radius: 7px; background: #f0f3f7; color: #52657c; font-size: 20px !important; }
-.settings-dialog-list { padding: 8px 22px; }.settings-dialog-list > div { display: flex; justify-content: space-between; gap: 20px; padding: 12px 0; border-bottom: 1px solid #edf0f4; }.settings-dialog-list > div:last-child { border-bottom: 0; }.settings-dialog-list span { color: #52657c; font-size: 13px; }.settings-dialog-list strong { color: #14243a; font-size: 13px; font-weight: 750; text-align: right; }
-.settings-dialog footer { display: flex; justify-content: flex-end; padding: 14px 22px 18px; border-top: 1px solid #e2e8ef; }.settings-dialog footer button { min-width: 88px; min-height: 36px; padding: 8px 16px; border-radius: 7px; background: #a73746; color: #fff; font-size: 12px; font-weight: 750; }
+.settings-dialog header h2 { margin: 0; color: #14243a; font-size: 21px !important; line-height: 25px !important; font-weight: 800; }.settings-dialog header p { margin: 3px 0 0; color: #65768b; font-size: 14px !important; line-height: 18px !important; }
+.settings-dialog header button { display: grid; flex: 0 0 32px; width: 32px; height: 32px; min-height: 32px !important; padding: 0 !important; place-items: center; border-radius: 7px; background: #f0f3f7; color: #52657c; font-size: 22px !important; }
+.settings-dialog-list { padding: 8px 22px; }.settings-dialog-list > div { display: flex; justify-content: space-between; gap: 20px; padding: 12px 0; border-bottom: 1px solid #edf0f4; }.settings-dialog-list > div:last-child { border-bottom: 0; }.settings-dialog-list span { color: #52657c; font-size: 15px; }.settings-dialog-list strong { color: #14243a; font-size: 15px; font-weight: 750; text-align: right; }
+.settings-dialog footer { display: flex; justify-content: flex-end; padding: 14px 22px 18px; border-top: 1px solid #e2e8ef; }.settings-dialog footer button { min-width: 88px; min-height: 36px; padding: 8px 16px; border-radius: 7px; background: #a73746; color: #fff; font-size: 14px; font-weight: 750; }
 .dark .settings-dialog { background: #111827; border-color: #3a4a60; }.dark .settings-dialog header, .dark .settings-dialog footer { border-color: #2d3a4e; }.dark .settings-dialog header h2, .dark .settings-dialog-list strong { color: #f1f5f9; }.dark .settings-dialog header p, .dark .settings-dialog-list span { color: #aab6c5; }.dark .settings-dialog header button { background: #223047; color: #dce6f2; }.dark .settings-dialog-list > div { border-color: #263449; }
 
 /* Quotation row typography only */
 .admin-premium-shell .quotations-table tbody td {
   font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif !important;
-  font-size: 12.5px !important;
+  font-size: 14.5px !important;
   line-height: 18px !important;
 }
 .admin-premium-shell .quotations-table td.quotation-ref {
   color: #071348 !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   line-height: 16px !important;
   font-weight: 800 !important;
   letter-spacing: 0 !important;
@@ -659,26 +659,26 @@ input, select, textarea {
 .admin-premium-shell .quotations-table td:nth-child(2) > div > div:last-child > div:first-child,
 .admin-premium-shell .quotations-table td:nth-child(3) > div:first-child {
   color: #09133f !important;
-  font-size: 12.5px !important;
+  font-size: 14.5px !important;
   line-height: 17px !important;
   font-weight: 700 !important;
 }
 .admin-premium-shell .quotations-table td:nth-child(2) > div > div:last-child > div:last-child,
 .admin-premium-shell .quotations-table td:nth-child(3) > div:last-child {
   color: #8a98ae !important;
-  font-size: 9.5px !important;
+  font-size: 11.5px !important;
   line-height: 14px !important;
   font-weight: 450 !important;
 }
 .admin-premium-shell .quotations-table td.quotation-fleet,
 .admin-premium-shell .quotations-table td.quotation-fleet span {
-  font-size: 11px !important;
+  font-size: 13px !important;
   line-height: 15px !important;
   font-weight: 500 !important;
 }
 .admin-premium-shell .quotations-table td.quotation-fare {
   color: #d41124 !important;
-  font-size: 13.5px !important;
+  font-size: 15.5px !important;
   line-height: 18px !important;
   font-weight: 800 !important;
 }
@@ -688,7 +688,7 @@ input, select, textarea {
 
 .admin-premium-shell .quotations-table td.quotation-ref {
   color: #c82032 !important;
-  font-size: 12.5px !important;
+  font-size: 14.5px !important;
   line-height: 18px !important;
   font-weight: 500 !important;
 }
@@ -798,7 +798,7 @@ input, select, textarea {
 .admin-premium-shell input, .admin-premium-shell select, .admin-premium-shell textarea { border-radius: var(--radius-sm) !important; border-color: var(--ui-border) !important; color: var(--ui-ink); }
 .admin-premium-shell input::placeholder, .admin-premium-shell textarea::placeholder { color: var(--ui-muted); opacity: .8; }
 .admin-premium-shell .admin-table { border-spacing: 0; }
-.admin-premium-shell .admin-table thead th { background: var(--ui-surface-soft); color: var(--ui-muted); font-size: 10px; font-weight: 800; letter-spacing: .08em; }
+.admin-premium-shell .admin-table thead th { background: var(--ui-surface-soft); color: var(--ui-muted); font-size: 12px; font-weight: 800; letter-spacing: .08em; }
 .admin-premium-shell .admin-table tbody tr { border-bottom: 1px solid var(--ui-border); transition: background .16s ease; }
 .admin-premium-shell .admin-table tbody tr:hover { background: color-mix(in srgb, var(--ui-accent) 5%, var(--ui-surface)) !important; }
 .admin-premium-shell .dashboard-kpis > div { position: relative; overflow: hidden; }
@@ -807,7 +807,7 @@ input, select, textarea {
 .admin-premium-shell .dashboard-kpis > div:nth-child(3)::after { background: #4B5563; }
 .admin-premium-shell .dashboard-kpis > div:nth-child(4)::after { background: #17835b; }
 .admin-premium-shell .dashboard-analytics > div, .admin-premium-shell .dashboard-operations > div { box-shadow: var(--shadow-card) !important; }
-.admin-premium-shell .dashboard-analytics h3, .admin-premium-shell .dashboard-operations h3 { font-size: 17px; }
+.admin-premium-shell .dashboard-analytics h3, .admin-premium-shell .dashboard-operations h3 { font-size: 19px; }
 .admin-premium-shell .dashboard-analytics p, .admin-premium-shell .dashboard-operations p { line-height: 1.5; }
 .admin-premium-shell .adm-search-bar { background: var(--ui-surface-soft) !important; border-color: var(--ui-border) !important; }
 .admin-premium-shell .adm-btn-ghost, .admin-premium-shell .adm-btn-secondary { border-radius: var(--radius-sm); }
@@ -837,8 +837,8 @@ input, select, textarea {
 .quotations-main,
 .quotation-detail-panel { border-color: #dce3eb !important; box-shadow: 0 5px 18px rgba(25,42,62,.05) !important; }
 .quotations-heading { flex: 0 0 auto; }
-.quotations-heading h2 { font-size: 25px !important; line-height: 32px !important; letter-spacing: -.03em; }
-.quotations-heading p { font-size: 13px !important; line-height: 20px !important; }
+.quotations-heading h2 { font-size: 27px !important; line-height: 32px !important; letter-spacing: -.03em; }
+.quotations-heading p { font-size: 15px !important; line-height: 20px !important; }
 .quotation-kpis > div {
   position: relative;
   min-width: 0;
@@ -849,14 +849,14 @@ input, select, textarea {
   background: #fff;
   box-shadow: 0 3px 12px rgba(25,42,62,.035);
 }
-.quotation-kpis label { display: block; color: #53667e; font-size: 11px; line-height: 16px; font-weight: 750; text-transform: uppercase; letter-spacing: .04em; }
-.quotation-kpis strong { display: block; margin-top: 7px; color: #12243c; font-size: 23px; line-height: 28px; font-weight: 800; white-space: nowrap; }
-.quotation-kpis small { display: block; margin-top: 16px; color: #607187; font-size: 11px; line-height: 16px; font-weight: 600; }
-.quotation-kpi-icon { position: absolute; top: 17px; left: 16px; display: grid; width: 42px; height: 42px; place-items: center; border-radius: 10px; font-size: 17px; font-weight: 800; }
+.quotation-kpis label { display: block; color: #53667e; font-size: 13px; line-height: 16px; font-weight: 750; text-transform: uppercase; letter-spacing: .04em; }
+.quotation-kpis strong { display: block; margin-top: 7px; color: #12243c; font-size: 25px; line-height: 28px; font-weight: 800; white-space: nowrap; }
+.quotation-kpis small { display: block; margin-top: 16px; color: #607187; font-size: 13px; line-height: 16px; font-weight: 600; }
+.quotation-kpi-icon { position: absolute; top: 17px; left: 16px; display: grid; width: 42px; height: 42px; place-items: center; border-radius: 10px; font-size: 19px; font-weight: 800; }
 .quotation-kpi-icon.red { color: #a73746; background: #fae7ea; }.quotation-kpi-icon.purple { color: #7449b8; background: #f0eafa; }.quotation-kpi-icon.amber { color: #c57a18; background: #fff2df; }.quotation-kpi-icon.green { color: #1d8058; background: #e3f5ec; }
 .quotation-list-title { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; min-height: 58px; padding: 10px 18px; border-top: 1px solid #dce3eb; border-bottom: 1px solid #dce3eb; }
-.quotation-list-title h3 { margin: 0; color: #14243a; font-size: 15px; font-weight: 750; }
-.quotation-list-title button { min-height: 36px; padding: 8px 15px; border-radius: 7px; background: #a73746; color: #fff; font-size: 12px; font-weight: 700; }
+.quotation-list-title h3 { margin: 0; color: #14243a; font-size: 17px; font-weight: 750; }
+.quotation-list-title button { min-height: 36px; padding: 8px 15px; border-radius: 7px; background: #a73746; color: #fff; font-size: 14px; font-weight: 700; }
 .quotations-page .quotations-table { min-width: 980px; table-layout: fixed; }
 .quotations-page .quotations-table th,
 .quotations-page .quotations-table td { padding: 9px 12px !important; overflow: hidden; }
@@ -866,37 +866,36 @@ input, select, textarea {
 .quotations-page .quotations-table th:nth-child(4), .quotations-page .quotations-table td:nth-child(4) { width: 16%; }
 .quotations-page .quotations-table th:nth-child(5), .quotations-page .quotations-table td:nth-child(5) { width: 11%; text-align: left; }
 .quotations-page .quotations-table th:nth-child(6), .quotations-page .quotations-table td:nth-child(6) { width: 15%; text-align: right; padding-right: 18px !important; }
-.quotation-status { display: inline-flex; align-items: center; min-height: 26px; padding: 4px 8px; border-radius: 6px; background: #e8f1ff; color: #2767b2; font-size: 11px; line-height: 16px; font-weight: 700; text-transform: capitalize; white-space: nowrap; }
+.quotation-status { display: inline-flex; align-items: center; min-height: 26px; padding: 4px 8px; border-radius: 6px; background: #e8f1ff; color: #2767b2; font-size: 13px; line-height: 16px; font-weight: 700; text-transform: capitalize; white-space: nowrap; }
 .quotation-status.accepted { color: #18754e; background: #def5e9; }.quotation-status.draft { color: #58687c; background: #edf1f5; }.quotation-status.rejected, .quotation-status.cancelled { color: #a73746; background: #fae7ea; }
 .quotation-actions { display: flex; justify-content: flex-end; gap: 3px; }
-.quotation-actions button { display: grid; width: 28px; height: 28px; min-height: 28px !important; padding: 0 !important; place-items: center; border-radius: 6px; color: #53667e; font-size: 16px !important; }
+.quotation-actions button { display: grid; width: 28px; height: 28px; min-height: 28px !important; padding: 0 !important; place-items: center; border-radius: 6px; color: #53667e; font-size: 18px !important; }
 .quotation-actions button:hover { background: #edf1f5; color: #14243a; }
-.quotation-detail-panel h3 { font-size: 17px !important; }
+.quotation-detail-panel h3 { font-size: 19px !important; }
 .dark .quotation-kpis > div { background: #111827; border-color: #334155; }.dark .quotation-kpis strong, .dark .quotation-list-title h3 { color: #f1f5f9; }.dark .quotation-kpis label, .dark .quotation-kpis small { color: #aab6c5; }.dark .quotation-list-title { border-color: #334155; }
 @media (max-width: 1350px) { .quotation-kpis { grid-template-columns: repeat(2,minmax(0,1fr)) !important; } }
 
-/* Quotations use one viewport: the list scrolls while the selected quote stays put. */
-@media (min-width: 1650px) {
-  .admin-premium-shell .quotations-page {
-    height: calc(100vh - 64px);
-    max-height: calc(100vh - 64px);
-    overflow: hidden !important;
-    align-items: stretch;
-    grid-template-columns: minmax(0, 1fr) clamp(320px, 30vw, 420px) !important;
-  }
-  .admin-premium-shell .quotation-list-pane,
-  .admin-premium-shell .quotation-detail-panel {
-    height: 100%;
-    max-height: 100%;
-    min-height: 0;
-  }
-  .admin-premium-shell .quotation-detail-panel {
-    align-self: start;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-    overscroll-behavior: contain;
-    scrollbar-gutter: stable;
-  }
+/* Quotations always show list + detail side by side, at every screen size:
+   one viewport, the list scrolls while the selected quote stays put. */
+.admin-premium-shell .quotations-page {
+  height: calc(100vh - 64px);
+  max-height: calc(100vh - 64px);
+  overflow: hidden !important;
+  align-items: stretch;
+  grid-template-columns: minmax(0, 1fr) clamp(280px, 30vw, 420px) !important;
+}
+.admin-premium-shell .quotation-list-pane,
+.admin-premium-shell .quotation-detail-panel {
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+}
+.admin-premium-shell .quotation-detail-panel {
+  align-self: start;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .quotation-detail-panel .quotation-detail-header { flex: 0 0 auto; }
@@ -915,7 +914,7 @@ input, select, textarea {
 .quotation-detail-body > div:nth-child(4),
 .quotation-detail-body > div:nth-child(6) {
   margin-bottom: 8px !important;
-  font-size: 10px !important;
+  font-size: 12px !important;
 }
 .quotation-detail-body > div:nth-child(3) {
   padding: 10px !important;
@@ -926,7 +925,7 @@ input, select, textarea {
 .quotation-detail-body > div:nth-child(3) > div:last-child:not(:first-child) {
   margin-top: 7px !important;
   padding-top: 7px !important;
-  font-size: 11px !important;
+  font-size: 13px !important;
 }
 .quotation-detail-body > div:nth-child(5) {
   gap: 7px !important;
@@ -936,14 +935,14 @@ input, select, textarea {
   padding: 7px 10px !important;
   border-radius: 9px !important;
 }
-.quotation-detail-body > div:nth-child(5) > div > div:last-child { font-size: 17px !important; }
+.quotation-detail-body > div:nth-child(5) > div > div:last-child { font-size: 19px !important; }
 .quotation-detail-body > div:nth-child(7) {
   gap: 6px !important;
   margin-bottom: 0 !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
 }
 .quotation-detail-body > div:nth-child(7) > div[style*="height: 1px"] { margin: 4px 0 !important; }
-.quotation-detail-body > div:nth-child(7) > div:last-child > div:first-child > div:last-child { font-size: 23px !important; }
+.quotation-detail-body > div:nth-child(7) > div:last-child > div:first-child > div:last-child { font-size: 25px !important; }
 
 @media (max-height: 780px) and (min-width: 1024px) {
   .quotation-detail-panel .quotation-detail-map { height: 112px !important; flex-basis: 112px !important; }
@@ -964,7 +963,7 @@ input, select, textarea {
   .adm-root .adm-main-content { margin-left: 72px !important; }
   .adm-root .adm-main-content > div:last-child { padding: 16px !important; }
   .aurelian-page-heading { align-items: flex-start; flex-direction: column; margin-bottom: 20px; }
-  .aurelian-page-heading h2 { font-size: 26px; }
+  .aurelian-page-heading h2 { font-size: 28px; }
   .aurelian-page-actions { width: 100%; }
   .aurelian-page-actions button { flex: 1; }
   .aurelian-page-frame .adm-form-grid > div,
@@ -1043,13 +1042,13 @@ input, select, textarea {
 .admin-premium-shell .adm-sidebar nav button.bg-surface-container-low { background: var(--admin-surface-secondary) !important; color: var(--admin-text) !important; box-shadow: inset 3px 0 0 var(--admin-brand) !important; }
 
 /* Typography contract */
-.admin-premium-shell h1 { font-size: 32px !important; line-height: 1.2 !important; font-weight: 700 !important; letter-spacing: -.025em !important; color: var(--admin-text) !important; }
-.admin-premium-shell h2 { font-size: 24px !important; line-height: 1.3 !important; font-weight: 600 !important; letter-spacing: -.02em !important; color: var(--admin-text) !important; }
-.admin-premium-shell h3 { font-size: 18px !important; line-height: 1.35 !important; font-weight: 600 !important; letter-spacing: -.015em !important; color: var(--admin-text) !important; }
-.admin-premium-shell p { font-size: 15px; line-height: 1.5; color: var(--admin-text-secondary); }
+.admin-premium-shell h1 { font-size: 34px !important; line-height: 1.2 !important; font-weight: 700 !important; letter-spacing: -.025em !important; color: var(--admin-text) !important; }
+.admin-premium-shell h2 { font-size: 26px !important; line-height: 1.3 !important; font-weight: 600 !important; letter-spacing: -.02em !important; color: var(--admin-text) !important; }
+.admin-premium-shell h3 { font-size: 20px !important; line-height: 1.35 !important; font-weight: 600 !important; letter-spacing: -.015em !important; color: var(--admin-text) !important; }
+.admin-premium-shell p { font-size: 17px; line-height: 1.5; color: var(--admin-text-secondary); }
 .admin-premium-shell label,
-.admin-premium-shell th { font-size: 13px !important; line-height: 1.35 !important; font-weight: 500 !important; color: var(--admin-text-secondary) !important; }
-.admin-premium-shell button { min-height: 36px; font-size: 14px !important; line-height: 1.25 !important; font-weight: 600 !important; border-radius: var(--admin-radius-control) !important; }
+.admin-premium-shell th { font-size: 15px !important; line-height: 1.35 !important; font-weight: 500 !important; color: var(--admin-text-secondary) !important; }
+.admin-premium-shell button { min-height: 36px; font-size: 16px !important; line-height: 1.25 !important; font-weight: 600 !important; border-radius: var(--admin-radius-control) !important; }
 .admin-premium-shell .text-slate-900,
 .admin-premium-shell .text-slate-800,
 .admin-premium-shell .text-gray-900,
@@ -1184,7 +1183,7 @@ table {
 }
 
 .admin-premium-shell {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 400;
   line-height: 24px;
   letter-spacing: 0;
@@ -1200,7 +1199,7 @@ table {
 .admin-premium-shell .aurelian-page-heading h1,
 .admin-premium-shell .aurelian-page-heading h2,
 .admin-premium-shell .font-headline-lg {
-  font-size: 32px !important;
+  font-size: 34px !important;
   font-weight: 700 !important;
   line-height: 40px !important;
   letter-spacing: -0.02em !important;
@@ -1210,7 +1209,7 @@ table {
 .admin-premium-shell main > section h2 + p,
 .admin-premium-shell .aurelian-page-heading h1 + p,
 .admin-premium-shell .aurelian-page-heading h2 + p {
-  font-size: 18px !important;
+  font-size: 20px !important;
   font-weight: 400 !important;
   line-height: 28px !important;
   letter-spacing: 0 !important;
@@ -1219,7 +1218,7 @@ table {
 /* Section and card hierarchy */
 .admin-premium-shell h2,
 .admin-premium-shell .adm-section-head h2 {
-  font-size: 24px !important;
+  font-size: 26px !important;
   font-weight: 600 !important;
   line-height: 32px !important;
   letter-spacing: -0.015em !important;
@@ -1229,7 +1228,7 @@ table {
 .admin-premium-shell .dashboard-analytics h3,
 .admin-premium-shell .dashboard-operations h3,
 .admin-premium-shell .card-title {
-  font-size: 18px !important;
+  font-size: 20px !important;
   font-weight: 600 !important;
   line-height: 26px !important;
   letter-spacing: -0.01em !important;
@@ -1238,7 +1237,7 @@ table {
 .admin-premium-shell h4,
 .admin-premium-shell h5,
 .admin-premium-shell h6 {
-  font-size: 15px !important;
+  font-size: 17px !important;
   font-weight: 600 !important;
   line-height: 24px !important;
   letter-spacing: -0.005em !important;
@@ -1248,7 +1247,7 @@ table {
 .admin-premium-shell h3 + p,
 .admin-premium-shell .card-description,
 .admin-premium-shell .adm-section-head p {
-  font-size: 14px !important;
+  font-size: 16px !important;
   font-weight: 400 !important;
   line-height: 22px !important;
   letter-spacing: 0 !important;
@@ -1260,7 +1259,7 @@ table {
 .admin-premium-shell dd,
 .admin-premium-shell .text-base,
 .admin-premium-shell .font-body-md {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 400;
   line-height: 24px;
   letter-spacing: 0;
@@ -1269,7 +1268,7 @@ table {
 .admin-premium-shell .text-sm,
 .admin-premium-shell .font-body-sm,
 .admin-premium-shell .secondary-text {
-  font-size: 14px !important;
+  font-size: 16px !important;
   font-weight: 400 !important;
   line-height: 22px !important;
   letter-spacing: 0 !important;
@@ -1279,7 +1278,7 @@ table {
 .admin-premium-shell .text-4xl,
 .admin-premium-shell .text-3xl,
 .admin-premium-shell .stat-large {
-  font-size: 36px !important;
+  font-size: 38px !important;
   font-weight: 700 !important;
   line-height: 42px !important;
   letter-spacing: -0.025em !important;
@@ -1288,7 +1287,7 @@ table {
 
 .admin-premium-shell .text-2xl,
 .admin-premium-shell .stat-medium {
-  font-size: 28px !important;
+  font-size: 30px !important;
   font-weight: 700 !important;
   line-height: 34px !important;
   letter-spacing: -0.02em !important;
@@ -1299,7 +1298,7 @@ table {
 .admin-premium-shell label,
 .admin-premium-shell .font-label-caps,
 .admin-premium-shell .text-label-caps {
-  font-size: 13px !important;
+  font-size: 15px !important;
   font-weight: 500 !important;
   line-height: 20px !important;
   letter-spacing: 0 !important;
@@ -1308,7 +1307,7 @@ table {
 .admin-premium-shell input,
 .admin-premium-shell select,
 .admin-premium-shell textarea {
-  font-size: 15px !important;
+  font-size: 17px !important;
   font-weight: 400 !important;
   line-height: 24px !important;
   letter-spacing: 0 !important;
@@ -1316,7 +1315,7 @@ table {
 
 .admin-premium-shell input::placeholder,
 .admin-premium-shell textarea::placeholder {
-  font-size: 15px !important;
+  font-size: 17px !important;
   font-weight: 400 !important;
   line-height: 24px !important;
   letter-spacing: 0 !important;
@@ -1324,7 +1323,7 @@ table {
 
 .admin-premium-shell button,
 .admin-premium-shell [role="button"] {
-  font-size: 14px !important;
+  font-size: 16px !important;
   font-weight: 600 !important;
   line-height: 20px !important;
   letter-spacing: 0 !important;
@@ -1333,7 +1332,7 @@ table {
 .admin-premium-shell aside nav button,
 .admin-premium-shell .adm-sidebar nav button,
 .admin-premium-shell .premium-sidebar nav button {
-  font-size: 14px !important;
+  font-size: 16px !important;
   font-weight: 500 !important;
   line-height: 20px !important;
   letter-spacing: 0 !important;
@@ -1347,7 +1346,7 @@ table {
 
 .admin-premium-shell .sidebar-heading,
 .admin-premium-shell aside [class*="uppercase"]:not(button) {
-  font-size: 12px !important;
+  font-size: 14px !important;
   font-weight: 600 !important;
   line-height: 18px !important;
   letter-spacing: 0.06em !important;
@@ -1357,7 +1356,7 @@ table {
 .admin-premium-shell table th,
 .admin-premium-shell .admin-table thead th,
 .admin-premium-shell .quotations-table thead th {
-  font-size: 11.5px !important;
+  font-size: 13.5px !important;
   font-weight: 700 !important;
   line-height: 20px !important;
   letter-spacing: 0 !important;
@@ -1366,7 +1365,7 @@ table {
 .admin-premium-shell table td,
 .admin-premium-shell .admin-table tbody td,
 .admin-premium-shell .quotations-table tbody td {
-  font-size: 12.5px !important;
+  font-size: 14.5px !important;
   font-weight: 400 !important;
   line-height: 18px !important;
   letter-spacing: 0 !important;
@@ -1381,14 +1380,14 @@ table {
 
 /* Helper text, captions, and badges */
 .admin-premium-shell .text-xs,
-.admin-premium-shell .text-\[9px\],
-.admin-premium-shell .text-\[10px\],
 .admin-premium-shell .text-\[11px\],
+.admin-premium-shell .text-\[12px\],
+.admin-premium-shell .text-\[13px\],
 .admin-premium-shell small,
 .admin-premium-shell caption,
 .admin-premium-shell .helper-text,
 .admin-premium-shell .caption {
-  font-size: 12px !important;
+  font-size: 14px !important;
   font-weight: 400 !important;
   line-height: 18px !important;
   letter-spacing: 0 !important;
@@ -1397,9 +1396,9 @@ table {
 .admin-premium-shell .adm-badge,
 .admin-premium-shell .badge,
 .admin-premium-shell [class*="rounded-full"].text-xs,
-.admin-premium-shell [class*="rounded-full"].text-\[10px\],
-.admin-premium-shell [class*="rounded-full"].text-\[11px\] {
-  font-size: 12px !important;
+.admin-premium-shell [class*="rounded-full"].text-\[12px\],
+.admin-premium-shell [class*="rounded-full"].text-\[13px\] {
+  font-size: 14px !important;
   font-weight: 600 !important;
   line-height: 18px !important;
   letter-spacing: 0 !important;
@@ -1433,13 +1432,13 @@ table {
 }
 
 /* Inline legacy microcopy must remain readable and never fall below 12px. */
-.admin-premium-shell [style*="font-size: 9px"],
-.admin-premium-shell [style*="font-size:9px"],
-.admin-premium-shell [style*="font-size: 10px"],
-.admin-premium-shell [style*="font-size:10px"],
 .admin-premium-shell [style*="font-size: 11px"],
-.admin-premium-shell [style*="font-size:11px"] {
-  font-size: 12px !important;
+.admin-premium-shell [style*="font-size: 11px"],
+.admin-premium-shell [style*="font-size: 12px"],
+.admin-premium-shell [style*="font-size: 12px"],
+.admin-premium-shell [style*="font-size: 13px"],
+.admin-premium-shell [style*="font-size: 13px"] {
+  font-size: 14px !important;
   line-height: 18px !important;
 }
 
@@ -1744,7 +1743,7 @@ table {
   border-radius: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
-  font-size: 20px !important;
+  font-size: 22px !important;
   font-weight: 700 !important;
   line-height: 28px !important;
   letter-spacing: -0.02em !important;
@@ -1779,7 +1778,7 @@ table {
 .fleet-economics-header h1 {
   margin: 0;
   color: #14243A;
-  font-size: 24px !important;
+  font-size: 26px !important;
   font-weight: 750 !important;
   line-height: 32px !important;
   letter-spacing: -0.035em !important;
@@ -1788,7 +1787,7 @@ table {
 .fleet-economics-header p {
   margin: 3px 0 0;
   color: #53657A;
-  font-size: 13px !important;
+  font-size: 15px !important;
   line-height: 20px !important;
 }
 
@@ -1799,7 +1798,7 @@ table {
   border-radius: 9px;
   background: #A73746 !important;
   color: #fff !important;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 650;
   cursor: pointer;
   box-shadow: 0 6px 16px color-mix(in srgb, var(--admin-brand) 20%, transparent);
@@ -1817,9 +1816,9 @@ table {
 }
 
 .fleet-tier-card {
-  flex: 1 1 175px;
+  flex: 1 1 185px;
   width: auto !important;
-  min-width: 145px;
+  min-width: 155px;
   border-radius: 12px !important;
   background: #FFFFFF !important;
   border-color: #CBD5E1 !important;
@@ -1888,7 +1887,7 @@ table {
 }
 
 .fleet-inline-breakeven > :nth-child(2) {
-  font-size: 30px !important;
+  font-size: 32px !important;
   line-height: 34px !important;
 }
 
@@ -1927,7 +1926,7 @@ table {
 .fleet-card-eyebrow {
   margin-bottom: 3px;
   color: #a73746;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   line-height: 14px;
   letter-spacing: .1em;
@@ -1936,7 +1935,7 @@ table {
 .fleet-card-title {
   margin: 0;
   color: #15263b;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 800;
   line-height: 21px;
   letter-spacing: -.015em;
@@ -1945,7 +1944,7 @@ table {
 .fleet-card-description {
   margin-top: 3px;
   color: #6b7b8d;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 17px;
 }
 .fleet-add-cost {
@@ -1958,7 +1957,7 @@ table {
   border-radius: 9px !important;
   background: #a73746 !important;
   color: #fff !important;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 750;
   box-shadow: 0 4px 10px rgba(167, 55, 70, .18);
   transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
@@ -1988,8 +1987,8 @@ table {
   border-top: 1px solid #ead9dc;
   background: linear-gradient(90deg, #fff7f8 0%, #fdf1f3 100%) !important;
 }
-.fleet-cost-total > span:first-child { color: #85303c !important; font-size: 11px !important; letter-spacing: .07em; }
-.fleet-cost-total > span:last-child { color: #8f2d3b !important; font-size: 22px !important; letter-spacing: -.025em; }
+.fleet-cost-total > span:first-child { color: #85303c !important; font-size: 13px !important; letter-spacing: .07em; }
+.fleet-cost-total > span:last-child { color: #8f2d3b !important; font-size: 24px !important; letter-spacing: -.025em; }
 .fleet-operational-card {
   grid-column: 2;
   grid-row: 1;
@@ -2025,7 +2024,10 @@ table {
 }
 .fleet-compact-field:focus-within { border-color: #b6636f; background: #fff; box-shadow: 0 0 0 2px rgba(167, 55, 70, .1); }
 .fleet-compact-field label { flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.fleet-compact-field input { min-width: 0; flex: 1 1 auto; width: auto !important; }
+.fleet-compact-field input { min-width: 26px; flex: 1 1 auto; width: auto !important; }
+.fleet-compact-row { display: flex !important; flex-wrap: wrap; gap: 8px; }
+.fleet-compact-row .fleet-compact-field { flex: 1 1 72px; }
+.fleet-compact-row .fleet-compact-field:last-child { flex: 1.8 1 100px; }
 .fleet-fixed-cost-rows {
   height: 220px;
   min-height: 220px;
@@ -2047,7 +2049,7 @@ table {
 .fleet-operational-summary-title {
   margin-bottom: 8px;
   color: var(--admin-text-muted);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: .055em;
   text-transform: uppercase;
@@ -2064,14 +2066,14 @@ table {
 .fleet-operational-summary-item span {
   margin-bottom: 3px;
   color: var(--admin-text-muted);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   line-height: 12px;
   text-transform: uppercase;
 }
 .fleet-operational-summary-item strong {
   color: var(--admin-text);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 850;
   line-height: 17px;
 }
@@ -2136,7 +2138,7 @@ table {
 .dark .fleet-operational-summary-item strong { color: #f1f5f9 !important; }
 .dark .fleet-operational-summary { border-color: #334155; }
 .dark .fleet-operational-summary-title { color: #c2ccd8; }
-.fleet-variable-costs { grid-column: 1 / -1; grid-row: 2; align-items: start; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important; }
+.fleet-variable-costs { grid-column: 1 / -1; grid-row: 2; align-items: start; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important; }
 .fleet-profitability { grid-column: 1 / -1; grid-row: 3; border-style: solid !important; min-height: 190px; }
 .fleet-auto-notice { grid-column: 1 / -1; grid-row: 4; }
 
@@ -2158,9 +2160,9 @@ table {
   gap: 14px;
 }
 .tyre-lifecycle-strip > div:first-child { margin: 0 !important; }
-.tyre-lifecycle-strip label { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: #64748b; font-size: 9px; font-weight: 800; text-transform: uppercase; }
+.tyre-lifecycle-strip label { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: #64748b; font-size: 11px; font-weight: 800; text-transform: uppercase; }
 .tyre-lifecycle-input { display: flex; align-items: center; gap: 4px; min-width: 108px; padding: 5px 8px; border-radius: 7px; background: #f1f5f9; color: #334155; }
-.tyre-lifecycle-input input { width: 76px; border: 0; outline: 0; background: transparent; color: #0f172a; font-size: 11px; font-weight: 700; }
+.tyre-lifecycle-input input { width: 76px; border: 0; outline: 0; background: transparent; color: #0f172a; font-size: 13px; font-weight: 700; }
 .dark .tyre-lifecycle-input { background: #202d3d; color: #aeb9c7; }
 .dark .tyre-lifecycle-input input { color: #f1f5f9; }
 @media (max-width: 760px) {
@@ -2187,19 +2189,23 @@ table {
 }
 
 .admin-premium-shell .fleet-variable-value .variable-cost-input {
-  width: 54px;
+  width: 42px;
   min-height: 26px;
   height: 26px;
-  font-size: 15px !important;
+  font-size: 17px !important;
   font-weight: 750 !important;
   line-height: 22px !important;
   letter-spacing: -.01em !important;
+}
+.admin-premium-shell .fleet-variable-value input[aria-label="Expected maintenance life"],
+.admin-premium-shell .fleet-variable-value input[aria-label="Expected tyre life"] {
+  width: 58px;
 }
 .admin-premium-shell .fleet-variable-value .variable-cost-input:hover,
 .admin-premium-shell .fleet-variable-value .variable-cost-input:focus {
   border-bottom-color: transparent !important;
 }
-.fleet-variable-value > span { padding-bottom: 0 !important; font-size: 10px !important; }
+.fleet-variable-value > span { padding-bottom: 0 !important; font-size: 12px !important; }
 .dark .fleet-variable-value {
   border-color: #3b4a5e;
   background: #202d3d;
@@ -2243,7 +2249,7 @@ table {
 .fleet-top-breakeven-title,
 .fleet-revenue-chart-title {
   color: #334A64;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   line-height: 16px;
   text-transform: uppercase;
@@ -2271,14 +2277,14 @@ table {
 .fleet-top-breakeven-grid span {
   order: -1;
   color: #6b7b8d;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   line-height: 14px;
   letter-spacing: .045em;
   text-transform: uppercase;
 }
-.fleet-top-breakeven-grid strong { color: #14243A; font-size: 15px; font-weight: 800; line-height: 20px; }
-.fleet-top-breakeven-primary strong { font-size: 24px; line-height: 27px; letter-spacing: -.035em; }
+.fleet-top-breakeven-grid strong { color: #14243A; font-size: 17px; font-weight: 800; line-height: 20px; }
+.fleet-top-breakeven-primary strong { font-size: 26px; line-height: 27px; letter-spacing: -.035em; }
 .fleet-top-breakeven-grid > div:nth-child(2) strong { color: var(--admin-brand); }
 .dark .fleet-top-breakeven-title, .dark .fleet-revenue-chart-title { color: #C7D2E0; }
 .dark .fleet-top-breakeven-grid strong { color: #F1F5F9; }
@@ -2295,8 +2301,8 @@ table {
 .fleet-profitability > .text-right { display: none; }
 .fleet-profit-kpis { grid-column: 1; grid-row: 2; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .fleet-profit-kpis > div { min-width: 0; padding: 13px 14px; border: 1px solid #D9E1EA; border-radius: 9px; background: #F7F9FC; }
-.fleet-profit-kpis span { display: block; color: #52657A; font-size: 11px; font-weight: 650; text-transform: uppercase; letter-spacing: .03em; }
-.fleet-profit-kpis strong { display: block; margin-top: 6px; color: #14243A; font-size: 18px; line-height: 22px; letter-spacing: -.02em; }
+.fleet-profit-kpis span { display: block; color: #52657A; font-size: 13px; font-weight: 650; text-transform: uppercase; letter-spacing: .03em; }
+.fleet-profit-kpis strong { display: block; margin-top: 6px; color: #14243A; font-size: 20px; line-height: 22px; letter-spacing: -.02em; }
 .fleet-profit-kpis > div:first-child strong { color: #2F6F67; }
 .fleet-profit-kpis > div:last-child strong { color: var(--admin-brand); }
 .dark .fleet-profit-kpis > div { background: #202C3B; border-color: #37475A; }
@@ -2304,33 +2310,33 @@ table {
 .dark .fleet-profit-kpis strong { color: #F1F5F9; }
 
 .fleet-margin-progress { grid-column: 1; grid-row: 3; align-self: end; }
-.fleet-margin-label { display: flex; justify-content: space-between; color: #334A64; font-size: 12px; font-weight: 650; }
+.fleet-margin-label { display: flex; justify-content: space-between; color: #334A64; font-size: 14px; font-weight: 650; }
 .fleet-margin-track { height: 6px; margin-top: 7px; overflow: hidden; border-radius: 999px; background: var(--admin-border); }
 .fleet-margin-track span { display: block; height: 100%; border-radius: inherit; background: #2F6F67; }
-.fleet-margin-scale { display: flex; justify-content: space-between; margin-top: 5px; color: #607187; font-size: 11px; }
+.fleet-margin-scale { display: flex; justify-content: space-between; margin-top: 5px; color: #607187; font-size: 13px; }
 
 .fleet-revenue-chart { grid-column: 2; grid-row: 1 / span 3; padding-left: 22px; border-left: 1px solid var(--admin-border); }
 .fleet-revenue-chart-body { display: flex; align-items: center; justify-content: center; gap: 20px; min-height: 145px; }
 .fleet-profit-donut { width: 116px; height: 116px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; }
 .fleet-profit-donut > div { width: 76px; height: 76px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 50%; background: #FFFFFF; }
-.fleet-profit-donut strong { color: #14243A; font-size: 14px; }
-.fleet-profit-donut span { color: #607187; font-size: 11px; }
+.fleet-profit-donut strong { color: #14243A; font-size: 16px; }
+.fleet-profit-donut span { color: #607187; font-size: 13px; }
 .fleet-revenue-chart dl { display: flex; flex-direction: column; gap: 9px; margin: 0; }
 .fleet-revenue-chart dl div { display: grid; grid-template-columns: 70px auto; column-gap: 8px; }
-.fleet-revenue-chart dt { color: #52657A; font-size: 11px; }
-.fleet-revenue-chart dd { margin: 0; color: #14243A; font-size: 12px; font-weight: 700; }
+.fleet-revenue-chart dt { color: #52657A; font-size: 13px; }
+.fleet-revenue-chart dd { margin: 0; color: #14243A; font-size: 14px; font-weight: 700; }
 .fleet-revenue-chart i { display: inline-block; width: 7px; height: 7px; margin-right: 5px; border-radius: 50%; }
 .revenue-dot { background: #2F6F67; }.cost-dot { background: #A73746; }.profit-dot { background: #35678F; }
-.fleet-auto-notice { padding: 10px 13px; border: 1px solid #D9E1EA; border-radius: 9px; background: #F7F9FC; color: #52657A; font-size: 12px; line-height: 18px; }
+.fleet-auto-notice { padding: 10px 13px; border: 1px solid #D9E1EA; border-radius: 9px; background: #F7F9FC; color: #52657A; font-size: 14px; line-height: 18px; }
 .dark .fleet-profit-donut > div { background: #182230; }
 .dark .fleet-profit-donut strong, .dark .fleet-revenue-chart dd { color: #F1F5F9; }
 .dark .fleet-profit-donut span, .dark .fleet-revenue-chart dt, .dark .fleet-margin-scale { color: #AAB6C5; }
 .dark .fleet-auto-notice { background: #182230; border-color: #334155; color: #B6C2D1; }
 
 /* Raise legacy micro-copy to a readable minimum inside this page. */
-.fleet-economics-page .text-\[9px\] { font-size: 11px !important; line-height: 16px !important; }
-.fleet-economics-page .text-\[10px\] { font-size: 11px !important; line-height: 16px !important; }
-.fleet-economics-page .text-\[11px\] { font-size: 12px !important; line-height: 18px !important; }
+.fleet-economics-page .text-\[11px\] { font-size: 13px !important; line-height: 16px !important; }
+.fleet-economics-page .text-\[12px\] { font-size: 13px !important; line-height: 16px !important; }
+.fleet-economics-page .text-\[13px\] { font-size: 14px !important; line-height: 18px !important; }
 .fleet-economics-page input,
 .fleet-economics-page select { color: #14243A !important; }
 .dark .fleet-economics-page input,
@@ -2349,6 +2355,10 @@ table {
   .fleet-profitability { grid-row: 4; grid-template-columns: 1fr; }
   .fleet-revenue-chart { grid-column: 1; grid-row: 4; padding: 16px 0 0; border-left: 0; border-top: 1px solid var(--admin-border); }
   .fleet-auto-notice { grid-row: 5; }
+}
+
+@media (max-width: 1300px) {
+  .fleet-variable-costs { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
 }
 
 
@@ -2377,15 +2387,15 @@ table {
   height: 42px;
   place-items: center;
   border-radius: 10px;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 800;
 }
 .pricing-kpi-red { color: #a73746; background: #f9e6e9; }
 .pricing-kpi-purple { color: #7c4cc4; background: #f0eafb; }
 .pricing-kpi-amber { color: #cb7b16; background: #fff2df; }
 .pricing-kpi-green { color: #21825b; background: #e4f5ec; }
-.pricing-rules-page > .grid.grid-cols-4 .text-3xl { font-size: 27px !important; line-height: 31px !important; }
-.pricing-rules-page > .grid.grid-cols-4 .text-\[10px\] { font-size: 11px !important; letter-spacing: .04em; }
+.pricing-rules-page > .grid.grid-cols-4 .text-3xl { font-size: 29px !important; line-height: 31px !important; }
+.pricing-rules-page > .grid.grid-cols-4 .text-\[12px\] { font-size: 13px !important; letter-spacing: .04em; }
 .pricing-rules-page > .grid.grid-cols-\[1fr_300px\] {
   grid-template-columns: minmax(0, 1.85fr) minmax(330px, 1fr) !important;
   gap: 16px !important;
@@ -2399,7 +2409,7 @@ table {
 .pricing-rules-page .pricing-section-subtitle {
   margin: 4px 0 0;
   color: #687990;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 16px;
   font-weight: 500;
   text-transform: none;
@@ -2410,7 +2420,7 @@ table {
 .pricing-table-footer {
   padding: 10px 16px 12px;
   color: #65768d;
-  font-size: 11px;
+  font-size: 13px;
   border-top: 1px solid #edf0f4;
 }
 .pricing-empty-block {
@@ -2421,7 +2431,7 @@ table {
   justify-content: center;
   gap: 9px;
   color: #6a7890;
-  font-size: 12px;
+  font-size: 14px;
 }
 .pricing-empty-block > div {
   display: grid;
@@ -2431,7 +2441,7 @@ table {
   border-radius: 10px;
   color: #d65d70;
   background: #fde9ed;
-  font-size: 22px;
+  font-size: 24px;
 }
 .pricing-rules-page > div:nth-of-type(3) > .grid.grid-cols-3 { gap: 16px !important; }
 .pricing-rules-page > div:nth-of-type(3) > .grid.grid-cols-3 > div {
@@ -2456,22 +2466,22 @@ table {
 /* Pricing readability and control visibility */
 .pricing-rules-page {
   color: #14243a !important;
-  font-size: 14px;
+  font-size: 16px;
 }
 .pricing-rules-page h2,
 .pricing-rules-page h3,
 .pricing-rules-page h4 { color: #10233c !important; }
 .pricing-rules-page h2,
-.pricing-rules-page h3 { font-size: 15px !important; line-height: 21px !important; letter-spacing: .055em !important; }
-.pricing-rules-page .pricing-section-subtitle { font-size: 13px !important; line-height: 19px !important; color: #61738a !important; }
-.pricing-rules-page .text-\[9px\],
-.pricing-rules-page .text-\[10px\] { font-size: 12px !important; line-height: 17px !important; }
-.pricing-rules-page .text-\[11px\] { font-size: 13px !important; line-height: 18px !important; }
-.pricing-rules-page .text-xs { font-size: 13px !important; line-height: 19px !important; }
+.pricing-rules-page h3 { font-size: 17px !important; line-height: 21px !important; letter-spacing: .055em !important; }
+.pricing-rules-page .pricing-section-subtitle { font-size: 15px !important; line-height: 19px !important; color: #61738a !important; }
+.pricing-rules-page .text-\[11px\],
+.pricing-rules-page .text-\[12px\] { font-size: 14px !important; line-height: 17px !important; }
+.pricing-rules-page .text-\[13px\] { font-size: 15px !important; line-height: 18px !important; }
+.pricing-rules-page .text-xs { font-size: 15px !important; line-height: 19px !important; }
 .pricing-rules-page button {
   min-height: 34px;
   padding: 7px 13px !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   line-height: 18px !important;
   white-space: nowrap;
 }
@@ -2489,12 +2499,12 @@ table {
   color: #14243a !important;
   background-color: #fff !important;
   border-color: #cbd5e1 !important;
-  font-size: 13px !important;
+  font-size: 15px !important;
   line-height: 20px !important;
 }
 .pricing-rules-page label {
   color: #465a72 !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   line-height: 17px !important;
   margin-bottom: 5px !important;
 }
@@ -2503,26 +2513,26 @@ table {
 .pricing-rules-page .custom-places-auto input { width: 100% !important; min-width: 0 !important; }
 .pricing-rules-page table th {
   color: #52657c !important;
-  font-size: 11px !important;
+  font-size: 13px !important;
   line-height: 16px !important;
 }
 .pricing-rules-page table td {
   color: #14243a !important;
-  font-size: 13px !important;
+  font-size: 15px !important;
   line-height: 18px !important;
 }
 .pricing-rules-page table td button {
   min-width: 28px;
   min-height: 28px;
   padding: 3px !important;
-  font-size: 16px !important;
+  font-size: 18px !important;
 }
-.pricing-table-footer { font-size: 12px !important; line-height: 18px !important; }
-.pricing-empty-block { color: #61738a !important; font-size: 13px !important; }
+.pricing-table-footer { font-size: 14px !important; line-height: 18px !important; }
+.pricing-empty-block { color: #61738a !important; font-size: 15px !important; }
 .pricing-seasonal-date {
   margin-bottom: 6px;
   color: #14243a;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 19px;
   font-weight: 750;
 }
@@ -2530,7 +2540,7 @@ table {
 .pricing-rules-page > div:nth-of-type(3) > .grid.grid-cols-3 > div > span,
 .pricing-rules-page > div:nth-of-type(3) > .grid.grid-cols-3 > div span { visibility: visible !important; opacity: 1 !important; }
 .pricing-rules-page .grid.grid-cols-\[1\.5fr_1fr_1fr_1fr_1fr_1fr\] > div {
-  font-size: 12px !important;
+  font-size: 14px !important;
   line-height: 18px !important;
   color: #344960 !important;
 }
@@ -2565,7 +2575,7 @@ table {
   height: 32px;
 }
 .pricing-rules-page > .grid.grid-cols-4 .text-3xl {
-  font-size: 24px !important;
+  font-size: 26px !important;
   line-height: 27px !important;
 }
 .pricing-rules-page > .grid.grid-cols-\[1fr_300px\] {
@@ -2583,7 +2593,7 @@ table {
 .pricing-rules-page .pricing-empty-block > div {
   width: 30px;
   height: 30px;
-  font-size: 16px;
+  font-size: 18px;
 }
 .pricing-rules-page > div:nth-of-type(3) > .grid.grid-cols-3 {
   gap: 12px !important;
@@ -2623,10 +2633,10 @@ table {
 .pricing-rules-page .pricing-seasonal-rule-tab .pricing-seasonal-date {
   margin-bottom: 1px;
   white-space: nowrap;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 15px;
 }
-.pricing-rules-page .pricing-seasonal-rule-tab > .text-\[11px\] {
+.pricing-rules-page .pricing-seasonal-rule-tab > .text-\[13px\] {
   flex: none;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2652,7 +2662,7 @@ table {
   border: 1px solid #cbd5e1 !important;
   border-radius: 6px !important;
   background: #fff !important;
-  font-size: 11px !important;
+  font-size: 13px !important;
   font-weight: 800;
   line-height: 1 !important;
   display: inline-flex !important;
@@ -2707,7 +2717,7 @@ table {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1;
   transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
 }
@@ -2746,7 +2756,7 @@ table {
   border-color: #7f1d2d;
 }
 .pricing-rules-page .pricing-seasonal-date,
-.pricing-rules-page > div:nth-of-type(3) .text-\[11px\] {
+.pricing-rules-page > div:nth-of-type(3) .text-\[13px\] {
   overflow-wrap: anywhere;
 }
 .pricing-rules-page > div:last-child > .p-5:first-child {
@@ -2779,12 +2789,12 @@ table {
     overflow-x: auto;
   }
 }
-.pricing-page-active > section h2 { font-size: 25px !important; line-height: 32px !important; }
-.pricing-page-active > section p { font-size: 13px !important; line-height: 20px !important; }
+.pricing-page-active > section h2 { font-size: 27px !important; line-height: 32px !important; }
+.pricing-page-active > section p { font-size: 15px !important; line-height: 20px !important; }
 .pricing-page-active > section button {
   min-height: 38px;
   padding: 8px 16px !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   line-height: 18px !important;
 }
 
@@ -2807,42 +2817,42 @@ table {
   color: var(--admin-text, #14243a);
 }
 .admin-premium-shell main > section h2 {
-  font-size: 26px !important;
+  font-size: 28px !important;
   line-height: 34px !important;
   font-weight: 750 !important;
   letter-spacing: -.03em !important;
 }
 .admin-premium-shell main > section p {
   margin-top: 2px;
-  font-size: 13px !important;
+  font-size: 15px !important;
   line-height: 20px !important;
   color: var(--admin-text-muted, #607187) !important;
 }
-.admin-premium-shell main .text-\[8px\],
-.admin-premium-shell main .text-\[9px\] {
-  font-size: 11px !important;
+.admin-premium-shell main .text-\[10px\],
+.admin-premium-shell main .text-\[11px\] {
+  font-size: 13px !important;
   line-height: 16px !important;
 }
-.admin-premium-shell main .text-\[10px\] {
-  font-size: 12px !important;
+.admin-premium-shell main .text-\[12px\] {
+  font-size: 14px !important;
   line-height: 17px !important;
 }
-.admin-premium-shell main .text-\[11px\] {
-  font-size: 12px !important;
+.admin-premium-shell main .text-\[13px\] {
+  font-size: 14px !important;
   line-height: 18px !important;
 }
 .admin-premium-shell main .text-xs {
-  font-size: 13px !important;
+  font-size: 15px !important;
   line-height: 19px !important;
 }
 .admin-premium-shell main .text-sm,
 .admin-premium-shell main .text-body-sm {
-  font-size: 14px !important;
+  font-size: 16px !important;
   line-height: 21px !important;
 }
 .admin-premium-shell .premium-sidebar nav button {
   min-height: 42px;
-  font-size: 13px !important;
+  font-size: 15px !important;
   line-height: 19px !important;
   font-weight: 600 !important;
   display: flex;
@@ -2850,14 +2860,14 @@ table {
   justify-content: flex-start;
   gap: 12px;
 }
-.admin-premium-shell .premium-sidebar > div:first-child p { font-size: 12px !important; line-height: 18px !important; }
+.admin-premium-shell .premium-sidebar > div:first-child p { font-size: 14px !important; line-height: 18px !important; }
 .admin-premium-shell .premium-header nav button,
 .admin-premium-shell .premium-header input {
-  font-size: 13px !important;
+  font-size: 15px !important;
   line-height: 19px !important;
 }
 .admin-premium-shell main button:not([aria-label]) {
-  font-size: 12px;
+  font-size: 14px;
   line-height: 18px;
   font-weight: 650;
 }
@@ -2865,30 +2875,30 @@ table {
 .admin-premium-shell main select,
 .admin-premium-shell main textarea {
   min-height: 36px;
-  font-size: 13px !important;
+  font-size: 15px !important;
   line-height: 20px !important;
 }
 .admin-premium-shell main textarea { min-height: 76px; }
 .admin-premium-shell main label {
-  font-size: 12px;
+  font-size: 14px;
   line-height: 17px;
   font-weight: 650;
 }
 .admin-premium-shell main table th,
 .admin-premium-shell main .admin-table th {
-  font-size: 11px !important;
+  font-size: 13px !important;
   line-height: 16px !important;
   font-weight: 750 !important;
   letter-spacing: .055em !important;
 }
 .admin-premium-shell main table td,
 .admin-premium-shell main .admin-table td {
-  font-size: 13px;
+  font-size: 15px;
   line-height: 19px;
 }
 .admin-premium-shell main .font-label-caps,
 .admin-premium-shell main .text-label-caps {
-  font-size: 12px !important;
+  font-size: 14px !important;
   line-height: 17px !important;
 }
 .admin-premium-shell main button:disabled {
@@ -2927,7 +2937,7 @@ table {
 .admin-premium-shell .places-input-icon:hover { background: #eef2f6 !important; }
 .dark .admin-premium-shell .places-input-icon:hover { background: #263244 !important; }
 @media (max-width: 900px) {
-  .admin-premium-shell main > section h2 { font-size: 23px !important; line-height: 30px !important; }
+  .admin-premium-shell main > section h2 { font-size: 25px !important; line-height: 30px !important; }
 }
 
 /* Persistent administrator account area */
@@ -2955,15 +2965,15 @@ table {
   border-radius: 50%;
   background: #14243a;
   color: #fff;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 800;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-brand) 14%, transparent);
 }
 .admin-premium-shell .sidebar-account-copy { min-width: 0; text-align: left; }
 .admin-premium-shell .sidebar-account-copy strong,
 .admin-premium-shell .sidebar-account-copy span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.admin-premium-shell .sidebar-account-copy strong { color: var(--admin-text); font-size: 13px; line-height: 18px; }
-.admin-premium-shell .sidebar-account-copy span { color: var(--admin-text-muted); font-size: 10px; line-height: 15px; }
+.admin-premium-shell .sidebar-account-copy strong { color: var(--admin-text); font-size: 15px; line-height: 18px; }
+.admin-premium-shell .sidebar-account-copy span { color: var(--admin-text-muted); font-size: 12px; line-height: 15px; }
 .admin-premium-shell .sidebar-account-logout {
   display: flex;
   width: 100%;
@@ -3038,8 +3048,8 @@ table {
   color: #a73746;
   box-shadow: inset 0 -3px 0 #a73746;
 }
-.admin-premium-shell .settings-tabs strong { font-size: 13px; line-height: 18px; }
-.admin-premium-shell .settings-tabs span { color: var(--admin-text-muted); font-size: 10px; line-height: 14px; font-weight: 500; }
+.admin-premium-shell .settings-tabs strong { font-size: 15px; line-height: 18px; }
+.admin-premium-shell .settings-tabs span { color: var(--admin-text-muted); font-size: 12px; line-height: 14px; font-weight: 500; }
 
 .admin-premium-shell .settings-tabs button {
   border-color: rgba(148, 163, 184, .42);
@@ -3049,8 +3059,8 @@ table {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
-.admin-premium-shell .settings-tabs button strong { color: #1d2d41; font-size: 14px; font-weight: 800; }
-.admin-premium-shell .settings-tabs button span { color: #52657b; font-size: 11px; font-weight: 600; }
+.admin-premium-shell .settings-tabs button strong { color: #1d2d41; font-size: 16px; font-weight: 800; }
+.admin-premium-shell .settings-tabs button span { color: #52657b; font-size: 13px; font-weight: 600; }
 .admin-premium-shell .settings-tabs button.is-active {
   border-color: #a73746;
   background: rgba(255, 255, 255, .98);
@@ -3077,6 +3087,8 @@ table {
 .admin-premium-shell .settings-layout > .settings-business,
 .admin-premium-shell .settings-layout > .settings-operations,
 .admin-premium-shell .settings-layout > .settings-pricing,
+.admin-premium-shell .settings-layout > .settings-margins,
+.admin-premium-shell .settings-layout > .settings-driver-rules,
 .admin-premium-shell .settings-layout > .settings-geo,
 .admin-premium-shell .settings-layout > .settings-tolls,
 .admin-premium-shell .settings-layout > .settings-overheads { display: none !important; }
@@ -3089,6 +3101,8 @@ table {
 .admin-premium-shell .settings-section-company > .settings-operations { display: block !important; grid-column: span 4 !important; grid-row: auto !important; }
 .admin-premium-shell .settings-section-company > .settings-geo { display: block !important; grid-column: span 8 !important; grid-row: auto !important; }
 .admin-premium-shell .settings-section-pricing > .settings-pricing,
+.admin-premium-shell .settings-section-pricing > .settings-margins,
+.admin-premium-shell .settings-section-pricing > .settings-driver-rules,
 .admin-premium-shell .settings-section-pricing > .settings-tolls { display: block !important; grid-column: span 6 !important; grid-row: auto !important; }
 .admin-premium-shell .settings-overheads button[title="Remove"] { opacity: 1 !important; }
 
@@ -3185,6 +3199,8 @@ table {
   .admin-premium-shell .settings-section-company > .settings-operations,
   .admin-premium-shell .settings-section-company > .settings-geo,
   .admin-premium-shell .settings-section-pricing > .settings-pricing,
+  .admin-premium-shell .settings-section-pricing > .settings-margins,
+  .admin-premium-shell .settings-section-pricing > .settings-driver-rules,
   .admin-premium-shell .settings-section-pricing > .settings-tolls { grid-column: 1 / 13 !important; }
   .admin-premium-shell .settings-section-company > .settings-business > .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -3253,6 +3269,8 @@ table {
   .admin-premium-shell .premium-sidebar + div { margin-left: 220px !important; }
   .admin-premium-shell .premium-sidebar nav button { padding-left: 14px !important; padding-right: 14px !important; }
   .admin-premium-shell .settings-section-pricing > .settings-pricing { grid-column: 1 / 13 !important; }
+  .admin-premium-shell .settings-section-pricing > .settings-margins { grid-column: 1 / 13 !important; }
+  .admin-premium-shell .settings-section-pricing > .settings-driver-rules { grid-column: 1 / 13 !important; }
   .admin-premium-shell .settings-section-pricing > .settings-tolls { grid-column: 1 / 13 !important; }
 }
 
@@ -3288,18 +3306,6 @@ table {
   .admin-premium-shell .header-quick-nav { display: none !important; }
 }
 
-/* Stay single-column (list, then detail panel below) until there's genuinely
-   enough room for sidebar + the table's 980px minimum + the detail panel. */
-@media (max-width: 1649px) {
-  .admin-premium-shell .quotations-page {
-    height: auto !important;
-    max-height: none !important;
-    grid-template-columns: minmax(0, 1fr) !important;
-    overflow-y: auto !important;
-  }
-  .admin-premium-shell .quotation-detail-panel { max-height: none !important; }
-}
-
 @media (max-width: 760px) {
   .admin-premium-shell .premium-header > div:first-child { min-width: 0; flex: 1; }
   .admin-premium-shell .admin-global-search { min-width: 0; flex: 1; }
@@ -3328,6 +3334,43 @@ table {
   }
   .admin-premium-shell .quotation-fare-filter { grid-column: auto; }
   .admin-premium-shell .quotation-filters > button { width: 100%; }
+}
+
+/* The list pane always shares width with the fixed-width detail panel, so
+   size the table off the pane's own space (container query), not the
+   viewport. Below 1050px of actual list width (true almost always, since
+   the detail panel + sidebar permanently claim space now), drop the least
+   essential column (fleet name is also in the detail panel) and give
+   Margins more room, so Fare + Margins never need a horizontal scroll. */
+@container (max-width: 1050px) {
+  .admin-premium-shell .quotations-page .quotations-table { min-width: 560px !important; }
+  .admin-premium-shell .quotations-page .quotations-table th:nth-child(4),
+  .admin-premium-shell .quotations-page .quotations-table td:nth-child(4) { display: none !important; }
+  .admin-premium-shell .quotations-page .quotations-table th:nth-child(1),
+  .admin-premium-shell .quotations-page .quotations-table td:nth-child(1) { width: 15% !important; }
+  .admin-premium-shell .quotations-page .quotations-table th:nth-child(2),
+  .admin-premium-shell .quotations-page .quotations-table td:nth-child(2) { width: 22% !important; }
+  .admin-premium-shell .quotations-page .quotations-table th:nth-child(3),
+  .admin-premium-shell .quotations-page .quotations-table td:nth-child(3) { width: 25% !important; }
+  .admin-premium-shell .quotations-page .quotations-table th:nth-child(5),
+  .admin-premium-shell .quotations-page .quotations-table td:nth-child(5) { width: 12% !important; }
+  .admin-premium-shell .quotations-page .quotations-table th:nth-child(6),
+  .admin-premium-shell .quotations-page .quotations-table td:nth-child(6) { width: 26% !important; }
+}
+/* Very tight list panes (small screens, or a lot of zoom): shrink the floor
+   further and give Margins most of the remaining room. */
+@container (max-width: 560px) {
+  .admin-premium-shell .quotations-page .quotations-table { min-width: 460px !important; }
+  .admin-premium-shell .quotations-page .quotations-table th:nth-child(1),
+  .admin-premium-shell .quotations-page .quotations-table td:nth-child(1) { width: 13% !important; }
+  .admin-premium-shell .quotations-page .quotations-table th:nth-child(2),
+  .admin-premium-shell .quotations-page .quotations-table td:nth-child(2) { width: 19% !important; }
+  .admin-premium-shell .quotations-page .quotations-table th:nth-child(3),
+  .admin-premium-shell .quotations-page .quotations-table td:nth-child(3) { width: 21% !important; }
+  .admin-premium-shell .quotations-page .quotations-table th:nth-child(5),
+  .admin-premium-shell .quotations-page .quotations-table td:nth-child(5) { width: 11% !important; }
+  .admin-premium-shell .quotations-page .quotations-table th:nth-child(6),
+  .admin-premium-shell .quotations-page .quotations-table td:nth-child(6) { width: 36% !important; }
 }
 
 /* Admin authentication hero */
@@ -3522,11 +3565,14 @@ table {
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 680px) {
   .admin-premium-shell .fleet-economics-workspace {
     display: flex !important;
     flex-direction: column;
   }
+}
+
+@media (max-width: 760px) {
   .admin-premium-shell .fleet-profit-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .admin-premium-shell .fleet-cost-columns,
   .admin-premium-shell .fleet-cost-row {
@@ -3570,7 +3616,7 @@ table {
     width: 100%;
     overflow: hidden;
     color: inherit;
-    font-size: 9px !important;
+    font-size: 11px !important;
     line-height: 12px !important;
     text-align: center;
     text-overflow: ellipsis;
