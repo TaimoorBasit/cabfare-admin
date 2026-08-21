@@ -1526,6 +1526,10 @@ const STAFF_PERMISSION_LABELS = {
   dashboard:'Dashboard', bookings:'Quotations', fleet:'Fleet', pricing:'Pricing', settings:'Settings'
 };
 const STAFF_PERMISSIONS = Object.keys(STAFF_PERMISSION_LABELS);
+// Shared by the activity-log display and the autosave diff-builder: splits
+// camelCase/snake_case into words so raw keys like "marginWeekday" read as
+// "Margin Weekday" without needing a maintained per-field label map.
+const prettyField = key => String(key || '').replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/[_-]+/g, ' ').trim().replace(/^./, c => c.toUpperCase()) || 'Field';
 
 function StaffAccessPanel({ setToast }) {
   const [staff, setStaff] = useState([]);
@@ -1594,10 +1598,6 @@ function StaffAccessPanel({ setToast }) {
   const formatDate = value => value ? new Date(value).toLocaleString('en-GB', {dateStyle:'medium',timeStyle:'short'}) : 'Never';
   const formatUsage = minutes => Number(minutes) < 1 ? '—' : `${Math.floor(Number(minutes)/60)}h ${Math.round(Number(minutes)%60)}m`;
   const formatSeconds = seconds => `${Math.floor(Number(seconds)/3600)}h ${Math.floor(Number(seconds)%3600/60)}m ${Math.floor(Number(seconds)%60)}s`;
-  // Works for any field key across the whole dashboard, not a per-page lookup:
-  // splits camelCase/snake_case into words so raw keys like "marginWeekday"
-  // read as "Margin Weekday" without needing a maintained label map.
-  const prettyField = key => String(key || '').replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/[_-]+/g, ' ').trim().replace(/^./, c => c.toUpperCase()) || 'Field';
   // The backend sometimes sends the literal placeholder "Updated" instead of
   // a real value when it only knows a section changed, not the specific old
   // and new values — treat that placeholder as "no value", not a real one,
@@ -5043,33 +5043,14 @@ export default function AdminApp() {
 
         // Bootstrap auth and configuration once. Once online, the interval above
         // only checks health so it cannot keep re-downloading /me and /config.
-        const [meResponse, configResponse] = await Promise.all([
-          authenticatedFetch(API_BASE_URL + "/api/auth/me", { cache: "no-store", signal: controller.signal }),
-          authenticatedFetch(API_BASE_URL + "/api/admin/config", { cache: "no-store", signal: controller.signal })
-        ]);
+        const configResponse = await authenticatedFetch(API_BASE_URL + "/api/admin/config", { cache: "no-store", signal: controller.signal });
 
-        if (meResponse.status === 401) {
+        if (configResponse.status === 401) {
           if (!cancelled) setAuthRequired(true);
           return;
         }
-        if (!meResponse.ok) throw new Error(`Current user returned ${meResponse.status}`);
-        const currentUser = (await meResponse.json()).user;
-        if (!cancelled && currentUser) {
-          window.localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(currentUser));
-          setAdminUser(previous => JSON.stringify(previous) === JSON.stringify(currentUser) ? previous : currentUser);
-        }
-
-        const response = configResponse;
-        if (response.status === 401) {
-          if (!cancelled) {
-            setAuthRequired(true);
-            backendStatusRef.current = 'connecting';
-            setBackendStatus('connecting');
-          }
-          return;
-        }
-        if (!response.ok) throw new Error(`Backend returned ${response.status}`);
-        const receivedData = await response.json();
+        if (!configResponse.ok) throw new Error(`Backend returned ${configResponse.status}`);
+        const receivedData = await configResponse.json();
         if (!receivedData || !Array.isArray(receivedData.vehicles)) {
           throw new Error("Backend returned an invalid configuration payload");
         }
