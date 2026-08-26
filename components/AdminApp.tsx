@@ -5,6 +5,9 @@ import { API_BASE_URL } from '../lib/api';
 
 import { Fragment, useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
+import LeafletMapPickerModal from "./LeafletMapPickerModal";
+import LeafletRouteMap from "./LeafletRouteMap";
+import LeafletDepotMap from "./LeafletDepotMap";
 import { Search, Sun, Moon, TrendingUp, Plus, Edit3, MoreVertical, Pause, History, CalendarDays, SlidersHorizontal, Download, CircleDollarSign, Target, RefreshCw, Activity, MapPinned, Eye, EyeOff } from "lucide-react";
 
 const ADMIN_TOKEN_KEY = 'caroleanAdminToken';
@@ -681,140 +684,9 @@ function useGoogleMaps(apiKey) {
   return loaded;
 }
 
-// ── Map Picker Modal ──────────────────────────────────────────────────────────
-function MapPickerModal({ isOpen, onClose, onConfirm, initialSearch }) {
-  const mapRef = useRef(null);
-  const searchInputRef = useRef(null);
-  const [map, setMap] = useState(null);
-  const [marker, setMarker] = useState(null);
-  const [selectedAddr, setSelectedAddr] = useState("");
-  const [selectedGeo, setSelectedGeo] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!isOpen) {
-      setMap(null);
-      setMarker(null);
-      return;
-    }
-    let mapListener, markerListener, acListener;
-    if (isOpen && window.google?.maps && mapRef.current && !map) {
-      // Small timeout ensures the modal animation is complete and map container has a non-zero size
-      setTimeout(() => {
-        if (!mapRef.current) return;
-        const m = new window.google.maps.Map(mapRef.current, {
-          zoom: 6,
-          center: { lat: 52.5, lng: -1.5 },
-          disableDefaultUI: false,
-          streetViewControl: false,
-          mapTypeControl: false,
-          fullscreenControl: false,
-        });
-        const mk = new window.google.maps.Marker({ map: m, draggable: true });
-        setMap(m);
-        setMarker(mk);
-
-        const geocoder = new window.google.maps.Geocoder();
-
-        const handleSelect = (latLng) => {
-          mk.setPosition(latLng);
-          setLoading(true);
-          geocoder.geocode({ location: latLng }, (results, status) => {
-            setLoading(false);
-            if (status === "OK" && results[0]) {
-              const isUK = results[0].address_components.some(c => c.short_name === "GB" || c.long_name === "United Kingdom");
-              if (!isUK) {
-                setSelectedAddr("âŒ Service is exclusively available in the UK");
-                setSelectedGeo(null);
-                return;
-              }
-              setSelectedAddr(results[0].formatted_address);
-              setSelectedGeo({ lat: latLng.lat(), lng: latLng.lng(), name: results[0].formatted_address });
-            } else {
-              setSelectedAddr("âŒ Unknown location");
-              setSelectedGeo(null);
-            }
-          });
-        };
-
-        mapListener = m.addListener("click", (e) => handleSelect(e.latLng));
-        markerListener = mk.addListener("dragend", (e) => handleSelect(e.latLng));
-
-        if (initialSearch) {
-          geocoder.geocode({ address: initialSearch }, (results, status) => {
-            if (status === "OK" && results[0]) {
-              m.setCenter(results[0].geometry.location);
-              m.setZoom(14);
-              handleSelect(results[0].geometry.location);
-            }
-          });
-        }
-
-        if (window.google?.maps?.places && searchInputRef.current) {
-          const ac = new window.google.maps.places.Autocomplete(searchInputRef.current, {
-            componentRestrictions: { country: "gb" },
-            fields: ["formatted_address", "geometry", "name"],
-          });
-          ac.bindTo("bounds", m);
-          acListener = ac.addListener("place_changed", () => {
-            const p = ac.getPlace();
-            if (!p.geometry || !p.geometry.location) return;
-            m.setCenter(p.geometry.location);
-            m.setZoom(14);
-            handleSelect(p.geometry.location);
-          });
-        }
-      }, 400); // 400ms delay to ensure modal animation is fully complete
-    }
-
-    return () => {
-      if (mapListener) window.google?.maps?.event?.removeListener(mapListener);
-      if (markerListener) window.google?.maps?.event?.removeListener(markerListener);
-      if (acListener) window.google?.maps?.event?.removeListener(acListener);
-    };
-  }, [isOpen, mapRef, initialSearch]);
-
-  if (!isOpen) return null;
-
-  return (
-    <div style={{ position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(13,14,72,0.45)",backdropFilter:"blur(4px)",zIndex:9999,display:"flex",alignItems:"center",justifyContent:"center",padding:20 }}>
-      <div className="fade-up" style={{ width:"100%",maxWidth:600,maxHeight:"90vh",background: "#fff",borderRadius:16,overflow:"hidden",boxShadow:"0 20px 50px rgba(0,0,0,0.3)", display:"flex", flexDirection:"column" }}>
-        
-        {/* Header */}
-        <div style={{ padding:"16px 20px",borderBottom:"1px solid #e2e8f0",display:"flex",justifyContent:"space-between",alignItems:"center", flexShrink:0 }}>
-          <div style={{ fontWeight:700,color: PX.navy800,fontSize:18, display:"flex", alignItems:"center", gap:6 }}><SvgMapPinRed /> Pinpoint Location</div>
-          <button type="button" onClick={onClose} style={{ background:"none",border:"none",fontSize:22,cursor:"pointer",color: PX.gray400,lineHeight:1, display:"flex", alignItems:"center" }}><SvgClose size={18} /></button>
-        </div>
-
-        {/* Search Bar */}
-        <div style={{ padding:"12px 20px", borderBottom:"1px solid #e2e8f0", background: "#f8fafc", flexShrink:0 }}>
-          <div style={{ background: "#fff",padding:"10px 16px",borderRadius:8,border:`1.5px solid #fee2e2`,boxShadow:"0 2px 4px rgba(0,0,0,.02)",display:"flex",alignItems:"center",gap:8 }}>
-            {loading ? <span className="spinning" style={{color: PX.navy800}}>⟳</span> : <SvgMapPinRed />}
-            <input 
-              ref={searchInputRef}
-              type="text" 
-              placeholder="Search for a location or click map to drop pin..." 
-              value={selectedAddr} 
-              onChange={e => setSelectedAddr(e.target.value)}
-              style={{ flex:1, border:"none", outline:"none", fontSize:16, fontWeight:500, color: PX.navy800, background:"transparent", width:"100%" }}
-            />
-          </div>
-        </div>
-
-        {/* Map Container (Flexible Height) */}
-        <div style={{ position:"relative", flex:1, minHeight: 250, height: 360 }}>
-          <div ref={mapRef} style={{ position: "absolute", top:0, left:0, right:0, bottom:0, background:PX.gray100 }}/>
-        </div>
-
-        {/* Footer */}
-        <div style={{ padding:"16px 20px",display:"flex",justifyContent:"flex-end",gap:12,background: PX.gray50,borderTop:"1px solid #e2e8f0", flexShrink:0 }}>
-          <button type="button" onClick={onClose} style={{ padding:"8px 16px",borderRadius:8,border: `1px solid ${PX.gray200}`,background: "#fff",cursor:"pointer",fontWeight:600,color: PX.gray600 }}>Cancel</button>
-          <button type="button" onClick={()=>{ if(selectedGeo) onConfirm(selectedAddr, selectedGeo); }} disabled={!selectedGeo} style={{ padding:"8px 16px",borderRadius:8,border:"none",background:PX.navy800,color:"#fff",cursor:selectedGeo?"pointer":"not-allowed",fontWeight:600,opacity:selectedGeo?1:0.5 }}>Confirm Location</button>
-        </div>
-
-      </div>
-    </div>
-  );
+// ── Map Picker Modal (Street Map Style via Leaflet) ───────────────────────────
+function MapPickerModal(props) {
+  return <LeafletMapPickerModal {...props} />;
 }
 
 // ── Places Autocomplete Input ─────────────────────────────────────────────────
@@ -958,31 +830,7 @@ function ProgressBar({ pct, color }) {
 // ── Route map ─────────────────────────────────────────────────────────────────
 
 function DepotMapPreview({ lat, lng, darkMode }) {
-  const mapRef = useRef(null);
-  const [map, setMap] = useState(null);
-  useEffect(() => {
-    if (window.google?.maps && mapRef.current && lat && lng && !map) {
-      const m = new window.google.maps.Map(mapRef.current, {
-        zoom: 12,
-        center: { lat, lng },
-        disableDefaultUI: true,
-        styles: darkMode ? googleMapDarkStyle : []
-      });
-      new window.google.maps.Marker({
-        position: { lat, lng },
-        map: m,
-      });
-      setMap(m);
-    }
-  }, [lat, lng, mapRef]);
-  
-  useEffect(() => {
-    if (map) {
-      map.setOptions({ styles: darkMode ? googleMapDarkStyle : [] });
-    }
-  }, [map, darkMode]);
-
-  return <div ref={mapRef} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }} />;
+  return <LeafletDepotMap lat={lat} lng={lng} darkMode={darkMode} />;
 }
 
 const googleMapDarkStyle = [
@@ -1051,115 +899,13 @@ function getSavedRoutePoints(result, journey) {
   return points.filter((point, index, allPoints) => index === 0 || point.lat !== allPoints[index - 1].lat || point.lng !== allPoints[index - 1].lng);
 }
 
-function GoogleMapPreview({ result, journey, gv, height=320, minimal=false, darkMode=false }) {
-  const mapRef = useRef(null);
-  const [map, setMap] = useState(null);
-  const overlaysRef = useRef<any[]>([]);
-
-  useEffect(() => {
-    if (window.google?.maps && mapRef.current && !map) {
-      const m = new window.google.maps.Map(mapRef.current, {
-        zoom: 7,
-        center: { lat: 52.5, lng: -1.5 },
-        disableDefaultUI: true,
-        styles: darkMode ? googleMapDarkStyle : []
-      });
-      setMap(m);
-    }
-  }, [mapRef, map]);
-
-  useEffect(() => {
-    if (map) {
-      map.setOptions({ styles: darkMode ? googleMapDarkStyle : [] });
-    }
-  }, [map, darkMode]);
-
-  useEffect(() => {
-    if (!map || !window.google?.maps) return;
-    overlaysRef.current.forEach(overlay => overlay.setMap?.(null));
-    overlaysRef.current = [];
-    const pts = getSavedRoutePoints(result, journey);
-    let path = [];
-    if (result?.geometry && window.google.maps.geometry?.encoding?.decodePath) {
-      try { path = window.google.maps.geometry.encoding.decodePath(result.geometry); } catch (_) { path = []; }
-    }
-    if (path.length < 2) path = pts.map(point => ({ lat:point.lat, lng:point.lng }));
-    if (path.length < 2) return;
-
-    const routeLine = new window.google.maps.Polyline({
-      map,
-      path,
-      geodesic:true,
-      strokeColor: darkMode ? "#60A5FA" : "#294F73",
-      strokeOpacity:1,
-      strokeWeight:5
-    });
-    overlaysRef.current.push(routeLine);
-    if (journey?.journeyType === "return") {
-      const returnLine = new window.google.maps.Polyline({
-        map,
-        path:[...path].reverse(),
-        geodesic:true,
-        strokeColor:"#A73746",
-        strokeOpacity:0,
-        strokeWeight:4,
-        icons:[{ icon:{ path:"M 0,-1 0,1", strokeColor:"#E5485D", strokeOpacity:1, strokeWeight:3, scale:3 }, offset:"0", repeat:"15px" }]
-      });
-      overlaysRef.current.push(returnLine);
-    }
-    const bounds = new window.google.maps.LatLngBounds();
-    path.forEach(point => bounds.extend(point));
-    pts.forEach((point, index) => {
-      const marker = new window.google.maps.Marker({
-        map,
-        position:{ lat:point.lat, lng:point.lng },
-        label:index === 0 ? "A" : index === pts.length - 1 ? "B" : String(index),
-        title:point.kind === "stop" ? `Stop ${index}: ${point.name}` : point.name || (index === 0 ? journey?.origin : journey?.destination)
-      });
-      overlaysRef.current.push(marker);
-      bounds.extend(marker.getPosition());
-    });
-    if (gv?.yardLat != null && gv?.yardLat !== "" && Number.isFinite(Number(gv?.yardLat)) && gv?.yardLng != null && gv?.yardLng !== "" && Number.isFinite(Number(gv?.yardLng))) {
-      const depotMarker = new window.google.maps.Marker({
-        map,
-        position:{ lat:Number(gv.yardLat), lng:Number(gv.yardLng) },
-        title:gv.yardAddress || "Configured depot",
-        icon:{ path:window.google.maps.SymbolPath.CIRCLE, scale:7, fillColor:"#A22D3A", fillOpacity:1, strokeColor:"#fff", strokeWeight:2 }
-      });
-      overlaysRef.current.push(depotMarker);
-    }
-    map.fitBounds(bounds, 36);
-    return () => {
-      overlaysRef.current.forEach(overlay => overlay.setMap?.(null));
-      overlaysRef.current = [];
-    };
-  }, [map, result, journey, gv?.yardLat, gv?.yardLng, gv?.yardAddress, darkMode]);
-
-
-  return (
-    <div style={{ position:"relative" }}>
-      <div ref={mapRef} style={{ width: '100%', height, borderRadius: minimal ? 0 : 12, border: minimal ? 'none' : `1.5px solid ${darkMode ? "#374151" : PX.gray200}` }}></div>
-      <div style={{ position:"absolute", top:10, left:10, display:"flex", gap:6, flexWrap:"wrap", pointerEvents:"none" }}>
-        <span style={{ background:"rgba(15,23,42,.88)", color:"#fff", borderRadius:12, padding:"4px 8px", fontSize:11, fontWeight:800 }}>A OUTWARD</span>
-        {getJourneyStops(journey).length > 0 && <span style={{ background:"rgba(15,23,42,.88)", color:"#fff", borderRadius:12, padding:"4px 8px", fontSize:11, fontWeight:800 }}>{getJourneyStops(journey).length} {getJourneyStops(journey).length === 1 ? "STOP" : "STOPS"}</span>}
-        {journey?.journeyType === "return" && <span style={{ background:"rgba(167,55,70,.92)", color:"#fff", borderRadius:12, padding:"4px 8px", fontSize:11, fontWeight:800 }}>RETURN</span>}
-      </div>
-      {!minimal && result && <div style={{ display:"grid", gridTemplateColumns:"repeat(4, 1fr)", gap:8, marginTop:12 }}>
-        {[["Total route",result.totalKm+" "+(gv?.distanceUnit === "miles" ? "mi" : "km")],[`Live ${gv?.distanceUnit === "miles" ? "mi" : "km"}`,result.revenueKm+" "+(gv?.distanceUnit === "miles" ? "mi" : "km")],
-          ["Duration",result.totalShiftHrs+"h"],["Est. Days",result.opDays]].map(([l,v])=>(
-          <div key={l} style={{ background: PX.gray50, border: `1px solid ${PX.gray200}`, borderRadius:8, padding:"8px", textAlign:"center" }}>
-            <div style={{ fontSize:12, fontWeight:700, color: PX.gray400, textTransform:"uppercase", marginBottom:2 }}>{l}</div>
-            <div style={{ fontSize:15, fontWeight:800, color: PX.navy800 }}>{v}</div>
-          </div>
-        ))}
-      </div>}
-    </div>
-  );
+function GoogleMapPreview(props) {
+  return <LeafletRouteMap {...props} />;
 }
 
 function RouteMap({ result, journey, gv, height=320, minimal=false, darkMode=false, mapsLoaded=false }) {
   const savedRoutePoints = getSavedRoutePoints(result, journey);
-  if (mapsLoaded && window.google?.maps && (result?.geometry || savedRoutePoints.length >= 2)) {
+  if (result?.geometry || savedRoutePoints.length >= 2) {
     return <GoogleMapPreview result={result} journey={journey} gv={gv} height={height} minimal={minimal} darkMode={darkMode} />;
   }
   if (savedRoutePoints.length < 2) return <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height, gap:10, color: PX.gray400, border: minimal ? 'none' : `1.5px dashed ${darkMode ? "#374151" : PX.gray200}`, borderRadius: minimal ? 0 : 12 }}>
