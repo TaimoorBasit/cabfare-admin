@@ -944,6 +944,19 @@ input, select, textarea {
 }
 .quotation-detail-body > div:nth-child(7) > div[style*="height: 1px"] { margin: 4px 0 !important; }
 .quotation-detail-body > div:nth-child(7) > div:last-child > div:first-child > div:last-child { font-size: 25px !important; }
+.quotation-cost-grid > * { min-width: 0; }
+.quotation-cost-grid { grid-template-columns: minmax(0, 1fr) !important; gap: 22px !important; }
+.quotation-cost-grid table { width: 100%; table-layout: fixed; }
+.quotation-cost-grid th { font-size: 10px !important; line-height: 1.15 !important; white-space: normal; overflow-wrap: anywhere; }
+.quotation-cost-grid td { font-size: 11px !important; line-height: 1.25 !important; overflow-wrap: anywhere; }
+.quotation-cost-grid th:nth-child(1), .quotation-cost-grid td:nth-child(1) { width: 52%; }
+.quotation-cost-grid th:nth-child(2), .quotation-cost-grid td:nth-child(2) { width: 24%; }
+.quotation-cost-grid th:nth-child(3), .quotation-cost-grid td:nth-child(3) { width: 24%; }
+@media (max-width: 1100px) {
+  .quotation-detail-body .quotation-cost-grid { display: block !important; }
+  .quotation-detail-body .quotation-cost-grid > div { width: 100%; margin-bottom: 18px; }
+  .quotation-detail-body .quotation-cost-grid > div:last-child { margin-bottom: 0; }
+}
 
 @media (max-height: 780px) and (min-width: 1024px) {
   .quotation-detail-panel .quotation-detail-map { height: 112px !important; flex-basis: 112px !important; }

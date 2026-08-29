@@ -751,9 +751,9 @@ function PlacesInput({ value, onChange, placeholder, icon, mapsLoaded, onIconCli
 
   return (
     <div className="places-input" style={{ position:"relative", width: "100%" }}>
-      <button className="places-input-icon" aria-label={mapsLoaded ? "Choose location on map" : "Map picker unavailable"} type="button" disabled={!mapsLoaded} onClick={()=>{ if (!mapsLoaded) return; if (onIconClick) onIconClick(); else setPickerOpen(true); }} title={mapsLoaded ? "Choose on map" : "Google Maps is unavailable; type the address instead"}
+      <button className="places-input-icon" aria-label="Choose location on map" type="button" onClick={()=>{ if (onIconClick) onIconClick(); else setPickerOpen(true); }} title="Choose or search on map"
         style={{ position:"absolute", left:6, top:"50%", transform:"translateY(-50%)",
-          display:"flex", alignItems:"center", zIndex:1, background:"none", border:"none", cursor:mapsLoaded?"pointer":"not-allowed", opacity:mapsLoaded?1:.45,
+          display:"flex", alignItems:"center", zIndex:1, background:"none", border:"none", cursor:"pointer", opacity:1,
           padding:"6px", borderRadius:6, transition:"background .15s" }}
         onMouseOver={e=>e.currentTarget.style.background="#f1f5f9"} onMouseOut={e=>e.currentTarget.style.background="none"}>
         {icon}
@@ -1030,7 +1030,7 @@ function printBookingPdfLegacy(booking) {
   const row = (label, value) => `<tr><th>${esc(label)}</th><td>${esc(value)}</td></tr>`;
   const journey = booking.journey || {};
   const quote = booking.quote || {};
-  const result = quote.result || {};
+const result = quote.result || {};
   const breakdown = result.breakdown || {};
   const mapKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
   const points = (journey.wpCoords || []).filter(point => point && Number.isFinite(Number(point.lat)) && Number.isFinite(Number(point.lng)));
@@ -1074,6 +1074,7 @@ function printBookingPdf(booking) {
   const journey = booking.journey || {};
   const quote = booking.quote || {};
   const result = quote.result || {};
+  const displayedDeadDistance = Math.max(0, Number(result.totalKm || 0) - Number(result.revenueKm || 0));
   const breakdown = result.breakdown || {};
   const esc = value => String(value ?? "--").replace(/[&<>"]/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[char]));
   const has = (object, key) => Object.prototype.hasOwnProperty.call(object || {}, key) && object[key] !== null && object[key] !== undefined && object[key] !== "";
@@ -1106,7 +1107,7 @@ function printBookingPdf(booking) {
   const customerTotal = result.customerTotal ?? result.totalIncVat ?? result.total;
   const stopRows = stops.map((stop, index) => `<div class="timeline-row"><b>${index + 1}</b><div><small>STOP ${index + 1}${stop.wait ? ` · ${esc(stop.wait)} MIN WAIT` : ""}</small><strong>${esc(stop.place || stop.name || "Saved stop")}</strong></div></div>`).join("");
   const timeline = `<div class="timeline"><div class="timeline-row"><b>A</b><div><small>OUTWARD · PICKUP</small><strong>${esc(journey.origin)}</strong><span>${esc(dateTime(journey.departureDate))}</span></div></div>${stopRows}<div class="timeline-row"><b class="end">B</b><div><small>DESTINATION</small><strong>${esc(journey.destination)}</strong></div></div>${journey.journeyType === "return" ? `<div class="timeline-row return"><b>R</b><div><small>RETURN · ${esc(dateTime(journey.returnDate))}</small><strong>${esc(journey.destination)} → ${esc(journey.origin)}</strong></div></div>` : ""}</div>`;
-  const costRows = [moneyRow("Distance cost", "distanceCost"), moneyRow("Fuel cost", "fuelCost"), moneyRow("Maintenance cost", "maintenanceCost"), moneyRow("Tyre cost", "tyreCost"), moneyRow("Driver cost", "driverCost"), moneyRow("Standing cost", "standingCost"), moneyRow("Overnight / subsistence", "overnightCost"), moneyRow("Waiting cost", "waitingCost"), moneyRow("Surcharges", "surchargeTotal"), moneyRow("Allocated vehicle overhead", "allocatedStanding"), moneyRow("Allocated company overhead", "allocatedOverhead")].join("");
+  const costRows = [moneyRow("Live-leg running cost", "liveDistanceCost"), moneyRow("Dead-leg running cost", "deadDistanceCost"), moneyRow("Distance cost", "distanceCost"), moneyRow("Fuel cost", "fuelCost"), moneyRow("Maintenance cost", "maintenanceCost"), moneyRow("Tyre cost", "tyreCost"), moneyRow("Driver cost", "driverCost"), moneyRow("Standing cost", "standingCost"), moneyRow("Overnight / subsistence", "overnightCost"), moneyRow("Waiting cost", "waitingCost"), moneyRow("Surcharges", "surchargeTotal"), moneyRow("Allocated vehicle overhead", "allocatedStanding"), moneyRow("Allocated company overhead", "allocatedOverhead")].join("");
   const profitabilityRows = [moneyRow("Gross profit", "grossProfit"), moneyRow("Net profit", "netProfit"), has(breakdown, "marginPct") ? `<div class="money-row"><span>Gross margin</span><strong>${esc(breakdown.marginPct)}%</strong></div>` : "", has(breakdown, "netMarginPct") ? `<div class="money-row"><span>Net margin</span><strong>${esc(breakdown.netMarginPct)}%</strong></div>` : "", moneyRow("Profit floor", "profitFloor"), moneyRow("Net profit target", "netProfitTarget")].join("");
   const operationalRows = [
     ["Commercial weight", has(breakdown, "commercialWeight") ? breakdown.commercialWeight : null],
@@ -1121,7 +1122,7 @@ function printBookingPdf(booking) {
   ].filter(([, value]) => value !== null).map(([label, value]) => `<div><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("");
   const transparentRows = [
     ["Live legs", has(result, "revenueKm") ? `${result.revenueKm} ${distanceUnit}` : null],
-    ["Dead legs", has(result, "deadKm") ? `${result.deadKm} ${distanceUnit}` : null],
+    ["Dead legs", has(result, "totalKm") && has(result, "revenueKm") ? `${displayedDeadDistance} ${distanceUnit}` : null],
     ["Total driven", has(result, "totalKm") ? `${result.totalKm} ${distanceUnit}` : null],
     ["Driving time", has(result, "liveDurationMinutes") ? `${result.liveDurationMinutes} min` : null],
     ["Empty running time", has(result, "emptyRunningMinutes") ? `${result.emptyRunningMinutes} min` : null],
@@ -3187,7 +3188,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         const transparentMoney = value => Number.isFinite(Number(value)) ? `£${fmt(value)}` : "--";
                         const transparentRows = [
                           ["Live legs", transparentResult.revenueKm != null ? `${transparentResult.revenueKm} ${transparentUnit}` : null],
-                          ["Dead legs", transparentResult.deadKm != null ? `${transparentResult.deadKm} ${transparentUnit}` : null],
+                          ["Dead legs", transparentResult.totalKm != null && transparentResult.revenueKm != null ? `${Math.max(0, Number(transparentResult.totalKm) - Number(transparentResult.revenueKm))} ${transparentUnit}` : null],
                           ["Total driven", transparentResult.totalKm != null ? `${transparentResult.totalKm} ${transparentUnit}` : null],
                           ["Driving time", transparentResult.liveDurationMinutes != null ? `${transparentResult.liveDurationMinutes} min` : null],
                           ["Empty running time", transparentResult.emptyRunningMinutes != null ? `${transparentResult.emptyRunningMinutes} min` : null],
@@ -3278,7 +3279,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
                         return (
                           <div style={{ display: quoteDetailTab === "costs" ? "block" : "none" }}>
-                            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 0.9fr) minmax(0, 1.1fr)", gap: 16, alignItems: "start" }}>
+                            <div className="quotation-cost-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0, 0.9fr) minmax(0, 1.1fr)", gap: 16, alignItems: "start" }}>
                               <div>
                             <div style={{ fontSize: 10, fontWeight: 800, color: darkMode ? "#6b7280" : PX.gray400, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
                               <span>Financial Margins</span>
@@ -3368,7 +3369,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   </>
                 ) : (
                   <div style={{ position: "relative", height: "100%", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-                    {mapsLoaded && depotLoc?.lat ? (
+                    {depotLoc?.lat ? (
                       <div style={{ position: "absolute", inset: 0, opacity: darkMode ? 0.3 : 0.5, pointerEvents: "none" }}>
                         <DepotMapPreview lat={depotLoc.lat} lng={depotLoc.lng} darkMode={darkMode} />
                       </div>
@@ -4329,7 +4330,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     ].map(([key,label,fallback,suffix,Icon]) => (
                       <div key={key} className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2 dark:border-slate-700 dark:bg-slate-900/50">
                         <div className="flex min-w-0 items-center gap-2"><Icon size={14} className="shrink-0 text-slate-400 dark:text-slate-500" /><span className="truncate text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span></div>
-                        <div className="flex shrink-0 items-center gap-1"><input type="number" min="0" step={key==='waitingWageFactor'?0.05:1} className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))}/><span className="text-[12px] font-bold text-slate-400">{suffix}</span></div>
+                        <div className="flex shrink-0 items-center gap-1"><input type="number" min="0" step={key==='waitingWageFactor'?0.05:1} className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? Math.round(Number(gv[key] ?? fallback) / 1.60934 * 100) / 100 : (gv[key] ?? fallback)} onChange={e=>setGv(g=>({...g,[key]:key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? Number(e.target.value) * 1.60934 : Number(e.target.value)}))}/><span className="text-[12px] font-bold text-slate-400">{key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? 'mi' : suffix}</span></div>
                       </div>
                     ))}
                   </div>
@@ -4340,24 +4341,15 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   <div className="flex items-center gap-3 mb-3">
                     <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Depot / Yard Location</h3>
                   </div>
+                  <div className="mb-3 custom-places-auto">
+                    <PlacesInput value={depotLoc.address} mapsLoaded={mapsLoaded} onChange={updateDepotLocation} placeholder="Search yard address..." icon={<SvgDepot size={15} className="text-[#52525A] dark:text-[#9CA3AF] ml-1" />} />
+                  </div>
                   <div className="flex-1 bg-slate-50 dark:bg-slate-900 rounded-xl relative overflow-hidden border border-slate-200 dark:border-slate-700 min-h-[200px] flex flex-col justify-end">
                     {mapsLoaded && depotLoc?.lat ? (
                       <DepotMapPreview lat={depotLoc.lat} lng={depotLoc.lng} darkMode={darkMode} />
                     ) : (
                       <div className="absolute inset-0 bg-slate-100 dark:bg-slate-900" />
                     )}
-                    <div className="relative z-10 p-4 pt-12 flex flex-col justify-end">
-                      <label className="block text-[12px] font-bold text-primary dark:text-primary-fixed uppercase tracking-wide mb-1.5 drop-shadow-sm">Depot / Yard Location</label>
-                      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg flex items-center w-full p-1.5 shadow-sm custom-places-auto">
-                        <PlacesInput 
-                          value={depotLoc.address} 
-                          mapsLoaded={mapsLoaded} 
-                          onChange={updateDepotLocation}
-                          placeholder="Search yard address..." 
-                          icon={<SvgDepot size={15} className="text-[#52525B] dark:text-[#9CA3AF] ml-1" />} 
-                        />
-                      </div>
-                    </div>
                   </div>
                 </div>
 
