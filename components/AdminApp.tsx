@@ -674,12 +674,12 @@ function useGoogleMaps(apiKey) {
     if (existing) { existing.onload = () => setLoaded(Boolean(window.google?.maps?.places)); return; }
     const s = document.createElement("script");
     s.id = "gm-script";
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey.trim()}&libraries=places,geometry&callback=__gmCb`;
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey.trim()}&libraries=places,geometry`;
     s.async = true; s.defer = true;
-    window.__gmCb = () => setLoaded(Boolean(window.google?.maps?.places));
+    s.onload = () => setLoaded(Boolean(window.google?.maps?.places));
     s.onerror = () => setLoaded(false);
     document.head.appendChild(s);
-    return () => { delete window.__gmCb; delete window.gm_authFailure; };
+    return () => { delete window.gm_authFailure; };
   }, [apiKey]);
   return loaded;
 }
@@ -1076,6 +1076,13 @@ function printBookingPdf(booking) {
   const result = quote.result || {};
   const displayedDeadDistance = Math.max(0, Number(result.totalKm || 0) - Number(result.revenueKm || 0));
   const breakdown = result.breakdown || {};
+  const breakdownDistanceCost = Number(breakdown.distanceCost) || 0;
+  const breakdownTotalDistance = Number(result.totalKm) || 0;
+  const breakdownLiveDistance = Number(result.revenueKm) || 0;
+  const breakdownDeadDistance = Math.max(0, Number(result.deadKm ?? (breakdownTotalDistance - breakdownLiveDistance)) || 0);
+  const breakdownLiveCost = Number.isFinite(Number(breakdown.liveDistanceCost)) ? Number(breakdown.liveDistanceCost) : (breakdownTotalDistance > 0 ? breakdownDistanceCost * breakdownLiveDistance / breakdownTotalDistance : 0);
+  const breakdownDeadCost = Number.isFinite(Number(breakdown.deadDistanceCost)) ? Number(breakdown.deadDistanceCost) : (breakdownTotalDistance > 0 ? breakdownDistanceCost * breakdownDeadDistance / breakdownTotalDistance : 0);
+  const printableBreakdown = { ...breakdown, liveDistanceCost: breakdownLiveCost, deadDistanceCost: breakdownDeadCost };
   const esc = value => String(value ?? "--").replace(/[&<>"]/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[char]));
   const has = (object, key) => Object.prototype.hasOwnProperty.call(object || {}, key) && object[key] !== null && object[key] !== undefined && object[key] !== "";
   const text = value => value === null || value === undefined || value === "" ? "--" : String(value);
@@ -1097,7 +1104,7 @@ function printBookingPdf(booking) {
   };
   const field = (label, value) => `<div class="field"><span>${esc(label)}</span><strong>${esc(text(value))}</strong></div>`;
   const metric = (label, value) => `<div class="metric"><span>${esc(label)}</span><strong>${esc(text(value))}</strong></div>`;
-  const moneyRow = (label, key, className = "") => has(breakdown, key) ? `<div class="money-row ${className}"><span>${esc(label)}</span><strong>${money(breakdown[key])}</strong></div>` : "";
+  const moneyRow = (label, key, className = "") => has(printableBreakdown, key) ? `<div class="money-row ${className}"><span>${esc(label)}</span><strong>${money(printableBreakdown[key])}</strong></div>` : "";
   const stops = getJourneyStops(journey);
   const distanceUnit = result.distanceUnit === "miles" ? "mi" : "km";
   const finalFare = result.finalPrice ?? result.finalFare;
@@ -1107,7 +1114,11 @@ function printBookingPdf(booking) {
   const customerTotal = result.customerTotal ?? result.totalIncVat ?? result.total;
   const stopRows = stops.map((stop, index) => `<div class="timeline-row"><b>${index + 1}</b><div><small>STOP ${index + 1}${stop.wait ? ` · ${esc(stop.wait)} MIN WAIT` : ""}</small><strong>${esc(stop.place || stop.name || "Saved stop")}</strong></div></div>`).join("");
   const timeline = `<div class="timeline"><div class="timeline-row"><b>A</b><div><small>OUTWARD · PICKUP</small><strong>${esc(journey.origin)}</strong><span>${esc(dateTime(journey.departureDate))}</span></div></div>${stopRows}<div class="timeline-row"><b class="end">B</b><div><small>DESTINATION</small><strong>${esc(journey.destination)}</strong></div></div>${journey.journeyType === "return" ? `<div class="timeline-row return"><b>R</b><div><small>RETURN · ${esc(dateTime(journey.returnDate))}</small><strong>${esc(journey.destination)} → ${esc(journey.origin)}</strong></div></div>` : ""}</div>`;
-  const costRows = [moneyRow("Live-leg running cost", "liveDistanceCost"), moneyRow("Dead-leg running cost", "deadDistanceCost"), moneyRow("Distance cost", "distanceCost"), moneyRow("Fuel cost", "fuelCost"), moneyRow("Maintenance cost", "maintenanceCost"), moneyRow("Tyre cost", "tyreCost"), moneyRow("Driver cost", "driverCost"), moneyRow("Standing cost", "standingCost"), moneyRow("Overnight / subsistence", "overnightCost"), moneyRow("Waiting cost", "waitingCost"), moneyRow("Surcharges", "surchargeTotal"), moneyRow("Allocated vehicle overhead", "allocatedStanding"), moneyRow("Allocated company overhead", "allocatedOverhead")].join("");
+  const costRows = [
+    has(result, "revenueKm") ? `<div class="money-row"><span>Live-leg miles</span><strong>${esc(text(result.revenueKm))} ${esc(distanceUnit)}</strong></div>` : "",
+    has(result, "deadKm") ? `<div class="money-row"><span>Dead-leg miles</span><strong>${esc(text(result.deadKm))} ${esc(distanceUnit)}</strong></div>` : "",
+    moneyRow("Live-leg running cost", "liveDistanceCost"), moneyRow("Dead-leg running cost", "deadDistanceCost"), moneyRow("Distance cost", "distanceCost"), moneyRow("Fuel cost", "fuelCost"), moneyRow("Maintenance cost", "maintenanceCost"), moneyRow("Tyre cost", "tyreCost"), moneyRow("Driver cost", "driverCost"), moneyRow("Standing cost", "standingCost"), moneyRow("Overnight / subsistence", "overnightCost"), moneyRow("Waiting cost", "waitingCost"), moneyRow("Surcharges", "surchargeTotal"), moneyRow("Allocated vehicle overhead", "allocatedStanding"), moneyRow("Allocated company overhead", "allocatedOverhead")
+  ].join("");
   const profitabilityRows = [moneyRow("Gross profit", "grossProfit"), moneyRow("Net profit", "netProfit"), has(breakdown, "marginPct") ? `<div class="money-row"><span>Gross margin</span><strong>${esc(breakdown.marginPct)}%</strong></div>` : "", has(breakdown, "netMarginPct") ? `<div class="money-row"><span>Net margin</span><strong>${esc(breakdown.netMarginPct)}%</strong></div>` : "", moneyRow("Profit floor", "profitFloor"), moneyRow("Net profit target", "netProfitTarget")].join("");
   const operationalRows = [
     ["Commercial weight", has(breakdown, "commercialWeight") ? breakdown.commercialWeight : null],
@@ -1129,7 +1140,9 @@ function printBookingPdf(booking) {
     ["Driver paid time", has(result, "driverPaidMinutes") ? `${result.driverPaidMinutes} min` : null],
     ["Base price", has(result, "baseFare") ? money(result.baseFare) : null],
     ["Minimum hire floor", has(quote.vehicle, "minimumHire") ? money(quote.vehicle.minimumHire) : null],
-    ["Target margin", has(breakdown, "marginPct") ? `${breakdown.marginPct}%` : null],
+    ["Live-leg running cost", money(breakdownLiveCost)],
+    ["Dead-leg running cost", money(breakdownDeadCost)],
+    ["Target margin", Number(breakdown.marginPct) > 0 ? `${breakdown.marginPct}%` : Number(breakdown.netMarginPct) > 0 ? `${breakdown.netMarginPct}%` : null],
     ["Customer pays", has(result, "finalPrice") || has(result, "finalFare") ? money(finalFare) : null],
     ["Discount", has(result, "discountAmount") ? money(result.discountAmount) : has(result, "discount") ? money(result.discount) : null],
     ["Discount %", has(result, "discountPct") ? `${result.discountPct}%` : null]
@@ -3186,6 +3199,10 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         const transparentBreakdown = transparentResult.breakdown || {};
                         const transparentUnit = transparentResult.distanceUnit === "miles" ? "mi" : "km";
                         const transparentMoney = value => Number.isFinite(Number(value)) ? `£${fmt(value)}` : "--";
+                        const transparentDistanceCost = Number(transparentBreakdown.distanceCost) || 0;
+                        const transparentTotalDistance = Number(transparentResult.totalKm) || 0;
+                        const transparentLiveDistance = Number(transparentResult.revenueKm) || 0;
+                        const transparentDeadDistance = Math.max(0, transparentTotalDistance - transparentLiveDistance);
                         const transparentRows = [
                           ["Live legs", transparentResult.revenueKm != null ? `${transparentResult.revenueKm} ${transparentUnit}` : null],
                           ["Dead legs", transparentResult.totalKm != null && transparentResult.revenueKm != null ? `${Math.max(0, Number(transparentResult.totalKm) - Number(transparentResult.revenueKm))} ${transparentUnit}` : null],
@@ -3194,12 +3211,14 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           ["Empty running time", transparentResult.emptyRunningMinutes != null ? `${transparentResult.emptyRunningMinutes} min` : null],
                           ["Driver paid time", transparentResult.driverPaidMinutes != null ? `${transparentResult.driverPaidMinutes} min` : null],
                           ["Fuel & maintenance", transparentBreakdown.fuelCost != null || transparentBreakdown.maintenanceCost != null ? `${transparentMoney(transparentBreakdown.fuelCost)} + ${transparentMoney(transparentBreakdown.maintenanceCost)}` : null],
+                          ["Live-leg running cost", transparentMoney(transparentBreakdown.liveDistanceCost ?? (transparentTotalDistance ? transparentDistanceCost * transparentLiveDistance / transparentTotalDistance : 0))],
+                          ["Dead-leg running cost", transparentMoney(transparentBreakdown.deadDistanceCost ?? (transparentTotalDistance ? transparentDistanceCost * transparentDeadDistance / transparentTotalDistance : 0))],
                           ["Driver wages", transparentBreakdown.driverCost != null ? transparentMoney(transparentBreakdown.driverCost) : null],
                           ["Standing / overhead", transparentBreakdown.standingCost != null || transparentBreakdown.allocatedOverhead != null ? `${transparentMoney(transparentBreakdown.standingCost)} + ${transparentMoney(transparentBreakdown.allocatedOverhead)}` : null],
                           ["True cost", transparentBreakdown.accountingCost != null || transparentBreakdown.totalOperatingCost != null ? transparentMoney(transparentBreakdown.accountingCost ?? transparentBreakdown.totalOperatingCost) : null],
                           ["Base price", transparentResult.baseFare != null ? transparentMoney(transparentResult.baseFare) : null],
                           ["Minimum hire floor", previewBooking.quote?.vehicle?.minimumHire != null ? transparentMoney(previewBooking.quote.vehicle.minimumHire) : null],
-                          ["Target margin", transparentBreakdown.marginPct != null ? `${transparentBreakdown.marginPct}%` : null],
+                          ["Target margin", Number(transparentBreakdown.marginPct) > 0 ? `${transparentBreakdown.marginPct}%` : Number(transparentBreakdown.netMarginPct) > 0 ? `${transparentBreakdown.netMarginPct}%` : null],
                           ["Customer pays", transparentResult.finalPrice != null || transparentResult.finalFare != null ? transparentMoney(transparentResult.finalPrice ?? transparentResult.finalFare) : null],
                           ["Discount", transparentResult.discountAmount != null ? transparentMoney(transparentResult.discountAmount) : transparentResult.discount != null ? transparentMoney(transparentResult.discount) : null]
                         ].filter(([, value]) => value !== null);
@@ -3223,7 +3242,9 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         let distCost = bd.distanceCost || 0;
                         let drvCost = bd.driverCost || 0;
                         const overnightCost = bd.overnightCost || 0;
-                        const targetMargin = bd.marginPct || Number(db.globalVars?.profitMarginPct) || 0;
+                        const totalDistance = Number(previewBooking.quote?.result?.totalKm) || 0;
+                        const liveDistance = Number(previewBooking.quote?.result?.revenueKm) || 0;
+                        const deadDistance = Math.max(0, Number(previewBooking.quote?.result?.deadKm ?? (totalDistance - liveDistance)) || 0);
                         
                         const vehicle = (db.vehicles || []).find(v => v.id === previewBooking.quote?.vehicle?.id);
                         
@@ -3235,6 +3256,9 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           distCost = (previewBooking.quote.result.totalKm * ratePerKm * cw);
                           drvCost = (previewBooking.quote.result.totalShiftHrs || 0) * driverWage;
                         }
+                        const liveDistanceCost = Number.isFinite(Number(bd.liveDistanceCost)) ? Number(bd.liveDistanceCost) : (totalDistance > 0 ? distCost * liveDistance / totalDistance : 0);
+                        const deadDistanceCost = Number.isFinite(Number(bd.deadDistanceCost)) ? Number(bd.deadDistanceCost) : (totalDistance > 0 ? distCost * deadDistance / totalDistance : 0);
+                        const targetMargin = bd.marginPct ?? bd.netMarginPct ?? Number(db.globalVars?.marginWeekday ?? db.globalVars?.profitMarginPct) ?? 0;
                         
                         const totalOverheads = (db.annualOverheads || []).reduce((sum, item) => sum + Number(item.cost || 0), 0);
                         const totalFleetUnits = (db.vehicles || []).reduce((sum, v) => sum + (Number(v.fleetCount) || 0), 0);
@@ -3328,6 +3352,10 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                             <table style={{ width: "100%", fontSize: 11, borderCollapse: "collapse", marginBottom: 0 }}>
                               <tbody>
                                 {[
+                                  ['Live-leg miles', `${liveDistance} ${previewBooking.quote?.result?.distanceUnit === "miles" ? "mi" : "km"}`],
+                                  ['Dead-leg miles', `${deadDistance} ${previewBooking.quote?.result?.distanceUnit === "miles" ? "mi" : "km"}`],
+                                  ['Live-leg running cost', liveDistanceCost],
+                                  ['Dead-leg running cost', deadDistanceCost],
                                   ['Fuel cost', fuelCostVal],
                                   ['Maintenance cost', maintenanceCostVal],
                                   ['Tyre cost', tyreCostVal],
@@ -3337,7 +3365,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                 ].map(([label, value]) => (
                                   <tr key={label as string} style={{ borderBottom: `1px solid ${darkMode ? "#1f2937" : "#f1f5f9"}` }}>
                                     <td style={{ padding: "8px 0", color: darkMode ? "#d1d5db" : PX.gray700 }}>{label}</td>
-                                    <td style={{ padding: "8px 0", textAlign: "right", fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(Number(value) || 0)}</td>
+                                    <td style={{ padding: "8px 0", textAlign: "right", fontWeight: 700, color: darkMode ? "#f3f4f6" : PX.navy800 }}>{typeof value === "string" ? value : `£${fmt(Number(value) || 0)}`}</td>
                                   </tr>
                                 ))}
                                 <tr style={{ borderBottom: `2px solid ${darkMode ? "#374151" : "#e2e8f0"}` }}>
