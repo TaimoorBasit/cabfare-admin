@@ -4257,14 +4257,6 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       </div>
                     ))}
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setRoadCharges(rows => [...rows, { key: makeRoadChargeKey("Custom charge", new Set(rows.map(row => row.key))), label: "Custom charge", color: "#64748B", amount: 0, locked: false }])}
-                    className="hidden mb-4 text-[13px] font-extrabold text-primary dark:text-primary-fixed hover:opacity-80 transition-opacity flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 w-max uppercase"
-                  >
-                    <Plus size={13} />
-                    Add Charge
-                  </button>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center pb-3 border-b border-slate-200 dark:border-slate-700/50">
                       <span className="text-xs font-bold text-slate-900 dark:text-slate-100">Distance Unit</span>
