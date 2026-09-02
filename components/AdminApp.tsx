@@ -85,6 +85,7 @@ function restoreMissingConfiguration(source) {
     const baseline = RECOVERY_CONFIGURATION.vehicles[vehicle.id];
     if (!baseline) return vehicle;
     const repaired = { ...vehicle };
+    if (repaired.name === 'Executive Minibus') repaired.name = 'Minibus';
     for (const [field, value] of Object.entries(baseline)) {
       if (field === 'annualCosts') continue;
       const requiresPositive = ['capacity', 'fleetCount', 'utilisationDays', 'fuelKpl', 'expectedTyreLifeKm', 'ratePerKm', 'commercialWeight'].includes(field);
