@@ -4451,7 +4451,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                               </div>
                             </td>
                             <td className="py-2.5 pl-3 text-right">
-                              <button type="button" onClick={() => setRoadCharges(rows => rows.filter(row => row.key !== charge.key))} className="admin-icon-action admin-icon-delete" title={`Remove ${charge.label}`} aria-label={`Remove ${charge.label}`}>
+                              <button type="button" onClick={() => updateRoadCharges(rows => rows.filter(row => row.key !== charge.key))} className="admin-icon-action admin-icon-delete" title={`Remove ${charge.label}`} aria-label={`Remove ${charge.label}`}>
                                 <SvgTrash size={12} />
                               </button>
                             </td>
@@ -4460,7 +4460,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       </tbody>
                     </table>
                   </div>
-                  <button type="button" onClick={() => setRoadCharges(rows => [...rows, { key: makeRoadChargeKey("Custom charge", new Set(rows.map(row => row.key))), label: "Custom charge", color: "#64748B", amount: 0, locked: false }])} className="mt-4 flex w-max items-center gap-1 rounded-lg border border-slate-200 bg-slate-100 px-3 py-1.5 text-[13px] font-extrabold uppercase text-primary transition-opacity hover:opacity-80 dark:border-slate-700 dark:bg-slate-800 dark:text-primary-fixed">
+                  <button type="button" onClick={() => updateRoadCharges(rows => [...rows, { key: makeRoadChargeKey("Custom charge", new Set(rows.map(row => row.key))), label: "Custom charge", color: "#64748B", amount: 0, locked: false }])} className="mt-4 flex w-max items-center gap-1 rounded-lg border border-slate-200 bg-slate-100 px-3 py-1.5 text-[13px] font-extrabold uppercase text-primary transition-opacity hover:opacity-80 dark:border-slate-700 dark:bg-slate-800 dark:text-primary-fixed">
                     <Plus size={13} /> Add Charge
                   </button>
                 </div>
