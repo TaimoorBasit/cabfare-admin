@@ -3249,6 +3249,14 @@ table {
 .admin-premium-shell .vehicle-quotation-grid {
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
+.admin-premium-shell .settings-pricing .vehicle-quotation-grid > * {
+  display: flex;
+  flex-direction: column;
+}
+.admin-premium-shell .settings-pricing .vehicle-quotation-grid > * > span:last-child {
+  margin-top: auto !important;
+  width: 100%;
+}
 .admin-premium-shell input,
 .admin-premium-shell select,
 .admin-premium-shell textarea { max-width: 100%; }
