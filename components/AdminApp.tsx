@@ -1440,6 +1440,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   const [overheads, setOH]  = useState(db.annualOverheads.map(o=>({...o})));
   const [roadCharges, setRoadCharges] = useState(() => buildRoadChargeItems(db.surcharges));
   const sr = useMemo(() => roadChargeItemsToMap(roadCharges), [roadCharges]);
+  const selectedPricingVehicle = vehicles.find(vehicle => vehicle.id === selectedPricingVehicleId) || vehicles[0];
+  const pricing = selectedPricingVehicle?.pricingSettings || {};
   const [operatorDetails, setOperatorDetails] = useState({
     companyName: "",
     operatorLicence: "",
@@ -2265,6 +2267,19 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
   const updateV = (id,field,val) =>
     setV(vs=>vs.map(v=>v.id===id?{...v,[field]:isNaN(Number(val))?val:Number(val)}:v));
+  const updatePricing = (field, value) => setV(vs => vs.map(v => v.id === selectedPricingVehicle?.id
+    ? { ...v, pricingSettings: { ...(v.pricingSettings || {}), [field]: value } } : v));
+  const updateRoadCharges = (next) => {
+    setRoadCharges(rows => {
+      const value = typeof next === 'function' ? next(rows) : next;
+      setV(vs => vs.map(v => v.id === selectedPricingVehicle?.id ? { ...v, pricingSurcharges: roadChargeItemsToMap(value) } : v));
+      return value;
+    });
+  };
+  useEffect(() => {
+    const vehicle = vehicles.find(v => v.id === selectedPricingVehicleId) || vehicles[0];
+    setRoadCharges(buildRoadChargeItems(vehicle?.pricingSurcharges || db.surcharges));
+  }, [selectedPricingVehicleId, vehicles, db.surcharges]);
 
   const handleUnitChange = async (e) => {
     const newUnit = e.target.value;
@@ -4281,7 +4296,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     </div>
                     <select aria-label="Vehicle quotation tier" value={vehicles.some(vehicle=>vehicle.id===selectedPricingVehicleId)?selectedPricingVehicleId:vehicles[0]?.id||''} onChange={event=>setSelectedPricingVehicleId(event.target.value)} className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-[13px] font-bold text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">{vehicles.map(vehicle=><option key={vehicle.id} value={vehicle.id}>{vehicle.name}</option>)}</select>
                   </div>
-                  {(()=>{const vehicle=vehicles.find(item=>item.id===selectedPricingVehicleId)||vehicles[0];if(!vehicle)return null;const autoMinHire=eco.vehicleBreakdown.find(v=>v.id===vehicle.id)?.minHirePerDay;return <div className="vehicle-quotation-grid grid gap-2">
+                  {(()=>{const vehicle=selectedPricingVehicle;if(!vehicle)return null;const autoMinHire=eco.vehicleBreakdown.find(v=>v.id===vehicle.id)?.minHirePerDay;return <div className="vehicle-quotation-grid grid gap-2">
                     <div className="rounded-lg border border-slate-200 bg-slate-100/80 p-2.5 dark:border-slate-700 dark:bg-slate-900" title="Auto-calculated from standing cost + overhead per day. Update fleet economics to change it.">
                       <span className="block min-h-[26px] text-[11px] font-extrabold uppercase tracking-wide text-slate-500 dark:text-slate-400">Minimum hire (auto)</span>
                       <span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600">
@@ -4316,7 +4331,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         <span className="mt-0.5 block text-[11px] font-semibold text-slate-400 dark:text-slate-500">{context}</span>
                         <span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600">
                           {suffix === '£' && <span className="mr-1 text-[13px] font-bold text-slate-400">£</span>}
-                          <input aria-label={`${label} ${context}`} type="number" min={key === 'netMarginPct' ? 5 : 0} max={key === 'netProfitTarget' ? undefined : 95} step={key === 'netProfitTarget' ? 5 : 0.5} value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/>
+                          <input aria-label={`${label} ${context}`} type="number" min={key === 'netMarginPct' ? 5 : 0} max={key === 'netProfitTarget' ? undefined : 95} step={key === 'netProfitTarget' ? 5 : 0.5} value={pricing[key] ?? gv[key] ?? fallback} onChange={e=>updatePricing(key,Number(e.target.value))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/>
                           {suffix === '%' && <span className="ml-1 text-[12px] font-bold text-slate-400">%</span>}
                         </span>
                       </label>
@@ -4338,7 +4353,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     ].map(([key,label,fallback,Icon]) => (
                       <div key={key} className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2 dark:border-slate-700 dark:bg-slate-900/50">
                         <div className="flex min-w-0 items-center gap-2"><Icon size={14} className="shrink-0 text-slate-400 dark:text-slate-500" /><span className="truncate text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span></div>
-                        <div className="flex shrink-0 items-center gap-1"><span className="text-[13px] font-bold text-slate-400">£</span><input type="number" step="0.5" className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={gv[key] ?? fallback} onChange={e=>setGv(g=>({...g,[key]:Number(e.target.value)}))}/><span className="text-[12px] font-bold text-slate-400">/hr</span></div>
+                        <div className="flex shrink-0 items-center gap-1"><span className="text-[13px] font-bold text-slate-400">£</span><input type="number" step="0.5" className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={pricing[key] ?? gv[key] ?? fallback} onChange={e=>updatePricing(key,Number(e.target.value))}/><span className="text-[12px] font-bold text-slate-400">/hr</span></div>
                       </div>
                     ))}
                     {[
@@ -4350,7 +4365,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     ].map(([key,label,fallback,suffix,Icon]) => (
                       <div key={key} className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2 dark:border-slate-700 dark:bg-slate-900/50">
                         <div className="flex min-w-0 items-center gap-2"><Icon size={14} className="shrink-0 text-slate-400 dark:text-slate-500" /><span className="truncate text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span></div>
-                        <div className="flex shrink-0 items-center gap-1"><input type="number" min="0" step={key==='waitingWageFactor'?0.05:1} className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? Math.round(Number(gv[key] ?? fallback) / 1.60934 * 100) / 100 : (gv[key] ?? fallback)} onChange={e=>setGv(g=>({...g,[key]:key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? Number(e.target.value) * 1.60934 : Number(e.target.value)}))}/><span className="text-[12px] font-bold text-slate-400">{key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? 'mi' : suffix}</span></div>
+                        <div className="flex shrink-0 items-center gap-1"><input type="number" min="0" step={key==='waitingWageFactor'?0.05:1} className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? Math.round(Number(pricing[key] ?? gv[key] ?? fallback) / 1.60934 * 100) / 100 : (pricing[key] ?? gv[key] ?? fallback)} onChange={e=>updatePricing(key,key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? Number(e.target.value) * 1.60934 : Number(e.target.value))}/><span className="text-[12px] font-bold text-slate-400">{key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? 'mi' : suffix}</span></div>
                       </div>
                     ))}
                   </div>
@@ -4416,7 +4431,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                 <input
                                   type="text"
                                   value={charge.label}
-                                  onChange={event => setRoadCharges(rows => rows.map(row => row.key === charge.key ? { ...row, label: event.target.value } : row))}
+                                  onChange={event => updateRoadCharges(rows => rows.map(row => row.key === charge.key ? { ...row, label: event.target.value } : row))}
                                   className="min-w-0 flex-1 border-b border-transparent bg-transparent text-xs font-bold text-slate-900 outline-none focus:border-primary dark:text-slate-100"
                                   aria-label="Charge name"
                                 />
@@ -4429,7 +4444,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                   type="number"
                                   step="0.5"
                                   value={charge.amount ?? 0}
-                                  onChange={event => setRoadCharges(rows => rows.map(row => row.key === charge.key ? { ...row, amount: Number(event.target.value) } : row))}
+                                  onChange={event => updateRoadCharges(rows => rows.map(row => row.key === charge.key ? { ...row, amount: Number(event.target.value) } : row))}
                                   className="w-14 bg-transparent text-right text-xs outline-none focus:border-b focus:border-primary dark:text-white"
                                   aria-label={`${charge.label} amount`}
                                 />
