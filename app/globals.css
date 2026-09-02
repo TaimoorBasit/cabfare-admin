@@ -596,6 +596,7 @@ input, select, textarea {
 .settings-page input:not([type="range"]), .settings-page select { min-height: 36px; }
 .settings-geo > div:last-child { min-height: 190px !important; }
 .dark .settings-page { background: #101722 !important; }.dark .settings-layout > div, .dark .settings-system-rail > div { background: #111827 !important; border-color: #334155 !important; }.dark .settings-system-rail section, .dark .settings-system-rail button { background: #182337 !important; border-color: #405069 !important; }.dark .settings-system-rail h3, .dark .settings-system-rail dd, .dark .settings-health strong { color: #f1f5f9 !important; }.dark .settings-system-rail dt, .dark .settings-system-rail li { color: #b6c2d1; }
+.dark input[type="number"] { color-scheme: dark; }
 .dark .settings-system-rail button { color: #dce6f2 !important; opacity: 1 !important; }
 .dark .settings-system-rail button:hover { color: #fff !important; background: #243249 !important; border-color: #5a6d88 !important; }
 .dark .settings-system-rail > div:first-child > p { color: #9eacc0 !important; }
