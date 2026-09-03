@@ -1087,6 +1087,7 @@ function printBookingPdf(booking) {
   const printableStandingCost = Number(breakdown.standingCost) || Number(breakdown.allocatedStanding) || 0;
   const printableCompanyOverhead = Number(breakdown.allocatedOverhead) || 0;
   const printableStandingOverhead = Math.round((printableStandingCost + printableCompanyOverhead) * 100) / 100;
+  const printableOperatingCost = Number(breakdown.totalOperatingCost) || printableDistanceCost + (Number(breakdown.driverCost) || 0) + printableStandingOverhead + (Number(breakdown.overnightCost) || 0) + (Number(breakdown.waitingCharge) || 0) + (Number(breakdown.surchargeTotal) || 0);
   const printableBreakdown = { ...breakdown, liveDistanceCost: breakdownLiveCost, deadDistanceCost: breakdownDeadCost };
   const esc = value => String(value ?? "--").replace(/[&<>"]/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[char]));
   const has = (object, key) => Object.prototype.hasOwnProperty.call(object || {}, key) && object[key] !== null && object[key] !== undefined && object[key] !== "";
@@ -1122,7 +1123,7 @@ function printBookingPdf(booking) {
   const costRows = [
     has(result, "revenueKm") ? `<div class="money-row"><span>Live-leg miles</span><strong>${esc(text(result.revenueKm))} ${esc(distanceUnit)}</strong></div>` : "",
     has(result, "deadKm") ? `<div class="money-row"><span>Dead-leg miles</span><strong>${esc(text(result.deadKm))} ${esc(distanceUnit)}</strong></div>` : "",
-    moneyRow("Live-leg running cost", "liveDistanceCost"), moneyRow("Dead-leg running cost", "deadDistanceCost"), `<div class="money-row"><span>Distance cost (includes fuel, maintenance & tyres)</span><strong>${money(printableDistanceCost)}</strong></div>`, moneyRow("Fuel cost (included above)", "fuelCost"), moneyRow("Maintenance cost (included above)", "maintenanceCost"), moneyRow("Tyre cost (included above)", "tyreCost"), moneyRow("Driver cost", "driverCost"), `<div class="money-row"><span>Vehicle standing cost</span><strong>${money(printableStandingCost)}</strong></div>`, `<div class="money-row"><span>Company overhead</span><strong>${money(printableCompanyOverhead)}</strong></div>`, moneyRow("Overnight / subsistence", "overnightCost"), moneyRow("Waiting cost", "waitingCost"), moneyRow("Surcharges", "surchargeTotal"), `<div class="money-row total-row"><span>Total operating cost</span><strong>${money(printableDistanceCost + (Number(breakdown.driverCost) || 0) + printableStandingOverhead + (Number(breakdown.overnightCost) || 0) + (Number(breakdown.waitingCharge) || 0) + (Number(breakdown.surchargeTotal) || 0))}</strong></div>`
+    moneyRow("Live-leg running cost (derived)", "liveDistanceCost"), moneyRow("Dead-leg running cost (derived)", "deadDistanceCost"), moneyRow("Fuel cost", "fuelCost"), moneyRow("Maintenance cost", "maintenanceCost"), moneyRow("Tyre cost", "tyreCost"), moneyRow("Driver cost", "driverCost"), `<div class="money-row"><span>Vehicle standing cost</span><strong>${money(printableStandingCost)}</strong></div>`, `<div class="money-row"><span>Company overhead</span><strong>${money(printableCompanyOverhead)}</strong></div>`, moneyRow("Overnight / subsistence", "overnightCost"), moneyRow("Waiting cost", "waitingCost"), moneyRow("Surcharges", "surchargeTotal"), `<div class="money-row total-row"><span>Total operating cost</span><strong>${money(printableOperatingCost)}</strong></div>`
   ].join("");
   const profitabilityRows = [moneyRow("Gross profit", "grossProfit"), moneyRow("Net profit", "netProfit"), has(breakdown, "marginPct") ? `<div class="money-row"><span>Gross margin</span><strong>${esc(breakdown.marginPct)}%</strong></div>` : "", has(breakdown, "netMarginPct") ? `<div class="money-row"><span>Net margin</span><strong>${esc(breakdown.netMarginPct)}%</strong></div>` : "", moneyRow("Profit floor", "profitFloor"), moneyRow("Net profit target", "netProfitTarget")].join("");
   const operationalRows = [
@@ -1147,8 +1148,9 @@ function printBookingPdf(booking) {
     ["Minimum hire floor", has(quote.vehicle, "minimumHire") ? money(quote.vehicle.minimumHire) : null],
     ["Live-leg running cost", money(breakdownLiveCost)],
     ["Dead-leg running cost", money(breakdownDeadCost)],
-    ["Distance cost (live + dead)", money(printableDistanceCost)],
-    ["Fuel & maintenance", has(breakdown, "fuelCost") || has(breakdown, "maintenanceCost") ? `${money(breakdown.fuelCost)} + ${money(breakdown.maintenanceCost)}` : null],
+    ["Fuel", has(breakdown, "fuelCost") ? money(breakdown.fuelCost) : null],
+    ["Maintenance", has(breakdown, "maintenanceCost") ? money(breakdown.maintenanceCost) : null],
+    ["Tyres", has(breakdown, "tyreCost") ? money(breakdown.tyreCost) : null],
     ["Driver wages", has(breakdown, "driverCost") ? money(breakdown.driverCost) : null],
     ["Vehicle standing cost", money(printableStandingCost)],
     ["Company overhead", money(printableCompanyOverhead)],
@@ -2118,7 +2120,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
       const allocatedStandingValue = Number(bd.allocatedStanding) || 0;
       const allocatedOverheadValue = Number(bd.allocatedOverhead) || 0;
       const surchargeValue = Number(result.surchargeTotal ?? bd.surchargeTotal) || 0;
-      const directCostValue = (fuelEconomy > 0 ? distanceKm * fuelPrice / fuelEconomy : 0) + distanceKm * maintenanceRate + distanceKm * tyreRate + driverValue + standingValue + overnightValue + allocatedStandingValue + allocatedOverheadValue + surchargeValue;
+      const distanceCostValue = Number(bd.distanceCost) || (fuelEconomy > 0 ? distanceKm * fuelPrice / fuelEconomy : 0) + distanceKm * maintenanceRate + distanceKm * tyreRate;
+      const directCostValue = distanceCostValue + driverValue + standingValue + overnightValue + surchargeValue;
       const accountingCostValue = directCostValue + allocatedStandingValue + allocatedOverheadValue;
       accountancy.addRow([
         b.id, new Date(b.createdAt), vehicle.name || '', b.journey?.origin || '', b.journey?.destination || '', b.journey?.journeyType || '', Number(b.journey?.passengers)||0, distanceKm, Number(result.opDays)||1,
@@ -2126,7 +2129,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
         {formula:`M${rowNumber}*${Number(db.globalVars?.vatPct ?? 20)}%`}, {formula:`M${rowNumber}+N${rowNumber}`}, fuelPrice, fuelEconomy,
         {formula:`IF(Q${rowNumber}>0,H${rowNumber}*P${rowNumber}/Q${rowNumber},0)`}, maintenanceRate, {formula:`H${rowNumber}*S${rowNumber}`}, tyreRate, {formula:`H${rowNumber}*U${rowNumber}`},
         Number(bd.driverCost ?? result.driverCost)||0, Number(bd.standingCost)||0, Number(bd.overnightCost)||0, Number(bd.allocatedStanding)||0, Number(bd.allocatedOverhead)||0,
-        {formula:`R${rowNumber}+T${rowNumber}+V${rowNumber}+W${rowNumber}+X${rowNumber}+Y${rowNumber}+L${rowNumber}`},
+        {formula:`R${rowNumber}+T${rowNumber}+V${rowNumber}+W${rowNumber}+X${rowNumber}+L${rowNumber}`},
         {formula:`AB${rowNumber}+Z${rowNumber}+AA${rowNumber}`}, {formula:`M${rowNumber}-AB${rowNumber}`, result: finalFareValue - directCostValue}, {formula:`IF(M${rowNumber}>0,AD${rowNumber}/M${rowNumber},0)`, result: finalFareValue > 0 ? (finalFareValue - directCostValue) / finalFareValue : 0},
         {formula:`M${rowNumber}-AC${rowNumber}`, result: finalFareValue - directCostValue}, {formula:`IF(M${rowNumber}>0,AF${rowNumber}/M${rowNumber},0)`, result: finalFareValue > 0 ? (finalFareValue - accountingCostValue) / finalFareValue : 0}, Number(bd.netMarginPct)||0, Number(bd.profitFloor)||0
       ]);
@@ -3323,25 +3326,6 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         const allocatedOverhead = Number.isFinite(Number(bd.allocatedOverhead)) ? Number(bd.allocatedOverhead) : (overheadPerUnit / utilDays) * operatingDays;
                         const allocatedStanding = Number.isFinite(Number(bd.allocatedStanding)) ? Number(bd.allocatedStanding) : (annualFixed / fleetCount / utilDays) * operatingDays;
 
-                        // Fuel/maintenance/tyre are only split out in the breakdown for quotes
-                        // priced after this field was added. Older bookings still carry the
-                        // combined distanceCost, so approximate the split using this vehicle's
-                        // current per-km rates, scaled to reconcile with the recorded total.
-                        let fuelCostVal, maintenanceCostVal, tyreCostVal;
-                        if (Number.isFinite(Number(bd.fuelCost)) || Number.isFinite(Number(bd.maintenanceCost)) || Number.isFinite(Number(bd.tyreCost))) {
-                          fuelCostVal = Number(bd.fuelCost) || 0;
-                          maintenanceCostVal = Number(bd.maintenanceCost) || 0;
-                          tyreCostVal = Number(bd.tyreCost) || 0;
-                        } else {
-                          const fuelRate = (vehicle?.fuelPricePerLitre ?? db.globalVars?.fuelPricePerLitre ?? 1.52) / (vehicle?.fuelKpl || 5);
-                          const maintRate = Number(vehicle?.maintenanceCostPerKm) || ((Number(vehicle?.maintenanceSetCost) || 0) / (Number(vehicle?.expectedMaintenanceLifeKm) || 1)) || 0.15;
-                          const tyreRate = Number(vehicle?.tyreCostPerKm) || ((Number(vehicle?.tyreSetCost) || 0) / (Number(vehicle?.expectedTyreLifeKm) || 1)) || 0.05;
-                          const rateSum = fuelRate + maintRate + tyreRate;
-                          fuelCostVal = rateSum > 0 ? distCost * (fuelRate / rateSum) : 0;
-                          maintenanceCostVal = rateSum > 0 ? distCost * (maintRate / rateSum) : 0;
-                          tyreCostVal = rateSum > 0 ? distCost * (tyreRate / rateSum) : 0;
-                        }
-
                         const grossProfit = rev - surcharges - distCost - drvCost - overnightCost;
                         const netProfit = grossProfit - allocatedStanding - allocatedOverhead;
                         
@@ -3406,9 +3390,9 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                   ['Dead-leg miles', `${deadDistance} ${previewBooking.quote?.result?.distanceUnit === "miles" ? "mi" : "km"}`],
                                   ['Live-leg running cost', liveDistanceCost],
                                   ['Dead-leg running cost', deadDistanceCost],
-                                  ['Fuel cost', fuelCostVal],
-                                  ['Maintenance cost', maintenanceCostVal],
-                                  ['Tyre cost', tyreCostVal],
+                                  ['Fuel cost', bd.fuelCost],
+                                  ['Maintenance cost', bd.maintenanceCost],
+                                  ['Tyre cost', bd.tyreCost],
                                   ['Driver cost', drvCost],
                                   ['Overnight / subsistence', overnightCost],
                                   ['Surcharges (tolls, ULEZ, CAZ)', surcharges],
