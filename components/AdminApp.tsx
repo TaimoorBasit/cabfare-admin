@@ -4759,7 +4759,7 @@ export default function AdminApp() {
         const data = recovery.data;
         const canEditSettings = adminUser?.role === 'owner' || adminUser?.role === 'admin' || (adminUser?.permissions || []).includes('settings');
         if (recovery.changed && canEditSettings) {
-          const restoreResponse = await authenticatedFetch(API_BASE_URL + "/api/admin/config", {
+          void authenticatedFetch(API_BASE_URL + "/api/admin/config", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -4770,8 +4770,7 @@ export default function AdminApp() {
               operatorDetails: data.operatorDetails
             }),
             signal: controller.signal
-          });
-          if (!restoreResponse.ok) throw new Error("Unable to restore missing backend configuration");
+          }).catch(() => {});
         }
         if (!cancelled) {
           const freshDb = {
