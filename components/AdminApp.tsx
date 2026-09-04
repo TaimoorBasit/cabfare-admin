@@ -2406,7 +2406,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   const fuelUnit = gv?.fuelUnit === 'gallons' ? 'gallons' : 'litres';
   const fuelPriceUnit = fuelUnit === 'gallons' ? 'gallon' : 'litre';
   const fuelPriceFactor = fuelUnit === 'gallons' ? 4.54609 : 1;
-  const fuelEconomyFactor = fuelUnit === 'gallons' ? 4.54609 / 1.60934 : 1;
+  const fuelEconomyFactor = (fuelUnit === 'gallons' ? 4.54609 : 1) / (gv?.distanceUnit === 'miles' ? 1.60934 : 1);
   const displayFuelPrice = value => Number(value || 0) * fuelPriceFactor;
   const displayFuelEconomy = value => Number(value || 0) / fuelEconomyFactor;
   const matrixBands = matrix => Array.isArray(matrix?.distanceBands) && matrix.distanceBands.length === 4
@@ -4112,7 +4112,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                 <span className="text-[12px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5 mr-0.5">/{fuelPriceUnit === 'gallon' ? 'gal' : 'L'}</span>
                                 <div className="text-slate-300 dark:text-slate-600 font-light mx-0.5">/</div>
                                 <input aria-label="Fuel economy" className="variable-cost-input hide-spinners w-[26px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" step="0.1" value={displayFuelEconomy(activeV.fuelKpl ?? 5).toFixed(2)} onChange={e=>updateV(activeV.id,"fuelKpl",Number(e.target.value) * fuelEconomyFactor)} />
-                                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{fuelUnit === 'gallons' ? 'mi/gal' : 'km/L'}</span>
+                                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{distanceUnitShort}/{fuelUnit === 'gallons' ? 'gal' : 'L'}</span>
                               </div>
                               <div className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5 h-[36px]">
                                   = £{((activeV.fuelPricePerLitre ?? gv?.fuelPricePerLitre ?? 1.52) / (activeV.fuelKpl || 1)).toFixed(3)}/{distanceUnitShort}
