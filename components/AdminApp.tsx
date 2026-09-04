@@ -1691,6 +1691,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
         // with [] made the dashboard look as though backend data was deleted.
         setBookingsLoadError(error.message || "Unable to load quotations");
         setIsBookingsLoading(false);
+        bookingsApisLoadedRef.current = false;
       });
     }
   }, [tab]);
