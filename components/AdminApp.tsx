@@ -1071,7 +1071,7 @@ const result = quote.result || {};
   setTimeout(() => popup.print(), 300);
 }
 
-function printBookingPdf(booking) {
+function printBookingPdf(booking, globalVars = {}) {
   const journey = booking.journey || {};
   const quote = booking.quote || {};
   const result = quote.result || {};
@@ -1113,7 +1113,7 @@ function printBookingPdf(booking) {
   const moneyRow = (label, key, className = "") => has(printableBreakdown, key) ? `<div class="money-row ${className}"><span>${esc(label)}</span><strong>${money(printableBreakdown[key])}</strong></div>` : "";
   const printableMoneyRow = (label, value, className = "") => value !== null && value !== undefined && Number.isFinite(Number(value)) && Number(value) !== 0 ? `<div class="money-row ${className}"><span>${esc(label)}</span><strong>${money(value)}</strong></div>` : "";
   const stops = getJourneyStops(journey);
-  const distanceUnit = result.distanceUnit === "miles" ? "mi" : "km";
+  const distanceUnit = globalVars.distanceUnit === "miles" ? "mi" : "km";
   const finalFare = result.finalPrice ?? result.finalFare;
   const vehicleName = quote.vehicle?.name || journey.vehicleName;
   const vehicleCapacity = quote.vehicle?.seats || quote.vehicle?.capacity || quote.vehicle?.seatCapacity;
@@ -1828,7 +1828,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
       "Base Standing Cost (£/day)", "Total Standing Cost (£)",
       "Overhead Allocation (£/day)", "Total Overhead Cost (£)",
       "Min Daily Hire Charge (£/day)", "Total Min Hire (£)",
-      "Fuel Price (£/litre)", "Fuel Consumption (kpl)", "Total Fuel Cost (£)",
+      `Fuel Price (£/${fuelUnit === 'gallons' ? 'gallon' : 'litre'})`, `Fuel Economy (${distanceUnitShort}/${fuelUnit === 'gallons' ? 'gal' : 'L'})`, "Total Fuel Cost (£)",
       `Tyre Cost (£/${unit})`, "Total Tyre Cost (£)",
       `Maintenance Cost (£/${unit})`, "Total Maintenance Cost (£)",
       "Total Variable Cost (£)", "Driver Hourly Wage (£/hr)", "Holiday Pay (%)", "Total Driver Cost (£)",
@@ -2096,10 +2096,10 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
     const accountancy = workbook.addWorksheet('Accountancy Breakdown');
     const auditHeaders = [
-      'Booking ID','Date','Vehicle','Origin','Destination','Trip Type','Passengers','Distance (km)','Operating Days',
+      'Booking ID','Date','Vehicle','Origin','Destination','Trip Type','Passengers',`Distance (${gv?.distanceUnit === 'miles' ? 'miles' : 'km'})`,'Operating Days',
       'Minimum Customer Hire (£)','Quoted Subtotal (£)','Surcharges (£)','Final Net Fare (£)',`VAT ${Number(db.globalVars?.vatPct ?? 20)}% (£)`,`Total Inc VAT (£)`,
-      'Fuel Price (£/L)','Fuel Economy (km/L)','Fuel Cost (£)','Maintenance Rate (£/km)','Maintenance Cost (£)',
-      'Tyre Rate (£/km)','Tyre Cost (£)','Driver Cost (£)','Standing Cost (£)','Overnight Cost (£)',
+      `Fuel Price (£/${gv?.fuelUnit === 'gallons' ? 'gallon' : 'L'})`,`Fuel Economy (${gv?.distanceUnit === 'miles' ? 'mi' : 'km'}/${gv?.fuelUnit === 'gallons' ? 'gal' : 'L'})`,'Fuel Cost (£)',`Maintenance Rate (£/${gv?.distanceUnit === 'miles' ? 'mi' : 'km'})`,'Maintenance Cost (£)',
+      `Tyre Rate (£/${gv?.distanceUnit === 'miles' ? 'mi' : 'km'})`,'Tyre Cost (£)','Driver Cost (£)','Standing Cost (£)','Overnight Cost (£)',
       'Vehicle Fixed Allocation (£)','Company Overhead Allocation (£)','Direct Cost (£)','Accounting Cost (£)',
       'Gross Profit (£)','Gross Margin (%)','Net Profit (£)','Net Margin (%)','Configured Net Margin (%)','Profit Floor (£)'
     ];
@@ -3130,7 +3130,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         <div style={{ fontSize: 11, fontWeight: 700, color: darkMode ? "#9ca3af" : PX.gray500, letterSpacing: 0.5, marginTop: 2 }}>REF: #{previewBooking.id} · {previewBooking.status ? String(previewBooking.status).toUpperCase() : "STATUS NOT SET"}</div>
                       </div>
                       <div className="flex gap-2">
-                        <button type="button" onClick={() => printBookingPdf(previewBooking)} className="admin-icon-action" title="Download quotation PDF" aria-label="Download quotation PDF"><Download size={12}/></button>
+                        <button type="button" onClick={() => printBookingPdf(previewBooking, gv)} className="admin-icon-action" title="Download quotation PDF" aria-label="Download quotation PDF"><Download size={12}/></button>
                         <button type="button" onClick={() => openBookingEditor(previewBooking)} className="admin-icon-action admin-icon-edit" title="Edit quotation" aria-label="Edit quotation"><Edit3 size={12}/></button>
                       </div>
                     </div>
