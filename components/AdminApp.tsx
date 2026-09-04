@@ -1083,6 +1083,8 @@ function printBookingPdf(booking) {
   const breakdownDeadDistance = Math.max(0, Number(result.deadKm ?? (breakdownTotalDistance - breakdownLiveDistance)) || 0);
   const breakdownLiveCost = Number.isFinite(Number(breakdown.liveDistanceCost)) ? Number(breakdown.liveDistanceCost) : (breakdownTotalDistance > 0 ? breakdownDistanceCost * breakdownLiveDistance / breakdownTotalDistance : 0);
   const breakdownDeadCost = Number.isFinite(Number(breakdown.deadDistanceCost)) ? Number(breakdown.deadDistanceCost) : (breakdownTotalDistance > 0 ? breakdownDistanceCost * breakdownDeadDistance / breakdownTotalDistance : 0);
+  const printableDistanceCost = Math.round((breakdownLiveCost + breakdownDeadCost) * 100) / 100;
+  const printableStandingOverhead = Math.round((((breakdown.standingCost !== undefined && breakdown.standingCost !== null) ? Number(breakdown.standingCost) : Number(breakdown.allocatedStanding) || 0) + (Number(breakdown.allocatedOverhead) || 0)) * 100) / 100;
   const printableBreakdown = { ...breakdown, liveDistanceCost: breakdownLiveCost, deadDistanceCost: breakdownDeadCost };
   const esc = value => String(value ?? "--").replace(/[&<>"]/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[char]));
   const has = (object, key) => Object.prototype.hasOwnProperty.call(object || {}, key) && object[key] !== null && object[key] !== undefined && object[key] !== "";
@@ -1118,7 +1120,7 @@ function printBookingPdf(booking) {
   const costRows = [
     has(result, "revenueKm") ? `<div class="money-row"><span>Live-leg miles</span><strong>${esc(text(result.revenueKm))} ${esc(distanceUnit)}</strong></div>` : "",
     has(result, "deadKm") ? `<div class="money-row"><span>Dead-leg miles</span><strong>${esc(text(result.deadKm))} ${esc(distanceUnit)}</strong></div>` : "",
-    moneyRow("Live-leg running cost", "liveDistanceCost"), moneyRow("Dead-leg running cost", "deadDistanceCost"), moneyRow("Distance cost", "distanceCost"), moneyRow("Fuel cost", "fuelCost"), moneyRow("Maintenance cost", "maintenanceCost"), moneyRow("Tyre cost", "tyreCost"), moneyRow("Driver cost", "driverCost"), moneyRow("Standing cost", "standingCost"), moneyRow("Overnight / subsistence", "overnightCost"), moneyRow("Waiting cost", "waitingCost"), moneyRow("Surcharges", "surchargeTotal"), moneyRow("Allocated vehicle overhead", "allocatedStanding"), moneyRow("Allocated company overhead", "allocatedOverhead")
+    moneyRow("Live-leg running cost", "liveDistanceCost"), moneyRow("Dead-leg running cost", "deadDistanceCost"), `<div class="money-row"><span>Distance cost (live + dead)</span><strong>${money(printableDistanceCost)}</strong></div>`, moneyRow("Fuel cost", "fuelCost"), moneyRow("Maintenance cost", "maintenanceCost"), moneyRow("Tyre cost", "tyreCost"), moneyRow("Driver cost", "driverCost"), `<div class="money-row"><span>Standing / overhead</span><strong>${money(printableStandingOverhead)}</strong></div>`, moneyRow("Overnight / subsistence", "overnightCost"), moneyRow("Waiting cost", "waitingCost"), moneyRow("Surcharges", "surchargeTotal"), `<div class="money-row total-row"><span>Total operating cost</span><strong>${money(printableDistanceCost + (Number(breakdown.driverCost) || 0) + printableStandingOverhead + (Number(breakdown.overnightCost) || 0) + (Number(breakdown.waitingCharge) || 0) + (Number(breakdown.surchargeTotal) || 0))}</strong></div>`
   ].join("");
   const profitabilityRows = [moneyRow("Gross profit", "grossProfit"), moneyRow("Net profit", "netProfit"), has(breakdown, "marginPct") ? `<div class="money-row"><span>Gross margin</span><strong>${esc(breakdown.marginPct)}%</strong></div>` : "", has(breakdown, "netMarginPct") ? `<div class="money-row"><span>Net margin</span><strong>${esc(breakdown.netMarginPct)}%</strong></div>` : "", moneyRow("Profit floor", "profitFloor"), moneyRow("Net profit target", "netProfitTarget")].join("");
   const operationalRows = [
@@ -1143,8 +1145,15 @@ function printBookingPdf(booking) {
     ["Minimum hire floor", has(quote.vehicle, "minimumHire") ? money(quote.vehicle.minimumHire) : null],
     ["Live-leg running cost", money(breakdownLiveCost)],
     ["Dead-leg running cost", money(breakdownDeadCost)],
+    ["Distance cost (live + dead)", money(printableDistanceCost)],
+    ["Fuel & maintenance", has(breakdown, "fuelCost") || has(breakdown, "maintenanceCost") ? `${money(breakdown.fuelCost)} + ${money(breakdown.maintenanceCost)}` : null],
+    ["Driver wages", has(breakdown, "driverCost") ? money(breakdown.driverCost) : null],
+    ["Standing / overhead", money(printableStandingOverhead)],
     ["Target margin", Number(breakdown.marginPct) > 0 ? `${breakdown.marginPct}%` : Number(breakdown.netMarginPct) > 0 ? `${breakdown.netMarginPct}%` : null],
-    ["Customer pays", has(result, "finalPrice") || has(result, "finalFare") ? money(finalFare) : null],
+    ["Minimum hire / profit floor", has(breakdown, "profitFloor") ? money(breakdown.profitFloor) : null],
+    ["Net fare", has(result, "finalPrice") || has(result, "finalFare") ? money(finalFare) : null],
+    ["VAT", resultVat != null ? money(resultVat) : null],
+    ["Customer pays", customerTotal != null ? money(customerTotal) : (has(result, "finalPrice") || has(result, "finalFare") ? money(finalFare) : null)],
     ["Discount", has(result, "discountAmount") ? money(result.discountAmount) : has(result, "discount") ? money(result.discount) : null],
     ["Discount %", has(result, "discountPct") ? `${result.discountPct}%` : null]
   ].filter(([, value]) => value !== null).map(([label, value]) => `<div><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("");
