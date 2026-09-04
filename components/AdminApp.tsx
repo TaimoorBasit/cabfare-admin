@@ -4368,7 +4368,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       ['netProfitTarget','Net profit','Minimum',0,'£']
                     ].map(([key,label,context,fallback,suffix]) => (
                       <label key={key} className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50">
-                        <span className="block text-[11px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">{label}</span>
+                        <span className="block whitespace-nowrap text-[10px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">{label}</span>
                         <span className="mt-0.5 block text-[11px] font-semibold text-slate-400 dark:text-slate-500">{context}</span>
                         <span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600">
                           {suffix === '£' && <span className="mr-1 text-[13px] font-bold text-slate-400">£</span>}
