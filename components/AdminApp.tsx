@@ -53,8 +53,8 @@ const RECOVERY_CONFIGURATION = {
     profitMarginPct: 20, driverWageWeekday: 15, driverWageWeekend: 20,
     driverWageHoliday: 22, marginWeekday: 20, marginWeekend: 25,
     marginHoliday: 30, netMarginPct: 5, vatPct: 20, netProfitTarget: 0, overnightCost: 200, waitingChargePerHour: 35,
-emptyLegThresholdKm: 20, dualDriverThresholdHours: 10, drivingBreakTriggerHours: 4.5, drivingBreakMinutes: 30,
-    waitingWageFactor: 0.75, customerRangePct: 12, walkaroundCheckMinutes: 30,
+emptyLegThresholdKm: 20, dualDriverThresholdHours: 10, dailyDrivingLimitEnabled: true, drivingBreakTriggerHours: 4.5, drivingBreakTriggerEnabled: true, drivingBreakMinutes: 30, drivingBreakDurationEnabled: true,
+    waitingWageFactor: 0.75, customerRangePct: 12, customerRangeUpliftEnabled: true, walkaroundCheckMinutes: 30,
     distanceUnit: 'miles',
     yardAddress: 'Unit 1, Carolean Coaches, Bentley Lane, Walsall WS2 8TL, UK',
     yardLat: 52.5916536, yardLng: -2.0071041
@@ -4388,16 +4388,16 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     ))}
                     {[
                       ['emptyLegThresholdKm','Empty-leg threshold',20,'km',MapPinned],
-                      ['dualDriverThresholdHours','Daily driving limit',10,'hr',SlidersHorizontal],
-                      ['drivingBreakTriggerHours','Driving break trigger',4.5,'hr',SlidersHorizontal],
-                      ['drivingBreakMinutes','Driving break duration',30,'min',SlidersHorizontal],
+                      ['dualDriverThresholdHours','Daily driving limit',10,'hr',SlidersHorizontal,'dailyDrivingLimitEnabled'],
+                      ['drivingBreakTriggerHours','Driving break trigger',4.5,'hr',SlidersHorizontal,'drivingBreakTriggerEnabled'],
+                      ['drivingBreakMinutes','Driving break duration',30,'min',SlidersHorizontal,'drivingBreakDurationEnabled'],
                       ['waitingWageFactor','Waiting wage factor',0.75,'×',RefreshCw],
-                      ['customerRangePct','Customer range uplift',12,'%',TrendingUp],
+                      ['customerRangePct','Customer range uplift',12,'%',TrendingUp,'customerRangeUpliftEnabled'],
                       ['walkaroundCheckMinutes','Walkaround check (each way)',30,'min',Eye]
-                    ].map(([key,label,fallback,suffix,Icon]) => (
+                    ].map(([key,label,fallback,suffix,Icon,enabledKey]) => (
                       <div key={key} className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2 dark:border-slate-700 dark:bg-slate-900/50">
                         <div className="flex min-w-0 items-center gap-2"><Icon size={14} className="shrink-0 text-slate-400 dark:text-slate-500" /><span className="truncate text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span></div>
-                        <div className="flex shrink-0 items-center gap-1"><input type="number" min="0" step={key==='waitingWageFactor'?0.05:1} className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? Math.round(Number(pricing[key] ?? gv[key] ?? fallback) / 1.60934 * 100) / 100 : (pricing[key] ?? gv[key] ?? fallback)} onChange={e=>updatePricing(key,key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? Number(e.target.value) * 1.60934 : Number(e.target.value))}/><span className="text-[12px] font-bold text-slate-400">{key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? 'mi' : suffix}</span></div>
+                        <div className="flex shrink-0 items-center gap-2"><input type="number" min="0" step={key==='waitingWageFactor'?0.05:1} className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? Math.round(Number(pricing[key] ?? gv[key] ?? fallback) / 1.60934 * 100) / 100 : (pricing[key] ?? gv[key] ?? fallback)} onChange={e=>enabledKey ? setGv(current=>({...current,[key]:key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? Number(e.target.value) * 1.60934 : Number(e.target.value)})) : updatePricing(key,key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? Number(e.target.value) * 1.60934 : Number(e.target.value))}/><span className="text-[12px] font-bold text-slate-400">{key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? 'mi' : suffix}</span>{enabledKey && <button type="button" aria-label={`${label} ${gv[enabledKey] === false ? 'enable' : 'disable'}`} onClick={()=>setGv(current=>({...current,[enabledKey]:current[enabledKey] === false}))} className={`rounded-full px-2 py-0.5 text-[10px] font-extrabold ${gv[enabledKey] === false ? 'bg-slate-200 text-slate-500' : 'bg-emerald-100 text-emerald-700'}`}>{gv[enabledKey] === false ? 'OFF' : 'ON'}</button>}</div>
                       </div>
                     ))}
                   </div>
