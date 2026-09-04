@@ -1697,7 +1697,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
       authenticatedFetch(API_BASE_URL + '/api/admin/route-templates').then(r=>{if(!r.ok)throw new Error('Unable to load route templates');return r.json();}).then(t => setTemplatesData(Array.isArray(t) ? t : [])).catch(()=>{});
       authenticatedFetch(API_BASE_URL + '/api/admin/seasonal').then(r=>{if(!r.ok)throw new Error('Unable to load seasonal rules');return r.json();}).then(s => setSeasonalData(Array.isArray(s) ? s : [])).catch(()=>{});
     }
-    if (tab === 'bookings' && !bookingsApisLoadedRef.current) {
+    if (tab === 'bookings') {
       bookingsApisLoadedRef.current = true;
       authenticatedFetch(`${API_BASE_URL}/api/bookings?_=${Date.now()}`, { cache: 'no-store' }).then(r=>{if(!r.ok)throw new Error('Unable to load bookings');return r.json();}).then(b => {
         setBookingsData(b.bookings && Array.isArray(b.bookings) ? b.bookings : []);
