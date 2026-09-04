@@ -1124,7 +1124,7 @@ function printBookingPdf(booking) {
   const costRows = [
     has(result, "revenueKm") ? `<div class="money-row"><span>Live-leg miles</span><strong>${esc(text(result.revenueKm))} ${esc(distanceUnit)}</strong></div>` : "",
     has(result, "deadKm") ? `<div class="money-row"><span>Dead-leg miles</span><strong>${esc(text(result.deadKm))} ${esc(distanceUnit)}</strong></div>` : "",
-    moneyRow("Fuel cost", "fuelCost"), moneyRow("Maintenance cost", "maintenanceCost"), moneyRow("Tyre cost", "tyreCost"), moneyRow("Driver cost", "driverCost"), printableMoneyRow("Vehicle standing cost", printableStandingCost), printableMoneyRow("Company overhead", printableCompanyOverhead), printableMoneyRow("Overnight / subsistence", printableBreakdown.overnightCost), printableMoneyRow("Waiting cost", printableBreakdown.waitingCost), printableMoneyRow("Surcharges", printableBreakdown.surchargeTotal), `<div class="money-row total-row"><span>Total operating cost</span><strong>${money(printableOperatingCost)}</strong></div>`
+    moneyRow("Fuel cost", "fuelCost"), moneyRow("Maintenance cost", "maintenanceCost"), moneyRow("Tyre cost", "tyreCost"), moneyRow("Driver cost", "driverCost"), printableMoneyRow("Vehicle standing cost", printableStandingCost), printableMoneyRow("Company overhead", printableCompanyOverhead), printableMoneyRow("Overnight / subsistence", printableBreakdown.overnightCost), printableMoneyRow("Waiting cost", printableBreakdown.waitingCost), printableMoneyRow("Surcharges", printableBreakdown.surchargeTotal), `<div class="money-row total-row"><span>Total operating cost</span><strong>${money(printableOperatingCost)}</strong></div>`, breakdown.fareCalculationMethod === "commercial" ? `<div class="money-row"><span>Commercial fare calculation</span><strong>Minimum hire + mileage rate</strong></div><div class="money-row"><span>Commercial mileage charge</span><strong>${money(breakdown.commercialMileageCharge)}</strong></div><div class="money-row total-row"><span>Commercial fare before profit floor</span><strong>${money(breakdown.commercialFareBeforeProfitFloor)}</strong></div>` : `<div class="money-row"><span>Fare calculation</span><strong>Operating cost + profit</strong></div>`
   ].join("");
   const profitabilityRows = [moneyRow("Gross profit", "grossProfit"), moneyRow("Net profit", "netProfit"), has(breakdown, "marginPct") ? `<div class="money-row"><span>Gross margin</span><strong>${esc(breakdown.marginPct)}%</strong></div>` : "", has(breakdown, "netMarginPct") ? `<div class="money-row"><span>Net margin</span><strong>${esc(breakdown.netMarginPct)}%</strong></div>` : "", moneyRow("Profit floor", "profitFloor"), moneyRow("Net profit target", "netProfitTarget")].join("");
   const operationalRows = [
@@ -1139,6 +1139,7 @@ function printBookingPdf(booking) {
     ["Pricing method", has(result, "pricingMethod") ? result.pricingMethod : null]
   ].filter(([, value]) => value !== null).map(([label, value]) => `<div><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("");
   const transparentRows = [
+    ["Fare method", breakdown.fareCalculationMethod === "commercial" ? "Commercial Fare" : breakdown.fareCalculationMethod === "cost-plus" ? "Operating Cost + Profit" : null],
     ["Live legs", has(result, "revenueKm") ? `${result.revenueKm} ${distanceUnit}` : null],
     ["Dead legs", has(result, "totalKm") && has(result, "revenueKm") ? `${displayedDeadDistance} ${distanceUnit}` : null],
     ["Total driven", has(result, "totalKm") ? `${result.totalKm} ${distanceUnit}` : null],
@@ -1146,6 +1147,7 @@ function printBookingPdf(booking) {
     ["Empty running time", has(result, "emptyRunningMinutes") ? `${result.emptyRunningMinutes} min` : null],
     ["Driver paid time", has(result, "driverPaidMinutes") ? `${result.driverPaidMinutes} min` : null],
     ["Base price", has(result, "baseFare") ? money(result.baseFare) : null],
+    ...(breakdown.fareCalculationMethod === "commercial" ? [["Minimum hire", money(breakdown.minimumHire)], ["Selling rate", `${money(breakdown.sellingRate)}/${distanceUnit}`], ["Included mileage", `${text(breakdown.includedMileage)} ${distanceUnit}`], ["Commercial mileage charge", money(breakdown.commercialMileageCharge)], ["Commercial fare before profit floor", money(breakdown.commercialFareBeforeProfitFloor)]] : []),
     ["Minimum hire floor", has(quote.vehicle, "minimumHire") ? money(quote.vehicle.minimumHire) : null],
     ["Live-leg running cost (derived)", has(breakdown, "liveDistanceCost") ? money(breakdownLiveCost) : null],
     ["Dead-leg running cost (derived)", has(breakdown, "deadDistanceCost") ? money(breakdownDeadCost) : null],
@@ -3397,6 +3399,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                   ['Driver cost', drvCost],
                                   ['Overnight / subsistence', overnightCost],
                                   ['Surcharges (tolls, ULEZ, CAZ)', surcharges],
+                                  ...(bd.fareCalculationMethod === 'commercial' ? [['Commercial fare calculation', 'Minimum hire + mileage rate'], ['Commercial mileage charge', bd.commercialMileageCharge], ['Commercial fare before profit floor', bd.commercialFareBeforeProfitFloor]] : [['Fare calculation', 'Operating cost + profit']]),
                                 ].map(([label, value]) => (
                                   <tr key={label as string} style={{ borderBottom: `1px solid ${darkMode ? "#1f2937" : "#f1f5f9"}` }}>
                                     <td style={{ padding: "8px 0", color: darkMode ? "#d1d5db" : PX.gray700 }}>{label}</td>
