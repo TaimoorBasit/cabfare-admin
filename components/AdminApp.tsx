@@ -1691,6 +1691,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   };
 
   useEffect(() => {
+    if (tab !== 'pricing') settingsApisLoadedRef.current = false;
     if (tab === 'pricing' && !settingsApisLoadedRef.current) {
       settingsApisLoadedRef.current = true;
       authenticatedFetch(API_BASE_URL + '/api/admin/pricing-matrix').then(r=>{if(!r.ok)throw new Error('Unable to load pricing matrices');return r.json();}).then(m => setMatrixData(Array.isArray(m) ? m : [])).catch(()=>{});
