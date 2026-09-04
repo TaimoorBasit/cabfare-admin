@@ -2288,6 +2288,22 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
   const updateV = (id,field,val) =>
     setV(vs=>vs.map(v=>v.id===id?{...v,[field]:isNaN(Number(val))?val:Number(val)}:v));
+  const vehicleAutosaveReadyRef = useRef(false);
+  const vehicleAutosaveTimerRef = useRef(null);
+  useEffect(() => {
+    if (!vehicleAutosaveReadyRef.current) {
+      vehicleAutosaveReadyRef.current = true;
+      return;
+    }
+    clearTimeout(vehicleAutosaveTimerRef.current);
+    vehicleAutosaveTimerRef.current = setTimeout(() => {
+      authenticatedFetch(API_BASE_URL + '/api/admin/config', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vehicles })
+      }).catch(() => setToast('Unable to save fleet pricing changes'));
+    }, 500);
+    return () => clearTimeout(vehicleAutosaveTimerRef.current);
+  }, [vehicles]);
   const updateFareCalculationMethod = async (vehicle) => {
     const fareCalculationMethod = vehicle.fareCalculationMethod === 'cost-plus' ? 'commercial' : 'cost-plus';
     const nextVehicles = vehicles.map(v => v.id === vehicle.id ? { ...v, fareCalculationMethod } : v);
