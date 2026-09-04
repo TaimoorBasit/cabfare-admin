@@ -18,7 +18,8 @@ export default function LeafletDepotMap({ lat, lng, darkMode = false }: Props) {
 
     const initMap = async () => {
       if (typeof window === "undefined" || !mapContainerRef.current || !lat || !lng) return;
-      const L = (await import("leaflet")).default;
+      let L: any;
+      try { L = (await import("leaflet")).default; } catch (error) { console.warn("Leaflet failed to load; map unavailable.", error); return; }
       if (isCancelled) return;
 
       if (mapInstanceRef.current) {

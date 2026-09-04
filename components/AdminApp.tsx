@@ -4328,7 +4328,6 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   </div>
                 </div>
 
-                {/* ── CARD 3a: Core Rates (Col-span 6) ── */}
                 <div className="settings-pricing col-span-12 lg:col-span-6 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                     <div className="flex items-center gap-2">
@@ -4353,42 +4352,39 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   ].map(([field,label,suffix,step])=><label key={field} className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50"><span className="block min-h-[26px] text-[11px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">{label}</span><span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600"><input aria-label={`${vehicle.name} ${label}`} type="number" min="0" step={step} value={vehicle[field]??0} onChange={event=>updateV(vehicle.id,field,Math.max(0,Number(event.target.value)||0))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/><span className="ml-1 whitespace-nowrap text-[11px] font-bold text-slate-400">{suffix}</span></span></label>)}</div>})()}
                 </div>
 
-                {/* ── CARD 3b: Margins & Profit (Col-span 6) ── */}
-                <div className="settings-margins col-span-12 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/15 dark:text-primary-fixed"><Target size={15}/></div>
-                    <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Margins & Profit</h3>
+                <div className="settings-margins col-span-12 lg:col-span-6 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-4 min-h-[34px]">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/15 dark:text-primary-fixed"><Target size={15}/></div>
+                      <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Margins & Profit</h3>
+                    </div>
                   </div>
                   <div className="vehicle-quotation-grid grid gap-2">
                     {[
-                      ['marginWeekday','Gross margin','Weekday',30,'%'],
-                      ['marginWeekend','Gross margin','Weekend',30,'%'],
-                      ['marginHoliday','Gross margin','Holiday',30,'%'],
-                      ['netMarginPct','Net margin','Minimum',5,'%'],
-                      ['netProfitTarget','Net profit','Minimum',0,'£']
-                    ].map(([key,label,context,fallback,suffix]) => (
+                      ['marginWeekday','Gross (Weekday)','%',30,0.5,0,95],
+                      ['marginWeekend','Gross (Weekend)','%',30,0.5,0,95],
+                      ['marginHoliday','Gross (Holiday)','%',30,0.5,0,95],
+                      ['netMarginPct','Min net margin','%',5,0.5,5,95],
+                      ['netProfitTarget','Min net profit','£',0,5,0,undefined]
+                    ].map(([key,label,suffix,fallback,step,min,max]) => (
                       <label key={key} className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50">
                         <span className="block min-h-[26px] text-[11px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">{label}</span>
-                        <span className="mt-0.5 block text-[11px] font-semibold text-slate-400 dark:text-slate-500">{context}</span>
                         <span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600">
-                          {suffix === '£' && <span className="mr-1 text-[13px] font-bold text-slate-400">£</span>}
-                          <input aria-label={`${label} ${context}`} type="number" min={key === 'netMarginPct' ? 5 : 0} max={key === 'netProfitTarget' ? undefined : 95} step={key === 'netProfitTarget' ? 5 : 0.5} value={pricing[key] ?? gv[key] ?? fallback} onChange={e=>updatePricing(key,Number(e.target.value))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/>
-                          {suffix === '%' && <span className="ml-1 text-[12px] font-bold text-slate-400">%</span>}
+                          <input aria-label={label} type="number" min={min} max={max} step={step} value={pricing[key] ?? gv[key] ?? fallback} onChange={e=>updatePricing(key,Number(e.target.value))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/>
+                          <span className="ml-1 whitespace-nowrap text-[11px] font-bold text-slate-400">{suffix}</span>
                         </span>
                       </label>
                     ))}
                     <label className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50">
-                      <span className="block text-[11px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">VAT rate</span>
-                      <span className="mt-0.5 block text-[11px] font-semibold text-slate-400 dark:text-slate-500">Customer pricing</span>
+                      <span className="block min-h-[26px] text-[11px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">VAT Rate</span>
                       <span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600">
-                        <input aria-label="VAT rate" type="number" min="0" max="100" step="0.5" value={gv.vatPct ?? 20} onChange={e=>setGv(current=>({...current,vatPct:Number(e.target.value)}))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/>
-                        <span className="ml-1 text-[12px] font-bold text-slate-400">%</span>
+                        <input aria-label="VAT Rate" type="number" min="0" max="100" step="0.5" value={gv.vatPct ?? 20} onChange={e=>setGv(current=>({...current,vatPct:Number(e.target.value)}))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/>
+                        <span className="ml-1 whitespace-nowrap text-[11px] font-bold text-slate-400">%</span>
                       </span>
                     </label>
                   </div>
                 </div>
 
-                {/* ── CARD 3c: Driver & Pricing Rules (Col-span 6) ── */}
                 <div className="settings-driver-rules col-span-12 lg:col-span-6 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/15 dark:text-primary-fixed"><SvgUser size={15}/></div>

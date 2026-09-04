@@ -3252,11 +3252,13 @@ table {
 .admin-premium-shell .settings-margins .vehicle-quotation-grid {
   grid-template-columns: repeat(6, minmax(0, 1fr));
 }
-.admin-premium-shell .settings-pricing .vehicle-quotation-grid > * {
+.admin-premium-shell .settings-pricing .vehicle-quotation-grid > *,
+.admin-premium-shell .settings-margins .vehicle-quotation-grid > * {
   display: flex;
   flex-direction: column;
 }
-.admin-premium-shell .settings-pricing .vehicle-quotation-grid > * > span:last-child {
+.admin-premium-shell .settings-pricing .vehicle-quotation-grid > * > span:last-child,
+.admin-premium-shell .settings-margins .vehicle-quotation-grid > * > span:last-child {
   margin-top: auto !important;
   width: 100%;
 }

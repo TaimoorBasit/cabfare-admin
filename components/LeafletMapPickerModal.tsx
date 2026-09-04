@@ -51,7 +51,8 @@ export default function LeafletMapPickerModal({ isOpen, onClose, onConfirm, init
 
     const initMap = async () => {
       if (typeof window === "undefined" || !mapContainerRef.current) return;
-      const L = (await import("leaflet")).default;
+      let L: any;
+      try { L = (await import("leaflet")).default; } catch (error) { console.warn("Leaflet failed to load; map unavailable.", error); return; }
 
       if (mapInstanceRef.current) {
         try { mapInstanceRef.current.remove(); } catch (_) {}
