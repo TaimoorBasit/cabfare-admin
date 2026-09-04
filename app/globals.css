@@ -3249,6 +3249,9 @@ table {
 .admin-premium-shell .vehicle-quotation-grid {
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
+.admin-premium-shell .settings-margins .vehicle-quotation-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
 .admin-premium-shell .settings-pricing .vehicle-quotation-grid > * {
   display: flex;
   flex-direction: column;
@@ -3336,10 +3339,12 @@ table {
   .admin-premium-shell .settings-page { padding: 12px !important; }
   .admin-premium-shell .settings-layout { gap: 12px !important; }
   .admin-premium-shell .vehicle-quotation-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-premium-shell .settings-margins .vehicle-quotation-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 420px) {
   .admin-premium-shell .vehicle-quotation-grid { grid-template-columns: 1fr; }
+  .admin-premium-shell .settings-margins .vehicle-quotation-grid { grid-template-columns: 1fr; }
 }
 
 /* Container queries fix the real failure mode: the list panel can be narrow
