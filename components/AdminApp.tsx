@@ -2895,14 +2895,6 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         </div>
                       </button>
                     ))}
-                    <label className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50">
-                      <span className="block text-[11px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">VAT rate</span>
-                      <span className="mt-0.5 block text-[11px] font-semibold text-slate-400 dark:text-slate-500">Customer pricing</span>
-                      <span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600">
-                        <input aria-label="VAT rate" type="number" min="0" max="100" step="0.5" value={gv.vatPct ?? 20} onChange={e=>setGv(current=>({...current,vatPct:Number(e.target.value)}))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/>
-                        <span className="ml-1 text-[12px] font-bold text-slate-400">%</span>
-                      </span>
-                    </label>
                   </div>
                   <div className="p-4 text-center">
                     <button onClick={() => setTab("bookings")} className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">View all quotations</button>
@@ -4385,6 +4377,14 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         </span>
                       </label>
                     ))}
+                    <label className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50">
+                      <span className="block text-[11px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">VAT rate</span>
+                      <span className="mt-0.5 block text-[11px] font-semibold text-slate-400 dark:text-slate-500">Customer pricing</span>
+                      <span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600">
+                        <input aria-label="VAT rate" type="number" min="0" max="100" step="0.5" value={gv.vatPct ?? 20} onChange={e=>setGv(current=>({...current,vatPct:Number(e.target.value)}))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/>
+                        <span className="ml-1 text-[12px] font-bold text-slate-400">%</span>
+                      </span>
+                    </label>
                   </div>
                 </div>
 
