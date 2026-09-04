@@ -2287,6 +2287,22 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     setV(vs=>vs.map(v=>v.id===id?{...v,[field]:isNaN(Number(val))?val:Number(val)}:v));
   const updatePricing = (field, value) => setV(vs => vs.map(v => v.id === selectedPricingVehicle?.id
     ? { ...v, pricingSettings: { ...(v.pricingSettings || {}), [field]: value } } : v));
+  const toggleGlobalRule = async (field) => {
+    const value = gv[field] === false;
+    setGv(current => ({ ...current, [field]: value }));
+    try {
+      const response = await authenticatedFetch(API_BASE_URL + '/api/admin/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ globalVars: { [field]: value } })
+      });
+      if (!response.ok) throw new Error('Failed to save pricing rule state');
+    } catch {
+      setGv(current => ({ ...current, [field]: !value }));
+      setToast('Unable to save pricing rule state');
+      setTimeout(() => setToast(''), 3000);
+    }
+  };
   const updateRoadCharges = (next) => {
     setRoadCharges(rows => {
       const value = typeof next === 'function' ? next(rows) : next;
@@ -4396,7 +4412,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       ['walkaroundCheckMinutes','Walkaround check (each way)',30,'min',Eye]
                     ].map(([key,label,fallback,suffix,Icon,enabledKey]) => (
                       <div key={key} className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2 dark:border-slate-700 dark:bg-slate-900/50">
-                        <div className="flex min-w-0 items-center gap-2">{enabledKey ? <button type="button" aria-label={`${label} ${gv[enabledKey] === false ? 'enable' : 'disable'}`} title={gv[enabledKey] === false ? `Enable ${label}` : `Disable ${label}`} onClick={()=>setGv(current=>({...current,[enabledKey]:current[enabledKey] === false}))} className={gv[enabledKey] === false ? 'shrink-0 text-slate-300 dark:text-slate-600' : 'shrink-0 text-slate-500 dark:text-slate-400'}><Icon size={14}/></button> : <Icon size={14} className="shrink-0 text-slate-400 dark:text-slate-500" />}<span className="truncate text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span></div>
+                        <div className="flex min-w-0 items-center gap-2">{enabledKey ? <button type="button" aria-label={`${label} ${gv[enabledKey] === false ? 'enable' : 'disable'}`} title={gv[enabledKey] === false ? `Enable ${label}` : `Disable ${label}`} onClick={()=>toggleGlobalRule(enabledKey)} className={gv[enabledKey] === false ? 'shrink-0 text-slate-300 dark:text-slate-600' : 'shrink-0 text-slate-500 dark:text-slate-400'}><Icon size={14}/></button> : <Icon size={14} className="shrink-0 text-slate-400 dark:text-slate-500" />}<span className="truncate text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span></div>
                         <div className="flex shrink-0 items-center gap-1"><input type="number" min="0" step={key==='waitingWageFactor'?0.05:1} className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? Math.round(Number(pricing[key] ?? gv[key] ?? fallback) / 1.60934 * 100) / 100 : (pricing[key] ?? gv[key] ?? fallback)} onChange={e=>enabledKey ? setGv(current=>({...current,[key]:key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? Number(e.target.value) * 1.60934 : Number(e.target.value)})) : updatePricing(key,key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? Number(e.target.value) * 1.60934 : Number(e.target.value))}/><span className="text-[12px] font-bold text-slate-400">{key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? 'mi' : suffix}</span></div>
                       </div>
                     ))}
