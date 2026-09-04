@@ -4772,23 +4772,7 @@ export default function AdminApp() {
         if (!receivedData || !Array.isArray(receivedData.vehicles)) {
           throw new Error("Backend returned an invalid configuration payload");
         }
-        const recovery = restoreMissingConfiguration(receivedData);
-        const data = recovery.data;
-        const canEditSettings = adminUser?.role === 'owner' || adminUser?.role === 'admin' || (adminUser?.permissions || []).includes('settings');
-        if (recovery.changed && canEditSettings) {
-          void authenticatedFetch(API_BASE_URL + "/api/admin/config", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              vehicles: data.vehicles,
-              globalVars: data.globalVars,
-              surcharges: data.surcharges,
-              annualOverheads: data.annualOverheads,
-              operatorDetails: data.operatorDetails
-            }),
-            signal: controller.signal
-          }).catch(() => {});
-        }
+        const data = receivedData;
         if (!cancelled) {
           const freshDb = {
             ...data,
