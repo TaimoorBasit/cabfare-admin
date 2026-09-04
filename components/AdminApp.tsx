@@ -52,7 +52,7 @@ const RECOVERY_CONFIGURATION = {
     fuelPricePerLitre: 1.52, driverHourlyWage: 18, holidayPayPct: 12.07,
     profitMarginPct: 20, driverWageWeekday: 15, driverWageWeekend: 20,
     driverWageHoliday: 22, marginWeekday: 20, marginWeekend: 25,
-    marginHoliday: 30, netMarginPct: 5, netProfitTarget: 0, overnightCost: 200, waitingChargePerHour: 35,
+    marginHoliday: 30, netMarginPct: 5, vatPct: 20, netProfitTarget: 0, overnightCost: 200, waitingChargePerHour: 35,
     emptyLegThresholdKm: 20, dualDriverThresholdHours: 9,
     waitingWageFactor: 0.75, customerRangePct: 12, walkaroundCheckMinutes: 30,
     distanceUnit: 'miles',
@@ -2092,7 +2092,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     const accountancy = workbook.addWorksheet('Accountancy Breakdown');
     const auditHeaders = [
       'Booking ID','Date','Vehicle','Origin','Destination','Trip Type','Passengers','Distance (km)','Operating Days',
-      'Minimum Customer Hire (£)','Quoted Subtotal (£)','Surcharges (£)','Final Net Fare (£)','VAT 20% (£)','Total Inc VAT (£)',
+      'Minimum Customer Hire (£)','Quoted Subtotal (£)','Surcharges (£)','Final Net Fare (£)',`VAT ${Number(db.globalVars?.vatPct ?? 20)}% (£)`,`Total Inc VAT (£)`,
       'Fuel Price (£/L)','Fuel Economy (km/L)','Fuel Cost (£)','Maintenance Rate (£/km)','Maintenance Cost (£)',
       'Tyre Rate (£/km)','Tyre Cost (£)','Driver Cost (£)','Standing Cost (£)','Overnight Cost (£)',
       'Vehicle Fixed Allocation (£)','Company Overhead Allocation (£)','Direct Cost (£)','Accounting Cost (£)',
@@ -2123,7 +2123,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
       accountancy.addRow([
         b.id, new Date(b.createdAt), vehicle.name || '', b.journey?.origin || '', b.journey?.destination || '', b.journey?.journeyType || '', Number(b.journey?.passengers)||0, distanceKm, Number(result.opDays)||1,
         Number(vehicle.minimumHire)||0, Number(result.subtotal)||0, Number(result.surchargeTotal ?? bd.surchargeTotal)||0, Number(result.finalPrice || result.finalFare)||0,
-        {formula:`M${rowNumber}*20%`}, {formula:`M${rowNumber}+N${rowNumber}`}, fuelPrice, fuelEconomy,
+        {formula:`M${rowNumber}*${Number(db.globalVars?.vatPct ?? 20)}%`}, {formula:`M${rowNumber}+N${rowNumber}`}, fuelPrice, fuelEconomy,
         {formula:`IF(Q${rowNumber}>0,H${rowNumber}*P${rowNumber}/Q${rowNumber},0)`}, maintenanceRate, {formula:`H${rowNumber}*S${rowNumber}`}, tyreRate, {formula:`H${rowNumber}*U${rowNumber}`},
         Number(bd.driverCost ?? result.driverCost)||0, Number(bd.standingCost)||0, Number(bd.overnightCost)||0, Number(bd.allocatedStanding)||0, Number(bd.allocatedOverhead)||0,
         {formula:`R${rowNumber}+T${rowNumber}+V${rowNumber}+W${rowNumber}+X${rowNumber}+Y${rowNumber}+L${rowNumber}`},
@@ -2870,6 +2870,14 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         <span className="font-bold text-slate-900 dark:text-white ml-3">£{fmt(value)}</span>
                       </div>
                     ))}
+                    <label className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50">
+                      <span className="block text-[11px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">VAT rate</span>
+                      <span className="mt-0.5 block text-[11px] font-semibold text-slate-400 dark:text-slate-500">Customer pricing</span>
+                      <span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600">
+                        <input aria-label="VAT rate" type="number" min="0" max="100" step="0.5" value={gv.vatPct ?? 20} onChange={e=>setGv(current=>({...current,vatPct:Number(e.target.value)}))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/>
+                        <span className="ml-1 text-[12px] font-bold text-slate-400">%</span>
+                      </span>
+                    </label>
                   </div>
                 </div>
               </div>
@@ -3120,7 +3128,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       </div>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", padding: "10px 16px", borderBottom: `1px solid ${darkMode ? "#1f2937" : "#eaecf0"}`, background: darkMode ? "#111827" : "#fff" }}>
-                      <div><div style={{ fontSize: 10, color: darkMode ? "#9ca3af" : PX.gray500, textTransform: "uppercase", letterSpacing: 1 }}>Net fare</div><div style={{ fontSize: 25, lineHeight: 1.1, fontWeight: 900, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(previewBooking.quote?.result?.finalPrice || previewBooking.quote?.result?.finalFare || 0)}</div><div style={{ fontSize: 9, color: darkMode ? "#6b7280" : PX.gray400, marginTop: 3 }}>£{fmt((previewBooking.quote?.result?.finalPrice || previewBooking.quote?.result?.finalFare || 0) * 1.2)} inc. VAT</div></div>
+                      <div><div style={{ fontSize: 10, color: darkMode ? "#9ca3af" : PX.gray500, textTransform: "uppercase", letterSpacing: 1 }}>Net fare</div><div style={{ fontSize: 25, lineHeight: 1.1, fontWeight: 900, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(previewBooking.quote?.result?.finalPrice || previewBooking.quote?.result?.finalFare || 0)}</div><div style={{ fontSize: 9, color: darkMode ? "#6b7280" : PX.gray400, marginTop: 3 }}>£{fmt(previewBooking.quote?.result?.customerTotal ?? ((previewBooking.quote?.result?.finalPrice || previewBooking.quote?.result?.finalFare || 0) * (1 + Number(gv.vatPct ?? 20) / 100)))} inc. VAT ({Number(gv.vatPct ?? 20)}%)</div></div>
                       <div style={{ textAlign: "right" }}><div style={{ fontSize: 10, color: darkMode ? "#9ca3af" : PX.gray500, textTransform: "uppercase", letterSpacing: 1 }}>Net margin target</div><div style={{ fontSize: 20, lineHeight: 1.1, fontWeight: 800, color: PX.brandRed }}>{previewBooking.quote?.result?.breakdown?.netMarginPct ?? "--"}{previewBooking.quote?.result?.breakdown?.netMarginPct != null ? "%" : ""}</div></div>
                     </div>
                     <nav aria-label="Quotation detail sections" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", borderBottom: `1px solid ${darkMode ? "#1f2937" : "#eaecf0"}`, background: darkMode ? "#111827" : "#fff", position: "sticky", top: 0, zIndex: 9 }}>
@@ -3238,8 +3246,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                             <div style={{ fontSize: 28, fontWeight: 900, color: darkMode ? "#f3f4f6" : PX.navy800, lineHeight: 1 }}>£{fmt(previewBooking.quote?.result?.finalPrice || previewBooking.quote?.result?.finalFare || 0)}</div>
                           </div>
                           <div className="text-right">
-                            <div style={{ fontSize: 10, fontWeight: 600, color: darkMode ? "#6b7280" : PX.gray400 }}>INC. VAT (20%)</div>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: darkMode ? "#d1d5db" : PX.gray600 }}>£{fmt((previewBooking.quote?.result?.finalPrice || previewBooking.quote?.result?.finalFare || 0) * 1.2)}</div>
+                            <div style={{ fontSize: 10, fontWeight: 600, color: darkMode ? "#6b7280" : PX.gray400 }}>INC. VAT ({Number(gv.vatPct ?? 20)}%)</div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: darkMode ? "#d1d5db" : PX.gray600 }}>£{fmt(previewBooking.quote?.result?.customerTotal ?? ((previewBooking.quote?.result?.finalPrice || previewBooking.quote?.result?.finalFare || 0) * (1 + Number(gv.vatPct ?? 20) / 100)))}</div>
                           </div>
                         </div>
                       </div>
