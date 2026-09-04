@@ -1732,7 +1732,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
         })
         .catch((error) => setBookingsLoadError(error.message || "Unable to refresh quotations"));
     };
-    const interval = setInterval(refreshBookings, 2000);
+    const interval = setInterval(refreshBookings, 15000);
     return () => clearInterval(interval);
   }, [tab]);
 
