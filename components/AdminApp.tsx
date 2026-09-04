@@ -1694,7 +1694,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     }
     if (tab === 'bookings' && !bookingsApisLoadedRef.current) {
       bookingsApisLoadedRef.current = true;
-      authenticatedFetch(API_BASE_URL + '/api/bookings').then(r=>{if(!r.ok)throw new Error('Unable to load bookings');return r.json();}).then(b => {
+      authenticatedFetch(`${API_BASE_URL}/api/bookings?_=${Date.now()}`, { cache: 'no-store' }).then(r=>{if(!r.ok)throw new Error('Unable to load bookings');return r.json();}).then(b => {
         setBookingsData(b.bookings && Array.isArray(b.bookings) ? b.bookings : []);
         setBookingsLoadError("");
         setIsBookingsLoading(false);
@@ -1717,7 +1717,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   useEffect(() => {
     if (tab !== 'bookings') return;
     const refreshBookings = () => {
-      authenticatedFetch(API_BASE_URL + '/api/bookings')
+      authenticatedFetch(`${API_BASE_URL}/api/bookings?_=${Date.now()}`, { cache: 'no-store' })
         .then(r => { if (!r.ok) throw new Error('Unable to refresh bookings'); return r.json(); })
         .then(b => {
           if (b.bookings && Array.isArray(b.bookings)) {
@@ -1727,7 +1727,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
         })
         .catch((error) => setBookingsLoadError(error.message || "Unable to refresh quotations"));
     };
-    const interval = setInterval(refreshBookings, 10000);
+    const interval = setInterval(refreshBookings, 2000);
     return () => clearInterval(interval);
   }, [tab]);
 
