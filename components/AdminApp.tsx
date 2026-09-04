@@ -4354,7 +4354,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                 </div>
 
                 {/* ── CARD 3b: Margins & Profit (Col-span 6) ── */}
-                <div className="settings-margins col-span-12 lg:col-span-6 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
+                <div className="settings-margins col-span-12 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/15 dark:text-primary-fixed"><Target size={15}/></div>
                     <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Margins & Profit</h3>
