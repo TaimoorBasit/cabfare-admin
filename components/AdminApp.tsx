@@ -4329,6 +4329,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         <span className="ml-1 whitespace-nowrap text-[11px] font-bold text-slate-400">£</span>
                       </span>
                     </div>
+                    <label className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50"><span className="block min-h-[26px] text-[11px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">Fare calculation</span><select aria-label={`${vehicle.name} fare calculation`} value={vehicle.fareCalculationMethod || 'commercial'} onChange={event=>updateV(vehicle.id,'fareCalculationMethod',event.target.value)} className="mt-2 w-full border-b border-slate-300 bg-transparent pb-1 text-right text-sm font-extrabold text-slate-900 outline-none dark:border-slate-600 dark:text-white"><option value="commercial">Commercial selling rate</option><option value="cost-plus">Operating cost + profit</option></select></label>
                     {[
                     ['sellingRateOneWay','One-way rate',`£/${distanceUnitShort}`,0.01],
                     ['sellingRateReturn','Return rate',`£/${distanceUnitShort}`,0.01],
