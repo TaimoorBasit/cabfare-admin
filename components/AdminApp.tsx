@@ -12,137 +12,6 @@ import { Search, Sun, Moon, TrendingUp, Plus, Edit3, MoreVertical, Pause, Histor
 
 const ADMIN_TOKEN_KEY = 'caroleanAdminToken';
 const ADMIN_USER_KEY = 'caroleanAdminUser';
-const ADMIN_DB_CACHE_KEY = 'caroleanAdminDbCache';
-
-const RECOVERY_CONFIGURATION = {
-  vehicles: {
-    minibus: {
-      capacity: 16, fleetCount: 2, utilisationDays: 225, fuelKpl: 9.5,
-      ratePerKm: 0.26, sellingRateOneWay: 1.2, sellingRateReturn: 0.65, minimumHire: 175, includedKmOneWay: 20, includedKmReturn: 40, commercialWeight: 1, standingCostPerDay: 150,
-      maintenanceCostPerKm: 0, maintenanceSetCost: 4800, expectedMaintenanceLifeKm: 60000, tyreSetCost: 1200, expectedTyreLifeKm: 60000,
-      annualCosts: [
-        { id: 1, label: 'Vehicle Excise Duty (VED)', cost: 600 },
-        { id: 2, label: 'Annual Insurance', cost: 3200 },
-        { id: 3, label: 'Annual Depreciation', cost: 7975 }
-      ]
-    },
-    bus: {
-      capacity: 33, fleetCount: 2, utilisationDays: 225, fuelKpl: 7.2,
-      ratePerKm: 0.29, sellingRateOneWay: 1.65, sellingRateReturn: 0.85, minimumHire: 275, includedKmOneWay: 20, includedKmReturn: 50, commercialWeight: 1.08, standingCostPerDay: 200,
-      maintenanceCostPerKm: 0, maintenanceSetCost: 9600, expectedMaintenanceLifeKm: 80000, tyreSetCost: 2800, expectedTyreLifeKm: 80000,
-      annualCosts: [
-        { id: 1, label: 'Vehicle Excise Duty (VED)', cost: 850 },
-        { id: 2, label: 'Annual Insurance', cost: 5800 },
-        { id: 3, label: 'Annual Depreciation', cost: 13220 }
-      ]
-    },
-    coach: {
-      capacity: 49, fleetCount: 1, utilisationDays: 260, fuelKpl: 3.6,
-      maintenanceCostPerKm: 0, maintenanceSetCost: 22400, expectedMaintenanceLifeKm: 80000, tyreCostPerKm: 0.09, tyreSetCost: 2400,
-      expectedTyreLifeKm: 80000, profitMarginPct: 30, fuelPricePerLitre: 1.52,
-      ratePerKm: 0.79, sellingRateOneWay: 2.2, sellingRateReturn: 1, minimumHire: 450, includedKmOneWay: 0, includedKmReturn: 75, commercialWeight: 1.12, standingCostPerDay: 260,
-      annualCosts: [
-        { id: 1, label: 'Vehicle Excise Duty (VED)', cost: 1650 },
-        { id: 2, label: 'Annual Insurance', cost: 7800 },
-        { id: 3, label: 'Annual Depreciation', cost: 16500 }
-      ]
-    }
-  },
-  globalVars: {
-    fuelPricePerLitre: 1.52, driverHourlyWage: 18, holidayPayPct: 12.07,
-    profitMarginPct: 20, driverWageWeekday: 15, driverWageWeekend: 20,
-    driverWageHoliday: 22, marginWeekday: 20, marginWeekend: 25,
-    marginHoliday: 30, netMarginPct: 5, vatPct: 20, netProfitTarget: 0, overnightCost: 200, waitingChargePerHour: 35,
-emptyLegThresholdKm: 20, dualDriverThresholdHours: 10, drivingBreakTriggerHours: 4.5, drivingBreakMinutes: 30,
-    waitingWageFactor: 0.75, customerRangePct: 12, walkaroundCheckMinutes: 30,
-    distanceUnit: 'miles',
-    yardAddress: 'Unit 1, Carolean Coaches, Bentley Lane, Walsall WS2 8TL, UK',
-    yardLat: 52.5916536, yardLng: -2.0071041
-  },
-  surcharges: { m6Toll: 9.5, dartford: 2.5, ulez: 12.5, birminghamCaz: 8, driverOvernightSubsistence: 60 },
-  annualOverheads: [
-    { id: 1, label: 'Office & Premises', cost: 18000 },
-    { id: 2, label: 'Administration & Staffing', cost: 14400 },
-    { id: 3, label: 'Accountancy & Legal', cost: 5200 },
-    { id: 4, label: 'IT & Communication', cost: 2400 },
-    { id: 5, label: 'Marketing', cost: 3600 },
-    { id: 6, label: 'Fleet Operator Licence', cost: 1800 },
-    { id: 7, label: 'Miscellaneous', cost: 4600 }
-  ],
-  operatorDetails: {
-    companyName: 'Carolean Coaches Ltd', operatorLicence: 'PM0003456',
-    depotPostcode: 'WS2 8TL', notificationEmail: 'bookings@caroleancoaches.co.uk'
-  }
-};
-
-function restoreMissingConfiguration(source) {
-  const data = structuredClone(source || {});
-  let changed = false;
-  const missingPositive = value => !Number.isFinite(Number(value)) || Number(value) <= 0;
-  const missingNonNegative = value => !Number.isFinite(Number(value)) || Number(value) < 0;
-
-  data.vehicles = Array.isArray(data.vehicles) ? data.vehicles.map(vehicle => {
-    const baseline = RECOVERY_CONFIGURATION.vehicles[vehicle.id];
-    const repaired = { ...vehicle };
-    if (String(repaired.name || '').trim().toLowerCase() === 'executive minibus') {
-      repaired.name = 'Minibus';
-      changed = true;
-    }
-    if (!baseline) return repaired;
-    for (const [field, value] of Object.entries(baseline)) {
-      if (field === 'annualCosts') continue;
-      const requiresPositive = ['capacity', 'fleetCount', 'utilisationDays', 'fuelKpl', 'expectedTyreLifeKm', 'ratePerKm', 'commercialWeight'].includes(field);
-      if ((requiresPositive ? missingPositive(repaired[field]) : missingNonNegative(repaired[field]))) {
-        repaired[field] = value;
-        changed = true;
-      }
-    }
-    const currentCosts = Array.isArray(repaired.annualFixedCosts) && repaired.annualFixedCosts.length
-      ? repaired.annualFixedCosts : repaired.annualCosts;
-    const costsAreMissing = !Array.isArray(currentCosts);
-    if (costsAreMissing) {
-      repaired.annualCosts = structuredClone(baseline.annualCosts);
-      repaired.annualFixedCosts = baseline.annualCosts.map(cost => ({ ...cost, name: cost.label, amount: cost.cost }));
-      changed = true;
-    }
-    return repaired;
-  }) : [];
-
-  data.globalVars = { ...(data.globalVars || {}) };
-  for (const [field, value] of Object.entries(RECOVERY_CONFIGURATION.globalVars)) {
-    const current = data.globalVars[field];
-    const isMissing = typeof value === 'number' ? !Number.isFinite(Number(current)) : !String(current || '').trim();
-    if (isMissing) { data.globalVars[field] = value; changed = true; }
-  }
-  if (Number(data.globalVars.netMarginPct) < 5) {
-    data.globalVars.netMarginPct = 5;
-    changed = true;
-  }
-  if (Number(data.globalVars.dualDriverThresholdHours) <= 0 || Number(data.globalVars.dualDriverThresholdHours) > 10) {
-    data.globalVars.dualDriverThresholdHours = 10;
-    changed = true;
-  }
-  if (!String(data.globalVars.yardAddress || '').toLowerCase().includes('bentley lane')) {
-    data.globalVars.yardAddress = RECOVERY_CONFIGURATION.globalVars.yardAddress;
-    data.globalVars.yardLat = RECOVERY_CONFIGURATION.globalVars.yardLat;
-    data.globalVars.yardLng = RECOVERY_CONFIGURATION.globalVars.yardLng;
-    changed = true;
-  }
-
-  data.surcharges = { ...(data.surcharges || {}) };
-  for (const [field, value] of Object.entries(RECOVERY_CONFIGURATION.surcharges)) {
-    if (missingNonNegative(data.surcharges[field])) { data.surcharges[field] = value; changed = true; }
-  }
-  if (!Array.isArray(data.annualOverheads)) {
-    data.annualOverheads = structuredClone(RECOVERY_CONFIGURATION.annualOverheads);
-    changed = true;
-  }
-  data.operatorDetails = { ...(data.operatorDetails || {}) };
-  for (const [field, value] of Object.entries(RECOVERY_CONFIGURATION.operatorDetails)) {
-    if (!String(data.operatorDetails[field] || '').trim()) { data.operatorDetails[field] = value; changed = true; }
-  }
-  return { data, changed };
-}
 const authenticatedFetch = (input, init = {}) => {
   const headers = new Headers(init.headers || {});
   if (typeof window !== 'undefined') {
@@ -4708,10 +4577,6 @@ function FleetEconomicsPanel({ eco, darkMode }) {
 // ── Root App ──────────────────────────────────────────────────────────────────
 export default function AdminApp() {
   const [db, setDb] = useState(() => {
-    try {
-      const cached = window.localStorage.getItem(ADMIN_DB_CACHE_KEY);
-      if (cached) return JSON.parse(cached);
-    } catch {}
     return { vehicles: [], globalVars: {}, annualOverheads: [], surcharges: {}, blockedDates: [] };
   });
   const [adminUser, setAdminUser] = useState(null);
@@ -4796,7 +4661,6 @@ export default function AdminApp() {
             blockedDates: Array.isArray(data.blockedDates) ? data.blockedDates : []
           };
           setDb(freshDb);
-          try { window.localStorage.setItem(ADMIN_DB_CACHE_KEY, JSON.stringify(freshDb)); } catch {}
           setAuthRequired(false);
           backendStatusRef.current = 'online';
           setBackendStatus('online');
@@ -4833,7 +4697,6 @@ export default function AdminApp() {
     await authenticatedFetch(API_BASE_URL + '/api/auth/logout', { method:'POST' }).catch(()=>{});
     window.localStorage.removeItem(ADMIN_TOKEN_KEY);
     window.localStorage.removeItem(ADMIN_USER_KEY);
-    window.localStorage.removeItem(ADMIN_DB_CACHE_KEY);
     setAdminUser(null);
     setDb({ vehicles: [], globalVars: {}, annualOverheads: [], surcharges: {}, blockedDates: [] });
     setAuthRequired(true);
