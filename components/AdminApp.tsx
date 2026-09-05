@@ -3297,9 +3297,9 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         const transparentLiveDistance = Number(displayDistance(transparentResult.revenueKm, transparentResult.distanceUnit, gv.distanceUnit, transparentResult.customerKm)) || 0;
                         const transparentDeadDistance = Math.max(0, transparentTotalDistance - transparentLiveDistance);
                         const transparentRows = [
-                          ["Live legs", transparentResult.revenueKm != null ? `${transparentLiveDistance} ${transparentUnit}` : null],
-                          ["Dead legs", transparentResult.totalKm != null && transparentResult.revenueKm != null ? `${Math.max(0, transparentTotalDistance - transparentLiveDistance)} ${transparentUnit}` : null],
-                          ["Total driven", transparentResult.totalKm != null ? `${transparentTotalDistance} ${transparentUnit}` : null],
+                          ["Live legs", transparentResult.revenueKm != null ? `${fmt1(transparentLiveDistance)} ${transparentUnit}` : null],
+                          ["Dead legs", transparentResult.totalKm != null && transparentResult.revenueKm != null ? `${fmt1(Math.max(0, transparentTotalDistance - transparentLiveDistance))} ${transparentUnit}` : null],
+                          ["Total driven", transparentResult.totalKm != null ? `${fmt1(transparentTotalDistance)} ${transparentUnit}` : null],
                           ["Driving time", transparentResult.liveDurationMinutes != null ? `${transparentResult.liveDurationMinutes} min` : null],
                           ["Empty running time", transparentResult.emptyRunningMinutes != null ? `${transparentResult.emptyRunningMinutes} min` : null],
                           ["Driver paid time", transparentResult.driverPaidMinutes != null ? `${transparentResult.driverPaidMinutes} min` : null],
