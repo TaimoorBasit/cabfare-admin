@@ -2290,9 +2290,14 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     setV(vs=>vs.map(v=>v.id===id?{...v,[field]:isNaN(Number(val))?val:Number(val)}:v));
   const vehicleAutosaveReadyRef = useRef(false);
   const vehicleAutosaveTimerRef = useRef(null);
+  const skipVehicleAutosaveRef = useRef(false);
   useEffect(() => {
     if (!vehicleAutosaveReadyRef.current) {
       if (vehicles.length) vehicleAutosaveReadyRef.current = true;
+      return;
+    }
+    if (skipVehicleAutosaveRef.current) {
+      skipVehicleAutosaveRef.current = false;
       return;
     }
     clearTimeout(vehicleAutosaveTimerRef.current);
@@ -2307,11 +2312,12 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   const updateFareCalculationMethod = async (vehicle) => {
     const fareCalculationMethod = vehicle.fareCalculationMethod === 'cost-plus' ? 'commercial' : 'cost-plus';
     const nextVehicles = vehicles.map(v => v.id === vehicle.id ? { ...v, fareCalculationMethod } : v);
+    skipVehicleAutosaveRef.current = true;
     setV(nextVehicles);
     try {
-      const response = await authenticatedFetch(API_BASE_URL + '/api/admin/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ vehicles: nextVehicles }) });
+      const response = await authenticatedFetch(API_BASE_URL + '/api/admin/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ vehicleFareMethod: { id: vehicle.id, fareCalculationMethod } }) });
       if (!response.ok) throw new Error('Unable to save fare calculation method');
-    } catch { setToast('Unable to save fare calculation method'); setTimeout(() => setToast(''), 3000); }
+    } catch { skipVehicleAutosaveRef.current = true; setV(vehicles); setToast('Unable to save fare calculation method'); setTimeout(() => setToast(''), 3000); }
   };
   const updatePricing = (field, value) => setV(vs => vs.map(v => v.id === selectedPricingVehicle?.id
     ? { ...v, pricingSettings: { ...(v.pricingSettings || {}), [field]: value } } : v));
