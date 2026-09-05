@@ -1333,6 +1333,7 @@ function StaffAccessPanel({ setToast }) {
 
 function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) {
   const fetch = authenticatedFetch;
+  const liveConfigurationHydratedRef = useRef(false);
   // True once there's data to show — either freshly fetched or restored from
   // last session's cache. Separate from `backendOnline`, which only turns true
   // after a real, confirmed round trip (and gates autosave) so cached data can
@@ -1549,6 +1550,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
       if (db.operatorDetails) setOperatorDetails(current => ({...current, ...db.operatorDetails}));
       if (db.blockedDates) setBl([...db.blockedDates]);
       if (db.vehicles && db.vehicles[0]) setNB(nb => ({ ...nb, vehicleId: db.vehicles[0].id }));
+      liveConfigurationHydratedRef.current = true;
     }
   }, [db]);
 
@@ -2250,7 +2252,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   const initialConfigurationRef = useRef(JSON.stringify(configurationSnapshot));
 
   const flushAutosave = useCallback(async () => {
-    if (autosaveInFlightRef.current || !backendOnline) return;
+    if (autosaveInFlightRef.current || !backendOnline || !liveConfigurationHydratedRef.current) return;
     autosaveInFlightRef.current = true;
     try {
       while (autosaveSavedRevisionRef.current < autosaveRevisionRef.current) {
@@ -2275,7 +2277,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
   useEffect(() => {
     latestConfigurationRef.current = configurationSnapshot;
-    if (!backendOnline || (autosaveRevisionRef.current === 0 && JSON.stringify(configurationSnapshot) === initialConfigurationRef.current)) return;
+    if (!backendOnline || !liveConfigurationHydratedRef.current || (autosaveRevisionRef.current === 0 && JSON.stringify(configurationSnapshot) === initialConfigurationRef.current)) return;
     autosaveRevisionRef.current += 1;
     if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current);
     autosaveTimerRef.current = setTimeout(flushAutosave, 300);
@@ -2323,6 +2325,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   const vehicleAutosaveTimerRef = useRef(null);
   const skipVehicleAutosaveRef = useRef(false);
   useEffect(() => {
+    if (!backendOnline || !liveConfigurationHydratedRef.current) return;
     if (!vehicleAutosaveReadyRef.current) {
       if (vehicles.length) vehicleAutosaveReadyRef.current = true;
       return;
@@ -2339,7 +2342,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
       }).catch(() => setToast('Unable to save fleet pricing changes'));
     }, 500);
     return () => clearTimeout(vehicleAutosaveTimerRef.current);
-  }, [vehicles]);
+  }, [vehicles, backendOnline]);
   const updateFareCalculationMethod = async (vehicle) => {
     const fareCalculationMethod = vehicle.fareCalculationMethod === 'cost-plus' ? 'commercial' : 'cost-plus';
     const nextVehicles = vehicles.map(v => v.id === vehicle.id ? { ...v, fareCalculationMethod } : v);
