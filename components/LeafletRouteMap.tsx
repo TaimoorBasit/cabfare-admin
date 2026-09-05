@@ -14,10 +14,11 @@ const PX = {
   gray600: "#475569",
 };
 const MILES_TO_KM = 1.60934;
-const displayDistance = (value, sourceUnit, targetUnit) => {
+const displayDistance = (value, sourceUnit, targetUnit, canonicalKm) => {
   const n = Number(value);
   if (!Number.isFinite(n)) return value;
-  const km = (sourceUnit || "miles") === "miles" ? n * MILES_TO_KM : n;
+  const canonical = Number(canonicalKm);
+  const km = Number.isFinite(canonical) ? canonical : (sourceUnit || "miles") === "miles" ? n * MILES_TO_KM : n;
   return Math.round((targetUnit === "miles" ? km / MILES_TO_KM : km) * 10) / 10;
 };
 
@@ -280,8 +281,8 @@ export default function LeafletRouteMap({ result, journey, gv, height = 320, min
       {!minimal && result && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 12 }}>
           {[
-["Total route", displayDistance(result.totalKm, result.distanceUnit, gv?.distanceUnit) + " " + (gv?.distanceUnit === "miles" ? "mi" : "km")],
-[`Live ${gv?.distanceUnit === "miles" ? "mi" : "km"}`, displayDistance(result.revenueKm, result.distanceUnit, gv?.distanceUnit) + " " + (gv?.distanceUnit === "miles" ? "mi" : "km")],
+["Total route", displayDistance(result.totalKm, result.distanceUnit, gv?.distanceUnit, result.chargedKm) + " " + (gv?.distanceUnit === "miles" ? "mi" : "km")],
+[`Live ${gv?.distanceUnit === "miles" ? "mi" : "km"}`, displayDistance(result.revenueKm, result.distanceUnit, gv?.distanceUnit, result.customerKm) + " " + (gv?.distanceUnit === "miles" ? "mi" : "km")],
             ["Duration", (result.totalShiftHrs || 0) + "h"],
             ["Est. Days", result.opDays || 1]
           ].map(([l, v], idx) => (

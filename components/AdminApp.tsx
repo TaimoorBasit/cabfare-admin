@@ -914,10 +914,11 @@ const displayVehicleName = value => {
   if (/^premium coach(?:\s*\(\s*\d+\s*seats?\s*\))?$/i.test(name)) return 'Premium Coach';
   return value;
 };
-function displayDistance(value, sourceUnit, targetUnit) {
+function displayDistance(value, sourceUnit, targetUnit, canonicalKm) {
   const n = Number(value);
   if (!Number.isFinite(n)) return value;
-  const km = (sourceUnit || "miles") === "miles" ? n * MILES_TO_KM : n;
+  const canonical = Number(canonicalKm);
+  const km = Number.isFinite(canonical) ? canonical : (sourceUnit || "miles") === "miles" ? n * MILES_TO_KM : n;
   return Math.round((targetUnit === "miles" ? km / MILES_TO_KM : km) * 10) / 10;
 }
 function displayDistanceRate(value, targetUnit) {
@@ -1076,8 +1077,8 @@ const result = quote.result || {};
     row("Suitcases 23KG+", journey.suitcaseCount),
     row("Handbags", journey.handbagCount),
     row("Special requests", journey.specialRequests || "None"),
-    row("Distance", `${displayDistance(result.totalKm, result.distanceUnit, globalVars.distanceUnit) ?? "-"} ${globalVars.distanceUnit === "miles" ? "mi" : "km"}`),
-    row("Revenue distance", `${displayDistance(result.revenueKm, result.distanceUnit, globalVars.distanceUnit) ?? "-"} ${globalVars.distanceUnit === "miles" ? "mi" : "km"}`),
+    row("Distance", `${displayDistance(result.totalKm, result.distanceUnit, globalVars.distanceUnit, result.chargedKm) ?? "-"} ${globalVars.distanceUnit === "miles" ? "mi" : "km"}`),
+    row("Revenue distance", `${displayDistance(result.revenueKm, result.distanceUnit, globalVars.distanceUnit, result.customerKm) ?? "-"} ${globalVars.distanceUnit === "miles" ? "mi" : "km"}`),
     row("Estimated duration", `${result.totalShiftHrs ?? "-"} hours`),
     row("Quoted fare", money(result.finalPrice)),
     row("Upper price bound", money(result.upperBoundPrice)),
@@ -1098,9 +1099,9 @@ function printBookingPdf(booking, globalVars = {}) {
   const quote = booking.quote || {};
   const storedResult = quote.result || {};
   const result = { ...storedResult, distanceUnit: globalVars.distanceUnit,
-    totalKm: displayDistance(storedResult.totalKm, storedResult.distanceUnit, globalVars.distanceUnit),
-    revenueKm: displayDistance(storedResult.revenueKm, storedResult.distanceUnit, globalVars.distanceUnit),
-    deadKm: displayDistance(storedResult.deadKm, storedResult.distanceUnit, globalVars.distanceUnit)
+    totalKm: displayDistance(storedResult.totalKm, storedResult.distanceUnit, globalVars.distanceUnit, storedResult.chargedKm),
+    revenueKm: displayDistance(storedResult.revenueKm, storedResult.distanceUnit, globalVars.distanceUnit, storedResult.customerKm),
+    deadKm: displayDistance(storedResult.deadKm, storedResult.distanceUnit, globalVars.distanceUnit, Number(storedResult.chargedKm) - Number(storedResult.customerKm))
   };
   const displayUnit = globalVars.distanceUnit === "miles" ? "miles" : "km";
   const displayedTotalDistance = displayDistance(result.totalKm, result.distanceUnit, displayUnit);
