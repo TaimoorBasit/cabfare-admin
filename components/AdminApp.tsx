@@ -83,12 +83,12 @@ function restoreMissingConfiguration(source) {
 
   data.vehicles = Array.isArray(data.vehicles) ? data.vehicles.map(vehicle => {
     const baseline = RECOVERY_CONFIGURATION.vehicles[vehicle.id];
-    if (!baseline) return vehicle;
     const repaired = { ...vehicle };
     if (String(repaired.name || '').trim().toLowerCase() === 'executive minibus') {
       repaired.name = 'Minibus';
       changed = true;
     }
+    if (!baseline) return repaired;
     for (const [field, value] of Object.entries(baseline)) {
       if (field === 'annualCosts') continue;
       const requiresPositive = ['capacity', 'fleetCount', 'utilisationDays', 'fuelKpl', 'expectedTyreLifeKm', 'ratePerKm', 'commercialWeight'].includes(field);
@@ -908,6 +908,7 @@ function GoogleMapPreview(props) {
 }
 
 const MILES_TO_KM = 1.60934;
+const displayVehicleName = value => String(value || '').trim().toLowerCase() === 'executive minibus' ? 'Minibus' : value;
 function displayDistance(value, sourceUnit, targetUnit) {
   const n = Number(value);
   if (!Number.isFinite(n)) return value;
@@ -1065,7 +1066,7 @@ const result = quote.result || {};
     row("Customer", booking.customer?.name),
     row("Email", booking.customer?.email),
     row("Phone", booking.customer?.phone),
-    row("Vehicle", quote.vehicle?.name),
+    row("Vehicle", displayVehicleName(quote.vehicle?.name)),
     row("Passengers", journey.passengers),
     row("Suitcases 23KG+", journey.suitcaseCount),
     row("Handbags", journey.handbagCount),
@@ -1134,7 +1135,7 @@ function printBookingPdf(booking, globalVars = {}) {
   const stops = getJourneyStops(journey);
   const distanceUnit = displayUnit === "miles" ? "mi" : "km";
   const finalFare = result.finalPrice ?? result.finalFare;
-  const vehicleName = quote.vehicle?.name || journey.vehicleName;
+  const vehicleName = displayVehicleName(quote.vehicle?.name || journey.vehicleName);
   const vehicleCapacity = quote.vehicle?.seats || quote.vehicle?.capacity || quote.vehicle?.seatCapacity;
   const resultVat = result.vat ?? result.vatAmount ?? result.tax;
   const customerTotal = result.customerTotal ?? result.totalIncVat ?? result.total;
@@ -4620,7 +4621,7 @@ function FleetEconomicsPanel({ eco, darkMode }) {
               <div>
                 <div style={{ fontSize:15,fontWeight:700,color: darkMode ? "#f3f4f6" : PX.navy800 }}>
                   {v.emoji === "minibus" ? <SvgMinibus size={18} style={{ marginRight: 6 }} /> : v.emoji === "coach" ? <SvgCoach size={18} style={{ marginRight: 6 }} /> : <SvgBus size={18} style={{ marginRight: 6 }} />}
-                  {v.name}
+                  {displayVehicleName(v.name)}
                 </div>
                 <div style={{ fontSize:13,color: darkMode ? "#6b7280" : PX.gray400,fontWeight:600, marginLeft: 24 }}>{v.utilDays} days · {v.utilRate}% utilisation</div>
               </div>
@@ -4665,7 +4666,7 @@ function FleetEconomicsPanel({ eco, darkMode }) {
               <div style={{ fontSize:20,marginBottom:4 }}>
                 {v.emoji === "minibus" ? <SvgMinibus size={22} color="#fff" /> : v.emoji === "coach" ? <SvgCoach size={22} color="#fff" /> : <SvgBus size={22} color="#fff" />}
               </div>
-              <div style={{ fontSize:13,color:"#7baed4",marginBottom:6,fontWeight:600 }}>{v.name}</div>
+              <div style={{ fontSize:13,color:"#7baed4",marginBottom:6,fontWeight:600 }}>{displayVehicleName(v.name)}</div>
               <div style={{ fontSize:22,fontWeight:800,color:PX.amber400 }}>£{v.minHirePerDay.toFixed(2)}</div>
               <div style={{ fontSize:12,color:"rgba(255,255,255,.35)",marginTop:4 }}>
                 £{v.dailyStanding.toFixed(2)} + £{v.dailyOverhead.toFixed(2)}
