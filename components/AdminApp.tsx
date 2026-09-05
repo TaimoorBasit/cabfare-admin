@@ -85,7 +85,7 @@ function restoreMissingConfiguration(source) {
     const baseline = RECOVERY_CONFIGURATION.vehicles[vehicle.id];
     const repaired = { ...vehicle };
     if (String(repaired.name || '').trim().toLowerCase() === 'executive minibus') {
-      repaired.name = 'MiniBus';
+      repaired.name = 'Minibus';
       changed = true;
     }
     if (!baseline) return repaired;
@@ -908,7 +908,7 @@ function GoogleMapPreview(props) {
 }
 
 const MILES_TO_KM = 1.60934;
-const displayVehicleName = value => String(value || '').trim().toLowerCase() === 'executive minibus' ? 'MiniBus' : value;
+const displayVehicleName = value => String(value || '').trim().toLowerCase() === 'executive minibus' ? 'Minibus' : value;
 function displayDistance(value, sourceUnit, targetUnit) {
   const n = Number(value);
   if (!Number.isFinite(n)) return value;
