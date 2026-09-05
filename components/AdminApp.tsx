@@ -904,6 +904,19 @@ function GoogleMapPreview(props) {
   return <LeafletRouteMap {...props} />;
 }
 
+const MILES_TO_KM = 1.60934;
+function displayDistance(value, sourceUnit, targetUnit) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return value;
+  const km = sourceUnit === "miles" ? n * MILES_TO_KM : n;
+  return Math.round((targetUnit === "miles" ? km / MILES_TO_KM : km) * 10) / 10;
+}
+function displayDistanceRate(value, targetUnit) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return value;
+  return Math.round((targetUnit === "miles" ? n * MILES_TO_KM : n) * 10000) / 10000;
+}
+
 function RouteMap({ result, journey, gv, height=320, minimal=false, darkMode=false, mapsLoaded=false }) {
   const savedRoutePoints = getSavedRoutePoints(result, journey);
   if (result?.geometry || savedRoutePoints.length >= 2) {
@@ -1054,8 +1067,8 @@ const result = quote.result || {};
     row("Suitcases 23KG+", journey.suitcaseCount),
     row("Handbags", journey.handbagCount),
     row("Special requests", journey.specialRequests || "None"),
-    row("Distance", `${result.totalKm ?? "-"} ${result.distanceUnit === "miles" ? "mi" : "km"}`),
-    row("Revenue distance", `${result.revenueKm ?? "-"} ${result.distanceUnit === "miles" ? "mi" : "km"}`),
+    row("Distance", `${displayDistance(result.totalKm, result.distanceUnit, globalVars.distanceUnit) ?? "-"} ${globalVars.distanceUnit === "miles" ? "mi" : "km"}`),
+    row("Revenue distance", `${displayDistance(result.revenueKm, result.distanceUnit, globalVars.distanceUnit) ?? "-"} ${globalVars.distanceUnit === "miles" ? "mi" : "km"}`),
     row("Estimated duration", `${result.totalShiftHrs ?? "-"} hours`),
     row("Quoted fare", money(result.finalPrice)),
     row("Upper price bound", money(result.upperBoundPrice)),
@@ -1075,7 +1088,10 @@ function printBookingPdf(booking, globalVars = {}) {
   const journey = booking.journey || {};
   const quote = booking.quote || {};
   const result = quote.result || {};
-  const displayedDeadDistance = Math.max(0, Number(result.totalKm || 0) - Number(result.revenueKm || 0));
+  const displayUnit = globalVars.distanceUnit === "miles" ? "miles" : "km";
+  const displayedTotalDistance = displayDistance(result.totalKm, result.distanceUnit, displayUnit);
+  const displayedLiveDistance = displayDistance(result.revenueKm, result.distanceUnit, displayUnit);
+  const displayedDeadDistance = Math.max(0, Number(displayedTotalDistance || 0) - Number(displayedLiveDistance || 0));
   const breakdown = result.breakdown || {};
   const breakdownDistanceCost = Number(breakdown.distanceCost) || 0;
   const breakdownTotalDistance = Number(result.totalKm) || 0;
@@ -1113,7 +1129,7 @@ function printBookingPdf(booking, globalVars = {}) {
   const moneyRow = (label, key, className = "") => has(printableBreakdown, key) ? `<div class="money-row ${className}"><span>${esc(label)}</span><strong>${money(printableBreakdown[key])}</strong></div>` : "";
   const printableMoneyRow = (label, value, className = "") => value !== null && value !== undefined && Number.isFinite(Number(value)) && Number(value) !== 0 ? `<div class="money-row ${className}"><span>${esc(label)}</span><strong>${money(value)}</strong></div>` : "";
   const stops = getJourneyStops(journey);
-  const distanceUnit = globalVars.distanceUnit === "miles" ? "mi" : "km";
+  const distanceUnit = displayUnit === "miles" ? "mi" : "km";
   const finalFare = result.finalPrice ?? result.finalFare;
   const vehicleName = quote.vehicle?.name || journey.vehicleName;
   const vehicleCapacity = quote.vehicle?.seats || quote.vehicle?.capacity || quote.vehicle?.seatCapacity;
@@ -1122,8 +1138,8 @@ function printBookingPdf(booking, globalVars = {}) {
   const stopRows = stops.map((stop, index) => `<div class="timeline-row"><b>${index + 1}</b><div><small>STOP ${index + 1}${stop.wait ? ` · ${esc(stop.wait)} MIN WAIT` : ""}</small><strong>${esc(stop.place || stop.name || "Saved stop")}</strong></div></div>`).join("");
   const timeline = `<div class="timeline"><div class="timeline-row"><b>A</b><div><small>OUTWARD · PICKUP</small><strong>${esc(journey.origin)}</strong><span>${esc(dateTime(journey.departureDate))}</span></div></div>${stopRows}<div class="timeline-row"><b class="end">B</b><div><small>DESTINATION</small><strong>${esc(journey.destination)}</strong></div></div>${journey.journeyType === "return" ? `<div class="timeline-row return"><b>R</b><div><small>RETURN · ${esc(dateTime(journey.returnDate))}</small><strong>${esc(journey.destination)} → ${esc(journey.origin)}</strong></div></div>` : ""}</div>`;
   const costRows = [
-    has(result, "revenueKm") ? `<div class="money-row"><span>Live-leg miles</span><strong>${esc(text(result.revenueKm))} ${esc(distanceUnit)}</strong></div>` : "",
-    has(result, "deadKm") ? `<div class="money-row"><span>Dead-leg miles</span><strong>${esc(text(result.deadKm))} ${esc(distanceUnit)}</strong></div>` : "",
+    has(result, "revenueKm") ? `<div class="money-row"><span>Live-leg distance</span><strong>${esc(text(displayedLiveDistance))} ${esc(distanceUnit)}</strong></div>` : "",
+    has(result, "deadKm") ? `<div class="money-row"><span>Dead-leg distance</span><strong>${esc(text(displayedDeadDistance))} ${esc(distanceUnit)}</strong></div>` : "",
     moneyRow("Fuel cost", "fuelCost"), moneyRow("Maintenance cost", "maintenanceCost"), moneyRow("Tyre cost", "tyreCost"), moneyRow("Driver cost", "driverCost"), printableMoneyRow("Vehicle standing cost", printableStandingCost), printableMoneyRow("Company overhead", printableCompanyOverhead), printableMoneyRow("Overnight / subsistence", printableBreakdown.overnightCost), printableMoneyRow("Waiting cost", printableBreakdown.waitingCost), printableMoneyRow("Surcharges", printableBreakdown.surchargeTotal), `<div class="money-row total-row"><span>Total operating cost</span><strong>${money(printableOperatingCost)}</strong></div>`, breakdown.fareCalculationMethod === "commercial" ? `<div class="money-row"><span>Commercial fare calculation</span><strong>Minimum hire + mileage rate</strong></div><div class="money-row"><span>Commercial mileage charge</span><strong>${money(breakdown.commercialMileageCharge)}</strong></div><div class="money-row total-row"><span>Commercial fare before profit floor</span><strong>${money(breakdown.commercialFareBeforeProfitFloor)}</strong></div>` : `<div class="money-row"><span>Fare calculation</span><strong>Operating cost + profit</strong></div>`
   ].join("");
   const profitabilityRows = [moneyRow("Gross profit", "grossProfit"), moneyRow("Net profit", "netProfit"), has(breakdown, "marginPct") ? `<div class="money-row"><span>Gross margin</span><strong>${esc(breakdown.marginPct)}%</strong></div>` : "", has(breakdown, "netMarginPct") ? `<div class="money-row"><span>Net margin</span><strong>${esc(breakdown.netMarginPct)}%</strong></div>` : "", moneyRow("Profit floor", "profitFloor"), moneyRow("Net profit target", "netProfitTarget")].join("");
@@ -1140,9 +1156,9 @@ function printBookingPdf(booking, globalVars = {}) {
   ].filter(([, value]) => value !== null).map(([label, value]) => `<div><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("");
   const transparentRows = [
     ["Fare method", breakdown.fareCalculationMethod === "commercial" ? "Commercial Fare" : breakdown.fareCalculationMethod === "cost-plus" ? "Operating Cost + Profit" : null],
-    ["Live legs", has(result, "revenueKm") ? `${result.revenueKm} ${distanceUnit}` : null],
+    ["Live legs", has(result, "revenueKm") ? `${displayedLiveDistance} ${distanceUnit}` : null],
     ["Dead legs", has(result, "totalKm") && has(result, "revenueKm") ? `${displayedDeadDistance} ${distanceUnit}` : null],
-    ["Total driven", has(result, "totalKm") ? `${result.totalKm} ${distanceUnit}` : null],
+    ["Total driven", has(result, "totalKm") ? `${displayedTotalDistance} ${distanceUnit}` : null],
     ["Driving time", has(result, "liveDurationMinutes") ? `${result.liveDurationMinutes} min` : null],
     ["Empty running time", has(result, "emptyRunningMinutes") ? `${result.emptyRunningMinutes} min` : null],
     ["Driver paid time", has(result, "driverPaidMinutes") ? `${result.driverPaidMinutes} min` : null],
@@ -2338,35 +2354,9 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     const oldUnit = gv.distanceUnit || 'miles';
     if (newUnit === oldUnit) return;
 
-    const isToMiles = newUnit === 'miles';
-    const distFactor = isToMiles ? 0.621371 : 1.60934;
-    const rateFactor = isToMiles ? 1.60934 : 0.621371;
-
-    const convert = (value, factor, decimals) => {
-      const numericValue = Number(value);
-      if (!Number.isFinite(numericValue)) return value;
-      const precision = 10 ** decimals;
-      return Math.round(numericValue * factor * precision) / precision;
-    };
-
     const nextGlobalVars = { ...gv, distanceUnit: newUnit };
-    const nextTemplates = templatesData.map(t => ({
-      ...t,
-      radiusKm: convert(t.radiusKm, distFactor, 1)
-    }));
-    const nextMatrix = matrixData.map(m => ({
-      ...m,
-      radiusKm: convert(m.radiusKm, distFactor, 1),
-      extraMileageRate: convert(m.extraMileageRate, rateFactor, 2),
-      distanceBands: Array.isArray(m.distanceBands)
-        ? m.distanceBands.map(band => ({
-            ...band,
-            min: convert(band.min, distFactor, 1),
-            max: band.max == null ? null : convert(band.max, distFactor, 1),
-            rate: convert(band.rate, rateFactor, 2)
-          }))
-        : m.distanceBands
-    }));
+    const nextTemplates = templatesData;
+    const nextMatrix = matrixData;
     const nextVehicles = vehicles;
 
     setGv(nextGlobalVars);
@@ -2381,10 +2371,6 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
         body: JSON.stringify({ globalVars: { distanceUnit: newUnit }, vehicles: nextVehicles })
       });
       if (!configResponse.ok) throw new Error('Failed to save distance unit');
-      await Promise.all([
-        ...nextTemplates.filter(item => item.id).map(item => saveApi('templates', item)),
-        ...nextMatrix.filter(item => item.id).map(item => saveApi('matrix', item))
-      ]);
       setToast(`Distance unit changed to ${newUnit === 'miles' ? 'miles' : 'kilometers'}`);
     } catch {
       setToast('Unable to update distance unit');
@@ -2431,7 +2417,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   const fuelPriceFactor = fuelUnit === 'gallons' ? 4.54609 : 1;
   const fuelEconomyFactor = (fuelUnit === 'gallons' ? 4.54609 : 1) / (gv?.distanceUnit === 'miles' ? 1.60934 : 1);
   const displayFuelPrice = value => Number(value || 0) * fuelPriceFactor;
-  const displayFuelEconomy = value => Number(value || 0) / fuelEconomyFactor;
+  const displayFuelEconomy = value => Number(value || 0) * fuelEconomyFactor;
   const matrixBands = matrix => Array.isArray(matrix?.distanceBands) && matrix.distanceBands.length === 4
     ? matrix.distanceBands
     : matrix?.id ? [] : blankMatrix.distanceBands;
@@ -4134,7 +4120,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                 <input aria-label="Fuel price" className="variable-cost-input hide-spinners w-[26px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" step="0.01" value={displayFuelPrice(activeV.fuelPricePerLitre ?? gv?.fuelPricePerLitre ?? 1.52).toFixed(2)} onChange={e=>updateV(activeV.id,"fuelPricePerLitre",Number(e.target.value) / fuelPriceFactor)} />
                                 <span className="text-[12px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5 mr-0.5">/{fuelPriceUnit === 'gallon' ? 'gal' : 'L'}</span>
                                 <div className="text-slate-300 dark:text-slate-600 font-light mx-0.5">/</div>
-                                <input aria-label="Fuel economy" className="variable-cost-input hide-spinners w-[26px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" step="0.1" value={displayFuelEconomy(activeV.fuelKpl ?? 5).toFixed(2)} onChange={e=>updateV(activeV.id,"fuelKpl",Number(e.target.value) * fuelEconomyFactor)} />
+                                <input aria-label="Fuel economy" className="variable-cost-input hide-spinners w-[26px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" step="0.1" value={displayFuelEconomy(activeV.fuelKpl ?? 5).toFixed(2)} onChange={e=>updateV(activeV.id,"fuelKpl",Number(e.target.value) / fuelEconomyFactor)} />
                                 <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{distanceUnitShort}/{fuelUnit === 'gallons' ? 'gal' : 'L'}</span>
                               </div>
                               <div className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5 h-[36px]">
