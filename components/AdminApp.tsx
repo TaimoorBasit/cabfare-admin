@@ -3289,12 +3289,12 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         const transparentUnit = gv.distanceUnit === "miles" ? "mi" : "km";
                         const transparentMoney = value => Number.isFinite(Number(value)) ? `£${fmt(value)}` : "--";
                         const transparentDistanceCost = Number(transparentBreakdown.distanceCost) || 0;
-                        const transparentTotalDistance = Number(displayDistance(transparentResult.totalKm, transparentResult.distanceUnit, gv.distanceUnit)) || 0;
-                        const transparentLiveDistance = Number(displayDistance(transparentResult.revenueKm, transparentResult.distanceUnit, gv.distanceUnit)) || 0;
+                        const transparentTotalDistance = Number(displayDistance(transparentResult.totalKm, transparentResult.distanceUnit, gv.distanceUnit, transparentResult.chargedKm)) || 0;
+                        const transparentLiveDistance = Number(displayDistance(transparentResult.revenueKm, transparentResult.distanceUnit, gv.distanceUnit, transparentResult.customerKm)) || 0;
                         const transparentDeadDistance = Math.max(0, transparentTotalDistance - transparentLiveDistance);
                         const transparentRows = [
                           ["Live legs", transparentResult.revenueKm != null ? `${transparentLiveDistance} ${transparentUnit}` : null],
-                          ["Dead legs", transparentResult.totalKm != null && transparentResult.revenueKm != null ? `${Math.max(0, Number(transparentResult.totalKm) - Number(transparentResult.revenueKm))} ${transparentUnit}` : null],
+                          ["Dead legs", transparentResult.totalKm != null && transparentResult.revenueKm != null ? `${Math.max(0, transparentTotalDistance - transparentLiveDistance)} ${transparentUnit}` : null],
                           ["Total driven", transparentResult.totalKm != null ? `${transparentTotalDistance} ${transparentUnit}` : null],
                           ["Driving time", transparentResult.liveDurationMinutes != null ? `${transparentResult.liveDurationMinutes} min` : null],
                           ["Empty running time", transparentResult.emptyRunningMinutes != null ? `${transparentResult.emptyRunningMinutes} min` : null],
