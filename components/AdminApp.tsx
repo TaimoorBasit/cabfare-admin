@@ -1467,7 +1467,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
       }
     }
   }, [darkMode, isReady]);
-  const [vehicles, setV]    = useState(db.vehicles.map(injectDefaults));
+  const [vehicles, setV]    = useState(db.vehicles.map(vehicle => ({ ...injectDefaults(vehicle), name: displayVehicleName(vehicle.name) })));
   const [activeVehicleId, setActiveVehicleId] = useState(vehicles[0]?.id || "");
   const [selectedPricingVehicleId, setSelectedPricingVehicleId] = useState(vehicles[0]?.id || "");
   const [gv, setGv]         = useState({...db.globalVars});
@@ -1521,7 +1521,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   useEffect(() => {
     if (db) {
       if (db.vehicles) {
-        setV(db.vehicles.map(injectDefaults));
+        setV(db.vehicles.map(vehicle => ({ ...injectDefaults(vehicle), name: displayVehicleName(vehicle.name) })));
         setActiveVehicleId(activeId => {
           if (!activeId || !db.vehicles.some(v => v.id === activeId)) {
             return db.vehicles[0]?.id || "";
@@ -3890,7 +3890,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${activeVehicleId === v.id ? "bg-primary/10 dark:bg-blue-900/40" : "bg-slate-100 dark:bg-slate-700"}`}>
                           {v.emoji === "coach" ? <SvgCoach size={18} className={activeVehicleId === v.id ? "text-primary dark:text-blue-400" : "text-slate-500 dark:text-slate-400"} /> : v.emoji === "minibus" ? <SvgMinibus size={18} className={activeVehicleId === v.id ? "text-primary dark:text-blue-400" : "text-slate-500 dark:text-slate-400"} /> : <SvgBus size={18} className={activeVehicleId === v.id ? "text-primary dark:text-blue-400" : "text-slate-500 dark:text-slate-400"} />}
                         </div>
-                        <div className="text-[15px] font-extrabold text-slate-900 dark:text-slate-100 leading-tight flex-1">{v.name || "Tier"}</div>
+                        <div className="text-[15px] font-extrabold text-slate-900 dark:text-slate-100 leading-tight flex-1">{displayVehicleName(v.name) || "Tier"}</div>
                         {vehicles.length > 1 && (
                           <button type="button" className="fleet-tier-remove admin-icon-action admin-icon-delete" title={`Remove ${v.name || "tier"}`} aria-label={`Remove ${v.name || "tier"}`} onClick={e=>{
                             e.stopPropagation();
