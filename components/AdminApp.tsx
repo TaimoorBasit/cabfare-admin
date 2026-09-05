@@ -788,7 +788,16 @@ function displayDistance(value, sourceUnit, targetUnit, canonicalKm) {
   const n = Number(value);
   if (!Number.isFinite(n)) return value;
   const canonical = Number(canonicalKm);
-  const km = Number.isFinite(canonical) ? canonical : (sourceUnit || "miles") === "miles" ? n * MILES_TO_KM : n;
+  let km: number;
+  if (Number.isFinite(canonical) && canonical > 0) {
+    km = canonical;
+  } else if (sourceUnit === "miles") {
+    km = n * MILES_TO_KM;
+  } else if (sourceUnit === "km") {
+    km = n;
+  } else {
+    km = n;
+  }
   return Math.round((targetUnit === "miles" ? km / MILES_TO_KM : km) * 10) / 10;
 }
 function displayDistanceRate(value, targetUnit) {
@@ -865,7 +874,7 @@ function RouteMap({ result, journey, gv, height=320, minimal=false, darkMode=fal
       })}
     </svg>
     <div style={{ display:"grid", gridTemplateColumns:"repeat(4, 1fr)", gap:8, marginTop:12 }}>
-      {[["Total route",`${displayDistance(result.totalKm, result.distanceUnit, gv?.distanceUnit)} ${gv?.distanceUnit === "miles" ? "mi" : "km"}`],[`Revenue ${gv?.distanceUnit === "miles" ? "mi" : "km"}`,`${displayDistance(result.revenueKm, result.distanceUnit, gv?.distanceUnit)} ${gv?.distanceUnit === "miles" ? "mi" : "km"}`],
+      {[["Total route",`${displayDistance(result.totalKm, result.distanceUnit, gv?.distanceUnit, result.chargedKm)} ${gv?.distanceUnit === "miles" ? "mi" : "km"}`],[`Revenue ${gv?.distanceUnit === "miles" ? "mi" : "km"}`,`${displayDistance(result.revenueKm, result.distanceUnit, gv?.distanceUnit, result.customerKm)} ${gv?.distanceUnit === "miles" ? "mi" : "km"}`],
         ["Duration",`${result.totalShiftHrs}h`],["Days",result.opDays]].map(([l,v])=>(
         <div key={l} style={{ background: darkMode ? "#111827" : PX.gray50, border: `1px solid ${darkMode ? "#374151" : PX.gray200}`, borderRadius:8, padding:"8px", textAlign:"center" }}>
           <div style={{ fontSize:12, fontWeight:700, color: darkMode ? "#6b7280" : PX.gray400, textTransform:"uppercase", marginBottom:2 }}>{l}</div>
@@ -968,15 +977,23 @@ function printBookingPdf(booking, globalVars = {}) {
   const journey = booking.journey || {};
   const quote = booking.quote || {};
   const storedResult = quote.result || {};
-  const result = { ...storedResult, distanceUnit: globalVars.distanceUnit,
-    totalKm: displayDistance(storedResult.totalKm, storedResult.distanceUnit, globalVars.distanceUnit, storedResult.chargedKm),
-    revenueKm: displayDistance(storedResult.revenueKm, storedResult.distanceUnit, globalVars.distanceUnit, storedResult.customerKm),
-    deadKm: displayDistance(storedResult.deadKm, storedResult.distanceUnit, globalVars.distanceUnit, Number(storedResult.chargedKm) - Number(storedResult.customerKm))
-  };
+  const canonTotalKm = Number.isFinite(Number(storedResult.chargedKm)) && Number(storedResult.chargedKm) > 0
+    ? Number(storedResult.chargedKm)
+    : (storedResult.distanceUnit === 'miles' ? Number(storedResult.totalKm || 0) * MILES_TO_KM : Number(storedResult.totalKm || 0));
+  const canonLiveKm = Number.isFinite(Number(storedResult.customerKm)) && Number(storedResult.customerKm) > 0
+    ? Number(storedResult.customerKm)
+    : (storedResult.distanceUnit === 'miles' ? Number(storedResult.revenueKm || 0) * MILES_TO_KM : Number(storedResult.revenueKm || 0));
   const displayUnit = globalVars.distanceUnit === "miles" ? "miles" : "km";
-  const displayedTotalDistance = displayDistance(result.totalKm, result.distanceUnit, displayUnit);
-  const displayedLiveDistance = displayDistance(result.revenueKm, result.distanceUnit, displayUnit);
-  const displayedDeadDistance = Math.max(0, Number(displayedTotalDistance || 0) - Number(displayedLiveDistance || 0));
+  const displayedTotalDistance = Math.round((displayUnit === "miles" ? canonTotalKm / MILES_TO_KM : canonTotalKm) * 10) / 10;
+  const displayedLiveDistance = Math.round((displayUnit === "miles" ? canonLiveKm / MILES_TO_KM : canonLiveKm) * 10) / 10;
+  const displayedDeadDistance = Math.max(0, Math.round((displayedTotalDistance - displayedLiveDistance) * 10) / 10);
+  const result = {
+    ...storedResult,
+    distanceUnit: displayUnit,
+    totalKm: displayedTotalDistance,
+    revenueKm: displayedLiveDistance,
+    deadKm: displayedDeadDistance
+  };
   const breakdown = result.breakdown || {};
   const breakdownDistanceCost = Number(breakdown.distanceCost) || 0;
   const breakdownTotalDistance = Number(result.totalKm) || 0;
@@ -3074,8 +3091,22 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
               
               {/* RIGHT COLUMN: Executive Summary / Quote Details Panel */}
               <div className="quotation-detail-panel" style={{ background: darkMode ? "#111827" : "#fff", display: "flex", flexDirection: "column", overflowY: "auto", overflowX: "hidden", minWidth: 0, minHeight: 0, border: `1px solid ${darkMode ? "#334155" : "#e2e8f0"}`, borderRadius: 12, boxShadow: darkMode ? "0 8px 24px rgba(0,0,0,.18)" : "0 4px 14px rgba(15,23,42,.06)" }}>
-                {previewBooking ? (
-                  <>
+                {previewBooking ? (() => {
+                  const quoteResult = previewBooking.quote?.result || {};
+                  const canonTotalKm = Number.isFinite(Number(quoteResult.chargedKm)) && Number(quoteResult.chargedKm) > 0
+                    ? Number(quoteResult.chargedKm)
+                    : (quoteResult.distanceUnit === 'miles' ? Number(quoteResult.totalKm || 0) * MILES_TO_KM : Number(quoteResult.totalKm || 0));
+                  const canonLiveKm = Number.isFinite(Number(quoteResult.customerKm)) && Number(quoteResult.customerKm) > 0
+                    ? Number(quoteResult.customerKm)
+                    : (quoteResult.distanceUnit === 'miles' ? Number(quoteResult.revenueKm || 0) * MILES_TO_KM : Number(quoteResult.revenueKm || 0));
+                  const activeDistUnit = gv?.distanceUnit === "miles" ? "miles" : "km";
+                  const activeUnitShort = activeDistUnit === "miles" ? "mi" : "km";
+                  const activeUnitWord = activeDistUnit === "miles" ? "miles" : "km";
+                  const displayTotalDist = Math.round((activeDistUnit === "miles" ? canonTotalKm / MILES_TO_KM : canonTotalKm) * 10) / 10;
+                  const displayLiveDist = Math.round((activeDistUnit === "miles" ? canonLiveKm / MILES_TO_KM : canonLiveKm) * 10) / 10;
+                  const displayDeadDist = Math.max(0, Math.round((displayTotalDist - displayLiveDist) * 10) / 10);
+                  return (
+                    <>
                     <div className="quotation-detail-header" style={{ padding: "11px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${darkMode ? "#1f2937" : "#eaecf0"}`, background: darkMode ? "#0b0f19" : "#fcfcfd", zIndex: 10 }}>
                       <div>
                         <h3 style={{ fontSize: 16, fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800, margin: 0 }}>Quote Details</h3>
@@ -3152,19 +3183,19 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       <div style={{ display: quoteDetailTab === "route" ? "grid" : "none", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
                         <div style={{ border: `1px solid ${darkMode ? "#374151" : "#e2e8f0"}`, borderRadius: 12, padding: "12px 16px", background: darkMode ? "#1f2937" : "#fff" }}>
                           <div style={{ fontSize: 11, color: darkMode ? "#9ca3af" : PX.gray500, fontWeight: 600, marginBottom: 4 }}>Total Distance</div>
-                          <div style={{ fontSize: 20, fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800 }}>{previewBooking.quote?.result?.totalKm || 0} <span className="text-sm font-semibold">{gv?.distanceUnit === "miles" ? "mi" : "km"}</span></div>
+                          <div style={{ fontSize: 20, fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800 }}>{fmt1(displayTotalDist)} <span className="text-sm font-semibold">{activeUnitShort}</span></div>
                         </div>
                         <div style={{ border: `1px solid ${darkMode ? "#374151" : "#e2e8f0"}`, borderRadius: 12, padding: "12px 16px", background: darkMode ? "#1f2937" : "#fff" }}>
                           <div style={{ fontSize: 11, color: darkMode ? "#9ca3af" : PX.gray500, fontWeight: 600, marginBottom: 4 }}>Est. Duration</div>
                           <div style={{ fontSize: 20, fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800 }}>{previewBooking.quote?.result?.totalShiftHrs || 0} <span className="text-sm font-semibold">h</span></div>
                         </div>
                         <div style={{ border: `1px solid ${darkMode ? "#374151" : "#e2e8f0"}`, borderRadius: 12, padding: "12px 16px", background: darkMode ? "#1f2937" : "#fff" }}>
-                          <div style={{ fontSize: 11, color: darkMode ? "#9ca3af" : PX.gray500, fontWeight: 600, marginBottom: 4 }}>Live {distanceUnitShort}</div>
-                          <div style={{ fontSize: 20, fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800 }}>{previewBooking.quote?.result?.revenueKm || 0} <span className="text-sm font-semibold">{distanceUnitShort}</span></div>
+                          <div style={{ fontSize: 11, color: darkMode ? "#9ca3af" : PX.gray500, fontWeight: 600, marginBottom: 4 }}>Live {activeUnitWord}</div>
+                          <div style={{ fontSize: 20, fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800 }}>{fmt1(displayLiveDist)} <span className="text-sm font-semibold">{activeUnitShort}</span></div>
                         </div>
                         <div style={{ border: `1px solid ${darkMode ? "#374151" : "#e2e8f0"}`, borderRadius: 12, padding: "12px 16px", background: darkMode ? "#1f2937" : "#fff" }}>
-                          <div style={{ fontSize: 11, color: darkMode ? "#9ca3af" : PX.gray500, fontWeight: 600, marginBottom: 4 }}>Revenue {distanceUnitShort}</div>
-                          <div style={{ fontSize: 20, fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800 }}>{previewBooking.quote?.result?.revenueKm || 0} <span className="text-sm font-semibold">{distanceUnitShort}</span></div>
+                          <div style={{ fontSize: 11, color: darkMode ? "#9ca3af" : PX.gray500, fontWeight: 600, marginBottom: 4 }}>Revenue {activeUnitWord}</div>
+                          <div style={{ fontSize: 20, fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800 }}>{fmt1(displayLiveDist)} <span className="text-sm font-semibold">{activeUnitShort}</span></div>
                         </div>
                       </div>
 
@@ -3217,13 +3248,13 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         const transparentUnit = gv.distanceUnit === "miles" ? "mi" : "km";
                         const transparentMoney = value => Number.isFinite(Number(value)) ? `£${fmt(value)}` : "--";
                         const transparentDistanceCost = Number(transparentBreakdown.distanceCost) || 0;
-                        const transparentTotalDistance = Number(displayDistance(transparentResult.totalKm, transparentResult.distanceUnit, gv.distanceUnit, transparentResult.chargedKm)) || 0;
-                        const transparentLiveDistance = Number(displayDistance(transparentResult.revenueKm, transparentResult.distanceUnit, gv.distanceUnit, transparentResult.customerKm)) || 0;
-                        const transparentDeadDistance = Math.max(0, transparentTotalDistance - transparentLiveDistance);
+                        const transparentTotalDistance = displayTotalDist;
+                        const transparentLiveDistance = displayLiveDist;
+                        const transparentDeadDistance = displayDeadDist;
                         const transparentRows = [
-                          ["Live legs", transparentResult.revenueKm != null ? `${fmt1(transparentLiveDistance)} ${transparentUnit}` : null],
-                          ["Dead legs", transparentResult.totalKm != null && transparentResult.revenueKm != null ? `${fmt1(Math.max(0, transparentTotalDistance - transparentLiveDistance))} ${transparentUnit}` : null],
-                          ["Total driven", transparentResult.totalKm != null ? `${fmt1(transparentTotalDistance)} ${transparentUnit}` : null],
+                          ["Live legs", transparentResult.revenueKm != null ? `${fmt1(transparentLiveDistance)} ${activeUnitShort}` : null],
+                          ["Dead legs", transparentResult.totalKm != null && transparentResult.revenueKm != null ? `${fmt1(transparentDeadDistance)} ${activeUnitShort}` : null],
+                          ["Total driven", transparentResult.totalKm != null ? `${fmt1(transparentTotalDistance)} ${activeUnitShort}` : null],
                           ["Driving time", transparentResult.liveDurationMinutes != null ? `${transparentResult.liveDurationMinutes} min` : null],
                           ["Empty running time", transparentResult.emptyRunningMinutes != null ? `${transparentResult.emptyRunningMinutes} min` : null],
                           ["Driver paid time", transparentResult.driverPaidMinutes != null ? `${transparentResult.driverPaidMinutes} min` : null],
@@ -3350,15 +3381,9 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                             <table style={{ width: "100%", fontSize: 11, borderCollapse: "collapse", marginBottom: 0 }}>
                               <tbody>
                                 {(() => {
-                                  const costDisplayUnit = gv?.distanceUnit === "miles" ? "miles" : "km";
-                                  const costUnitShort = costDisplayUnit === "miles" ? "mi" : "km";
-                                  const costUnitWord = costDisplayUnit === "miles" ? "miles" : "km";
-                                  const dispTotal = displayDistance(totalDistance, previewBooking.quote?.result?.distanceUnit, costDisplayUnit);
-                                  const dispLive = displayDistance(liveDistance, previewBooking.quote?.result?.distanceUnit, costDisplayUnit);
-                                  const dispDead = Math.max(0, Math.round((Number(dispTotal || 0) - Number(dispLive || 0)) * 10) / 10);
                                   return [
-                                    [`Live-leg ${costUnitWord}`, `${fmt1(dispLive)} ${costUnitShort}`],
-                                    [`Dead-leg ${costUnitWord}`, `${fmt1(dispDead)} ${costUnitShort}`],
+                                    [`Live-leg ${activeUnitWord}`, `${fmt1(displayLiveDist)} ${activeUnitShort}`],
+                                    [`Dead-leg ${activeUnitWord}`, `${fmt1(displayDeadDist)} ${activeUnitShort}`],
                                     ['Live-leg running cost', liveDistanceCost],
                                     ['Dead-leg running cost', deadDistanceCost],
                                     ['Fuel cost', bd.fuelCost],
@@ -3402,7 +3427,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
                     </div>
                   </>
-                ) : (
+                );
+              })() : (
                   <div style={{ position: "relative", height: "100%", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
                     {depotLoc?.lat ? (
                       <div style={{ position: "absolute", inset: 0, opacity: darkMode ? 0.3 : 0.5, pointerEvents: "none" }}>
