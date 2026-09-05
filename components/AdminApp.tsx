@@ -1735,7 +1735,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     if (tab === 'bookings') {
       bookingsApisLoadedRef.current = true;
       authenticatedFetch(`${API_BASE_URL}/api/bookings?_=${Date.now()}`, { cache: 'no-store' }).then(r=>{if(!r.ok)throw new Error('Unable to load bookings');return r.json();}).then(b => {
-        setBookingsData(b.bookings && Array.isArray(b.bookings) ? b.bookings : []);
+        setBookingsData(current => Array.isArray(b.bookings) && (b.bookings.length > 0 || current.length === 0) ? b.bookings : current);
         setBookingsLoadError("");
         setIsBookingsLoading(false);
       }).catch((error)=>{
@@ -1760,8 +1760,10 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
       authenticatedFetch(`${API_BASE_URL}/api/bookings?_=${Date.now()}`, { cache: 'no-store' })
         .then(r => { if (!r.ok) throw new Error('Unable to refresh bookings'); return r.json(); })
         .then(b => {
-          if (b.bookings && Array.isArray(b.bookings)) {
-            setBookingsData(current => JSON.stringify(current) === JSON.stringify(b.bookings) ? current : b.bookings);
+          if (Array.isArray(b.bookings)) {
+            setBookingsData(current => b.bookings.length === 0 && current.length > 0
+              ? current
+              : JSON.stringify(current) === JSON.stringify(b.bookings) ? current : b.bookings);
             setBookingsLoadError("");
           }
         })
