@@ -1096,7 +1096,12 @@ const result = quote.result || {};
 function printBookingPdf(booking, globalVars = {}) {
   const journey = booking.journey || {};
   const quote = booking.quote || {};
-  const result = quote.result || {};
+  const storedResult = quote.result || {};
+  const result = { ...storedResult, distanceUnit: globalVars.distanceUnit,
+    totalKm: displayDistance(storedResult.totalKm, storedResult.distanceUnit, globalVars.distanceUnit),
+    revenueKm: displayDistance(storedResult.revenueKm, storedResult.distanceUnit, globalVars.distanceUnit),
+    deadKm: displayDistance(storedResult.deadKm, storedResult.distanceUnit, globalVars.distanceUnit)
+  };
   const displayUnit = globalVars.distanceUnit === "miles" ? "miles" : "km";
   const displayedTotalDistance = displayDistance(result.totalKm, result.distanceUnit, displayUnit);
   const displayedLiveDistance = displayDistance(result.revenueKm, result.distanceUnit, displayUnit);
@@ -3280,16 +3285,16 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       {(() => {
                         const transparentResult = previewBooking.quote?.result || {};
                         const transparentBreakdown = transparentResult.breakdown || {};
-                        const transparentUnit = transparentResult.distanceUnit === "miles" ? "mi" : "km";
+                        const transparentUnit = gv.distanceUnit === "miles" ? "mi" : "km";
                         const transparentMoney = value => Number.isFinite(Number(value)) ? `£${fmt(value)}` : "--";
                         const transparentDistanceCost = Number(transparentBreakdown.distanceCost) || 0;
-                        const transparentTotalDistance = Number(transparentResult.totalKm) || 0;
-                        const transparentLiveDistance = Number(transparentResult.revenueKm) || 0;
+                        const transparentTotalDistance = Number(displayDistance(transparentResult.totalKm, transparentResult.distanceUnit, gv.distanceUnit)) || 0;
+                        const transparentLiveDistance = Number(displayDistance(transparentResult.revenueKm, transparentResult.distanceUnit, gv.distanceUnit)) || 0;
                         const transparentDeadDistance = Math.max(0, transparentTotalDistance - transparentLiveDistance);
                         const transparentRows = [
-                          ["Live legs", transparentResult.revenueKm != null ? `${transparentResult.revenueKm} ${transparentUnit}` : null],
+                          ["Live legs", transparentResult.revenueKm != null ? `${transparentLiveDistance} ${transparentUnit}` : null],
                           ["Dead legs", transparentResult.totalKm != null && transparentResult.revenueKm != null ? `${Math.max(0, Number(transparentResult.totalKm) - Number(transparentResult.revenueKm))} ${transparentUnit}` : null],
-                          ["Total driven", transparentResult.totalKm != null ? `${transparentResult.totalKm} ${transparentUnit}` : null],
+                          ["Total driven", transparentResult.totalKm != null ? `${transparentTotalDistance} ${transparentUnit}` : null],
                           ["Driving time", transparentResult.liveDurationMinutes != null ? `${transparentResult.liveDurationMinutes} min` : null],
                           ["Empty running time", transparentResult.emptyRunningMinutes != null ? `${transparentResult.emptyRunningMinutes} min` : null],
                           ["Driver paid time", transparentResult.driverPaidMinutes != null ? `${transparentResult.driverPaidMinutes} min` : null],
