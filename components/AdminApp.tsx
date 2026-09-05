@@ -1727,13 +1727,13 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
         .then(r => { if (!r.ok) throw new Error('Unable to refresh bookings'); return r.json(); })
         .then(b => {
           if (b.bookings && Array.isArray(b.bookings)) {
-            setBookingsData(b.bookings);
+            setBookingsData(current => JSON.stringify(current) === JSON.stringify(b.bookings) ? current : b.bookings);
             setBookingsLoadError("");
           }
         })
         .catch((error) => setBookingsLoadError(error.message || "Unable to refresh quotations"));
     };
-    const interval = setInterval(refreshBookings, 15000);
+    const interval = setInterval(refreshBookings, 5000);
     return () => clearInterval(interval);
   }, [tab]);
 
@@ -2292,7 +2292,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   const vehicleAutosaveTimerRef = useRef(null);
   useEffect(() => {
     if (!vehicleAutosaveReadyRef.current) {
-      vehicleAutosaveReadyRef.current = true;
+      if (vehicles.length) vehicleAutosaveReadyRef.current = true;
       return;
     }
     clearTimeout(vehicleAutosaveTimerRef.current);
