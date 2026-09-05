@@ -908,7 +908,12 @@ function GoogleMapPreview(props) {
 }
 
 const MILES_TO_KM = 1.60934;
-const displayVehicleName = value => String(value || '').trim().toLowerCase() === 'executive minibus' ? 'Minibus' : value;
+const displayVehicleName = value => {
+  const name = String(value || '').trim();
+  if (name.toLowerCase() === 'executive minibus') return 'Minibus';
+  if (/^premium coach(?:\s*\(\s*\d+\s*seats?\s*\))?$/i.test(name)) return 'Premium Coach';
+  return value;
+};
 function displayDistance(value, sourceUnit, targetUnit) {
   const n = Number(value);
   if (!Number.isFinite(n)) return value;
