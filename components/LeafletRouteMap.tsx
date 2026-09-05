@@ -209,14 +209,44 @@ export default function LeafletRouteMap({ result, journey, gv, height = 320, min
         bounds.extend([point.lat, point.lng]);
       });
 
-      // Depot Marker
+      // Depot Marker & Yard Connector Lines
       if (gv?.yardLat != null && gv?.yardLat !== "" && Number.isFinite(Number(gv?.yardLat)) && gv?.yardLng != null && gv?.yardLng !== "" && Number.isFinite(Number(gv?.yardLng))) {
         const depotLat = Number(gv.yardLat);
         const depotLng = Number(gv.yardLng);
+        const depotCoord: [number, number] = [depotLat, depotLng];
+
+        if (path && path.length > 0) {
+          const pickupCoord: [number, number] = path[0];
+          const dropoffCoord: [number, number] = path[path.length - 1];
+
+          // 1. Yard to Pickup (Outward Yard Run) - Lighter Emerald Green (Weight: 3)
+          const yardToPickupPolyline = L.polyline([depotCoord, pickupCoord], {
+            color: "#10B981",
+            weight: 3,
+            opacity: 0.9,
+            dashArray: "6, 6",
+            lineCap: "round",
+          });
+          yardToPickupPolyline.bindTooltip("Yard → Pickup (Green)", { sticky: true });
+          layerGroup.addLayer(yardToPickupPolyline);
+
+          // 2. Dropoff/Return to Yard - Option C: Purple / Violet (Weight: 3)
+          const returnOriginCoord: [number, number] = journey?.journeyType === "return" ? pickupCoord : dropoffCoord;
+          const returnToYardPolyline = L.polyline([returnOriginCoord, depotCoord], {
+            color: "#8B5CF6",
+            weight: 3,
+            opacity: 0.9,
+            dashArray: "6, 6",
+            lineCap: "round",
+          });
+          returnToYardPolyline.bindTooltip("Return to Yard (Purple)", { sticky: true });
+          layerGroup.addLayer(returnToYardPolyline);
+        }
+
         const depotIcon = L.divIcon({
           className: 'custom-depot-marker',
           html: `
-            <div style="width: 26px; height: 26px; border-radius: 50%; background: #A22D3A; border: 2.5px solid #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; color: #ffffff; font-weight: 800; font-size: 11px;">
+            <div style="width: 26px; height: 26px; border-radius: 50%; background: #10B981; border: 2.5px solid #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; color: #ffffff; font-weight: 800; font-size: 11px;">
               D
             </div>
           `,
@@ -225,7 +255,7 @@ export default function LeafletRouteMap({ result, journey, gv, height = 320, min
           popupAnchor: [0, -13],
         });
         const depotMarker = L.marker([depotLat, depotLng], { icon: depotIcon });
-        depotMarker.bindPopup(`<div style="font-size:12px; font-weight:600; padding:2px 4px;"><strong>Depot:</strong> ${gv.yardAddress || "Configured Depot"}</div>`);
+        depotMarker.bindPopup(`<div style="font-size:12px; font-weight:600; padding:2px 4px;"><strong>Depot / Yard:</strong> ${gv.yardAddress || "Configured Depot"}</div>`);
         layerGroup.addLayer(depotMarker);
         bounds.extend([depotLat, depotLng]);
       }
