@@ -85,7 +85,7 @@ function restoreMissingConfiguration(source) {
     const baseline = RECOVERY_CONFIGURATION.vehicles[vehicle.id];
     const repaired = { ...vehicle };
     if (String(repaired.name || '').trim().toLowerCase() === 'executive minibus') {
-      repaired.name = 'Minibus';
+      repaired.name = 'MiniBus';
       changed = true;
     }
     if (!baseline) return repaired;
@@ -908,7 +908,7 @@ function GoogleMapPreview(props) {
 }
 
 const MILES_TO_KM = 1.60934;
-const displayVehicleName = value => String(value || '').trim().toLowerCase() === 'executive minibus' ? 'Minibus' : value;
+const displayVehicleName = value => String(value || '').trim().toLowerCase() === 'executive minibus' ? 'MiniBus' : value;
 function displayDistance(value, sourceUnit, targetUnit) {
   const n = Number(value);
   if (!Number.isFinite(n)) return value;
@@ -3580,7 +3580,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         <div>
                           <label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Eligible Vehicle</label>
                           <select className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none" value={newTemplate.vehicleId||""} onChange={e=>setNT(x=>({...x,vehicleId:e.target.value}))}>
-                            {db.vehicles.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}
+                            {db.vehicles.map(v=><option key={v.id} value={v.id}>{displayVehicleName(v.name)}</option>)}
                           </select>
                         </div>
                         <div>
@@ -3659,7 +3659,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     <button className="bg-transparent border-none cursor-pointer text-slate-900 dark:text-slate-100 text-lg hover:text-primary transition-colors" onClick={() => setShowBlockForm(v=>!v)}>⊕</button>
                   </div>
                   {showBlockForm && <div className="grid gap-2 mb-4 p-3 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700">
-                    <select value={newBlock.vehicleId} onChange={e=>setNB(x=>({...x,vehicleId:e.target.value}))} className="w-full border rounded-md p-2 text-xs bg-white dark:bg-slate-800"><option value="">All vehicles</option>{vehicles.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select>
+                    <select value={newBlock.vehicleId} onChange={e=>setNB(x=>({...x,vehicleId:e.target.value}))} className="w-full border rounded-md p-2 text-xs bg-white dark:bg-slate-800"><option value="">All vehicles</option>{vehicles.map(v=><option key={v.id} value={v.id}>{displayVehicleName(v.name)}</option>)}</select>
                     <div className="grid grid-cols-2 gap-2"><input aria-label="Block start date" type="date" value={newBlock.from} onChange={e=>setNB(x=>({...x,from:e.target.value}))} className="border rounded-md p-2 text-xs bg-white dark:bg-slate-800"/><input aria-label="Block end date" type="date" value={newBlock.to} onChange={e=>setNB(x=>({...x,to:e.target.value}))} className="border rounded-md p-2 text-xs bg-white dark:bg-slate-800"/></div>
                     <input aria-label="Block reason" value={newBlock.reason} onChange={e=>setNB(x=>({...x,reason:e.target.value}))} placeholder="Reason" className="border rounded-md p-2 text-xs bg-white dark:bg-slate-800"/>
                     <button className="bg-primary text-on-primary rounded-md p-2 text-xs font-bold" onClick={()=>{ if(!newBlock.from || !newBlock.to) return setToast('Start and end dates are required.'); setBl(xs=>[{...newBlock,id:'block_'+Date.now()},...xs]); setNB({id:'',vehicleId:vehicles[0]?.id||'',from:'',to:'',reason:'Contract booking',units:1}); setShowBlockForm(false); setToast('Blocked date added.'); }}>Add Blocked Date</button>
@@ -4772,7 +4772,7 @@ export default function AdminApp() {
         if (!cancelled) {
           const freshDb = {
             ...data,
-            vehicles: data.vehicles,
+            vehicles: data.vehicles.map(vehicle => ({ ...vehicle, name: displayVehicleName(vehicle.name) })),
             globalVars: data.globalVars || {},
             annualOverheads: Array.isArray(data.annualOverheads) ? data.annualOverheads : [],
             surcharges: data.surcharges || {},
