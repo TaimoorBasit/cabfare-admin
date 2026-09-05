@@ -985,7 +985,7 @@ function RouteMap({ result, journey, gv, height=320, minimal=false, darkMode=fal
       })}
     </svg>
     <div style={{ display:"grid", gridTemplateColumns:"repeat(4, 1fr)", gap:8, marginTop:12 }}>
-      {[["Total route",`${result.totalKm} ${gv?.distanceUnit === "miles" ? "mi" : "km"}`],[`Revenue ${gv?.distanceUnit === "miles" ? "mi" : "km"}`,`${result.revenueKm} ${gv?.distanceUnit === "miles" ? "mi" : "km"}`],
+      {[["Total route",`${displayDistance(result.totalKm, result.distanceUnit, gv?.distanceUnit)} ${gv?.distanceUnit === "miles" ? "mi" : "km"}`],[`Revenue ${gv?.distanceUnit === "miles" ? "mi" : "km"}`,`${displayDistance(result.revenueKm, result.distanceUnit, gv?.distanceUnit)} ${gv?.distanceUnit === "miles" ? "mi" : "km"}`],
         ["Duration",`${result.totalShiftHrs}h`],["Days",result.opDays]].map(([l,v])=>(
         <div key={l} style={{ background: darkMode ? "#111827" : PX.gray50, border: `1px solid ${darkMode ? "#374151" : PX.gray200}`, borderRadius:8, padding:"8px", textAlign:"center" }}>
           <div style={{ fontSize:12, fontWeight:700, color: darkMode ? "#6b7280" : PX.gray400, textTransform:"uppercase", marginBottom:2 }}>{l}</div>
