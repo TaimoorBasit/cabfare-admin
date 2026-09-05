@@ -822,6 +822,7 @@ function Btn({ children, onClick, variant="primary", size="md", disabled, full, 
 }
 
 function fmt(n)  { return Number(n).toLocaleString("en-GB",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmt1(n) { return Number(n).toLocaleString("en-GB",{minimumFractionDigits:1,maximumFractionDigits:1}); }
 function fmtK(n) { return "£"+Number(n).toLocaleString("en-GB"); }
 
 // ── Progress bar ──────────────────────────────────────────────────────────────
@@ -1188,7 +1189,7 @@ function printBookingPdf(booking, globalVars = {}) {
     ["Driver wages", has(breakdown, "driverCost") ? money(breakdown.driverCost) : null],
     ["Vehicle standing cost", money(printableStandingCost)],
     ["Company overhead", money(printableCompanyOverhead)],
-    ["Target margin", Number(breakdown.marginPct) > 0 ? `${breakdown.marginPct}%` : Number(breakdown.netMarginPct) > 0 ? `${breakdown.netMarginPct}%` : null],
+    ["Target margin", Number(breakdown.marginPct) > 0 ? `${fmt1(breakdown.marginPct)}%` : Number(breakdown.netMarginPct) > 0 ? `${fmt1(breakdown.netMarginPct)}%` : null],
     ["Minimum hire / profit floor", has(breakdown, "profitFloor") ? money(breakdown.profitFloor) : null],
     ["Net fare", has(result, "finalPrice") || has(result, "finalFare") ? money(finalFare) : null],
     ["VAT", resultVat != null ? money(resultVat) : null],
@@ -3310,7 +3311,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                           ["True cost", transparentBreakdown.accountingCost != null || transparentBreakdown.totalOperatingCost != null ? transparentMoney(transparentBreakdown.accountingCost ?? transparentBreakdown.totalOperatingCost) : null],
                           ["Base price", transparentResult.baseFare != null ? transparentMoney(transparentResult.baseFare) : null],
                           ["Minimum hire floor", previewBooking.quote?.vehicle?.minimumHire != null ? transparentMoney(previewBooking.quote.vehicle.minimumHire) : null],
-                          ["Target margin", Number(transparentBreakdown.marginPct) > 0 ? `${transparentBreakdown.marginPct}%` : Number(transparentBreakdown.netMarginPct) > 0 ? `${transparentBreakdown.netMarginPct}%` : null],
+                          ["Target margin", Number(transparentBreakdown.marginPct) > 0 ? `${fmt1(transparentBreakdown.marginPct)}%` : Number(transparentBreakdown.netMarginPct) > 0 ? `${fmt1(transparentBreakdown.netMarginPct)}%` : null],
                           ["Customer pays", transparentResult.finalPrice != null || transparentResult.finalFare != null ? transparentMoney(transparentResult.finalPrice ?? transparentResult.finalFare) : null],
                           ["Discount", transparentResult.discountAmount != null ? transparentMoney(transparentResult.discountAmount) : transparentResult.discount != null ? transparentMoney(transparentResult.discount) : null]
                         ].filter(([, value]) => value !== null);
@@ -3425,8 +3426,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                             <table style={{ width: "100%", fontSize: 11, borderCollapse: "collapse", marginBottom: 0 }}>
                               <tbody>
                                 {[
-                                  ['Live-leg miles', `${liveDistance} ${previewBooking.quote?.result?.distanceUnit === "miles" ? "mi" : "km"}`],
-                                  ['Dead-leg miles', `${deadDistance} ${previewBooking.quote?.result?.distanceUnit === "miles" ? "mi" : "km"}`],
+                                  ['Live-leg miles', `${fmt1(liveDistance)} ${previewBooking.quote?.result?.distanceUnit === "miles" ? "mi" : "km"}`],
+                                  ['Dead-leg miles', `${fmt1(deadDistance)} ${previewBooking.quote?.result?.distanceUnit === "miles" ? "mi" : "km"}`],
                                   ['Live-leg running cost', liveDistanceCost],
                                   ['Dead-leg running cost', deadDistanceCost],
                                   ['Fuel cost', bd.fuelCost],
