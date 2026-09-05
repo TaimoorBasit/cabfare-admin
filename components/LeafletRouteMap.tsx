@@ -13,7 +13,7 @@ const PX = {
   gray400: "#94a3b8",
   gray600: "#475569",
 };
-const MILES_TO_KM = 1.60934;
+const MILES_TO_KM = 1.609344;
 const displayDistance = (value, sourceUnit, targetUnit, canonicalKm) => {
   const n = Number(value);
   if (!Number.isFinite(n)) return value;

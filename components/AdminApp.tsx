@@ -777,7 +777,8 @@ function GoogleMapPreview(props) {
   return <LeafletRouteMap {...props} />;
 }
 
-const MILES_TO_KM = 1.60934;
+const MILES_TO_KM = 1.609344;
+const LITRES_PER_UK_GALLON = 4.54609;
 const displayVehicleName = value => {
   const name = String(value || '').trim();
   if (name.toLowerCase() === 'executive minibus') return 'Minibus';
@@ -930,10 +931,16 @@ function printBookingPdfLegacy(booking) {
   const esc = value => String(value ?? "-").replace(/[&<>"]/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[char]));
   const date = value => value ? new Date(value).toLocaleString("en-GB", { day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit" }) : "Not set";
   const money = value => Number.isFinite(Number(value)) ? `£${Number(value).toFixed(2)}` : "-";
+  const fmtNum = (value, maxDecimals = 2) => {
+    if (value === null || value === undefined || value === "") return "-";
+    const num = Number(value);
+    if (!Number.isFinite(num)) return String(value);
+    return Number(num.toFixed(maxDecimals)).toString();
+  };
   const row = (label, value) => `<tr><th>${esc(label)}</th><td>${esc(value)}</td></tr>`;
   const journey = booking.journey || {};
   const quote = booking.quote || {};
-const result = quote.result || {};
+  const result = quote.result || {};
   const breakdown = result.breakdown || {};
   const mapKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
   const points = (journey.wpCoords || []).filter(point => point && Number.isFinite(Number(point.lat)) && Number.isFinite(Number(point.lng)));
@@ -956,12 +963,15 @@ const result = quote.result || {};
     row("Suitcases 23KG+", journey.suitcaseCount),
     row("Handbags", journey.handbagCount),
     row("Special requests", journey.specialRequests || "None"),
-    row("Distance", `${displayDistance(result.totalKm, result.distanceUnit, globalVars.distanceUnit, result.chargedKm) ?? "-"} ${globalVars.distanceUnit === "miles" ? "mi" : "km"}`),
-    row("Revenue distance", `${displayDistance(result.revenueKm, result.distanceUnit, globalVars.distanceUnit, result.customerKm) ?? "-"} ${globalVars.distanceUnit === "miles" ? "mi" : "km"}`),
-    row("Estimated duration", `${result.totalShiftHrs ?? "-"} hours`),
+    row("Distance", `${fmtNum(displayDistance(result.totalKm, result.distanceUnit, globalVars.distanceUnit, result.chargedKm))} ${globalVars.distanceUnit === "miles" ? "mi" : "km"}`),
+    row("Revenue distance", `${fmtNum(displayDistance(result.revenueKm, result.distanceUnit, globalVars.distanceUnit, result.customerKm))} ${globalVars.distanceUnit === "miles" ? "mi" : "km"}`),
+    row("Estimated duration", `${fmtNum(result.totalShiftHrs)} hours`),
     row("Quoted fare", money(result.finalPrice)),
     row("Upper price bound", money(result.upperBoundPrice)),
-    ...Object.entries(breakdown).map(([key, value]) => row(key.replace(/([a-z])([A-Z])/g, "$1 $2"), typeof value === "number" ? money(value) : value))
+    ...Object.entries(breakdown).map(([key, value]) => {
+      const isMoney = key.toLowerCase().includes("cost") || key.toLowerCase().includes("fare") || key.toLowerCase().includes("price") || key.toLowerCase().includes("rate") || key.toLowerCase().includes("profit");
+      return row(key.replace(/([a-z])([A-Z])/g, "$1 $2"), typeof value === "number" ? (isMoney ? money(value) : fmtNum(value)) : value);
+    })
   ].join("");
   const popup = window.open("", "_blank");
   if (!popup) return;
@@ -984,9 +994,9 @@ function printBookingPdf(booking, globalVars = {}) {
     ? Number(storedResult.customerKm)
     : (storedResult.distanceUnit === 'miles' ? Number(storedResult.revenueKm || 0) * MILES_TO_KM : Number(storedResult.revenueKm || 0));
   const displayUnit = globalVars.distanceUnit === "miles" ? "miles" : "km";
-  const displayedTotalDistance = Math.round((displayUnit === "miles" ? canonTotalKm / MILES_TO_KM : canonTotalKm) * 10) / 10;
-  const displayedLiveDistance = Math.round((displayUnit === "miles" ? canonLiveKm / MILES_TO_KM : canonLiveKm) * 10) / 10;
-  const displayedDeadDistance = Math.max(0, Math.round((displayedTotalDistance - displayedLiveDistance) * 10) / 10);
+  const displayedTotalDistance = Math.round((displayUnit === "miles" ? canonTotalKm / MILES_TO_KM : canonTotalKm) * 100) / 100;
+  const displayedLiveDistance = Math.round((displayUnit === "miles" ? canonLiveKm / MILES_TO_KM : canonLiveKm) * 100) / 100;
+  const displayedDeadDistance = Math.max(0, Math.round((displayedTotalDistance - displayedLiveDistance) * 100) / 100);
   const result = {
     ...storedResult,
     distanceUnit: displayUnit,
@@ -1011,6 +1021,12 @@ function printBookingPdf(booking, globalVars = {}) {
   const has = (object, key) => Object.prototype.hasOwnProperty.call(object || {}, key) && object[key] !== null && object[key] !== undefined && object[key] !== "";
   const text = value => value === null || value === undefined || value === "" ? "--" : String(value);
   const money = value => Number.isFinite(Number(value)) ? `£${Number(value).toFixed(2)}` : "--";
+  const fmtNum = (value, maxDecimals = 2) => {
+    if (value === null || value === undefined || value === "") return "--";
+    const num = Number(value);
+    if (!Number.isFinite(num)) return String(value);
+    return Number(num.toFixed(maxDecimals)).toString();
+  };
   const dateTime = value => {
     if (!value) return "--";
     const parsed = new Date(value);
@@ -1040,32 +1056,39 @@ function printBookingPdf(booking, globalVars = {}) {
   const stopRows = stops.map((stop, index) => `<div class="timeline-row"><b>${index + 1}</b><div><small>STOP ${index + 1}${stop.wait ? ` · ${esc(stop.wait)} MIN WAIT` : ""}</small><strong>${esc(stop.place || stop.name || "Saved stop")}</strong></div></div>`).join("");
   const timeline = `<div class="timeline"><div class="timeline-row"><b>A</b><div><small>OUTWARD · PICKUP</small><strong>${esc(journey.origin)}</strong><span>${esc(dateTime(journey.departureDate))}</span></div></div>${stopRows}<div class="timeline-row"><b class="end">B</b><div><small>DESTINATION</small><strong>${esc(journey.destination)}</strong></div></div>${journey.journeyType === "return" ? `<div class="timeline-row return"><b>R</b><div><small>RETURN · ${esc(dateTime(journey.returnDate))}</small><strong>${esc(journey.destination)} → ${esc(journey.origin)}</strong></div></div>` : ""}</div>`;
   const costRows = [
-    has(result, "revenueKm") ? `<div class="money-row"><span>Live-leg ${displayUnit === "miles" ? "miles" : "km"}</span><strong>${esc(text(displayedLiveDistance))} ${esc(distanceUnit)}</strong></div>` : "",
-    has(result, "deadKm") ? `<div class="money-row"><span>Dead-leg ${displayUnit === "miles" ? "miles" : "km"}</span><strong>${esc(text(displayedDeadDistance))} ${esc(distanceUnit)}</strong></div>` : "",
+    has(result, "revenueKm") ? `<div class="money-row"><span>Live-leg ${displayUnit === "miles" ? "miles" : "km"}</span><strong>${esc(fmtNum(displayedLiveDistance))} ${esc(distanceUnit)}</strong></div>` : "",
+    has(result, "deadKm") ? `<div class="money-row"><span>Dead-leg ${displayUnit === "miles" ? "miles" : "km"}</span><strong>${esc(fmtNum(displayedDeadDistance))} ${esc(distanceUnit)}</strong></div>` : "",
     moneyRow("Fuel cost", "fuelCost"), moneyRow("Maintenance cost", "maintenanceCost"), moneyRow("Tyre cost", "tyreCost"), moneyRow("Driver cost", "driverCost"), printableMoneyRow("Vehicle standing cost", printableStandingCost), printableMoneyRow("Company overhead", printableCompanyOverhead), printableMoneyRow("Overnight / subsistence", printableBreakdown.overnightCost), printableMoneyRow("Waiting cost", printableBreakdown.waitingCost), printableMoneyRow("Surcharges", printableBreakdown.surchargeTotal), `<div class="money-row total-row"><span>Total operating cost</span><strong>${money(printableOperatingCost)}</strong></div>`, breakdown.fareCalculationMethod === "commercial" ? `<div class="money-row"><span>Commercial fare calculation</span><strong>Minimum hire + mileage rate</strong></div><div class="money-row"><span>Commercial mileage charge</span><strong>${money(breakdown.commercialMileageCharge)}</strong></div><div class="money-row total-row"><span>Commercial fare before profit floor</span><strong>${money(breakdown.commercialFareBeforeProfitFloor)}</strong></div>` : `<div class="money-row"><span>Fare calculation</span><strong>Operating cost + profit</strong></div>`
   ].join("");
-  const profitabilityRows = [moneyRow("Gross profit", "grossProfit"), moneyRow("Net profit", "netProfit"), has(breakdown, "marginPct") ? `<div class="money-row"><span>Gross margin</span><strong>${esc(breakdown.marginPct)}%</strong></div>` : "", has(breakdown, "netMarginPct") ? `<div class="money-row"><span>Net margin</span><strong>${esc(breakdown.netMarginPct)}%</strong></div>` : "", moneyRow("Profit floor", "profitFloor"), moneyRow("Net profit target", "netProfitTarget")].join("");
+  const profitabilityRows = [
+    moneyRow("Gross profit", "grossProfit"),
+    moneyRow("Net profit", "netProfit"),
+    has(breakdown, "marginPct") ? `<div class="money-row"><span>Gross margin</span><strong>${esc(fmtNum(breakdown.marginPct))}%</strong></div>` : "",
+    has(breakdown, "netMarginPct") ? `<div class="money-row"><span>Net margin</span><strong>${esc(fmtNum(breakdown.netMarginPct))}%</strong></div>` : "",
+    moneyRow("Profit floor", "profitFloor"),
+    moneyRow("Net profit target", "netProfitTarget")
+  ].join("");
   const operationalRows = [
-    ["Commercial weight", has(breakdown, "commercialWeight") ? breakdown.commercialWeight : null],
+    ["Commercial weight", has(breakdown, "commercialWeight") ? fmtNum(breakdown.commercialWeight) : null],
     ["Driver rate", has(breakdown, "driverRate") ? `${money(breakdown.driverRate)}/h` : null],
-    ["Driver count", has(breakdown, "driverCount") ? breakdown.driverCount : null],
-    ["Daily driving limit", has(breakdown, "dailyDrivingLimit") ? `${breakdown.dailyDrivingLimit} h` : null],
-    ["Mandatory break", has(breakdown, "mandatoryBreakHours") ? `${breakdown.mandatoryBreakHours} h` : null],
-    ["Waiting hours", has(breakdown, "waitingHours") ? `${breakdown.waitingHours} h` : null],
-    ["Customer range", has(breakdown, "customerRangePct") ? `${breakdown.customerRangePct}%` : null],
-    ["Operating days", has(result, "opDays") ? result.opDays : null],
+    ["Driver count", has(breakdown, "driverCount") ? fmtNum(breakdown.driverCount) : null],
+    ["Daily driving limit", has(breakdown, "dailyDrivingLimit") ? `${fmtNum(breakdown.dailyDrivingLimit)} h` : null],
+    ["Mandatory break", has(breakdown, "mandatoryBreakHours") ? `${fmtNum(breakdown.mandatoryBreakHours)} h` : null],
+    ["Waiting hours", has(breakdown, "waitingHours") ? `${fmtNum(breakdown.waitingHours)} h` : null],
+    ["Customer range", has(breakdown, "customerRangePct") ? `${fmtNum(breakdown.customerRangePct)}%` : null],
+    ["Operating days", has(result, "opDays") ? fmtNum(result.opDays) : null],
     ["Pricing method", has(result, "pricingMethod") ? result.pricingMethod : null]
   ].filter(([, value]) => value !== null).map(([label, value]) => `<div><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("");
   const transparentRows = [
     ["Fare method", breakdown.fareCalculationMethod === "commercial" ? "Commercial Fare" : breakdown.fareCalculationMethod === "cost-plus" ? "Operating Cost + Profit" : null],
-    ["Live legs", has(result, "revenueKm") ? `${displayedLiveDistance} ${distanceUnit}` : null],
-    ["Dead legs", has(result, "totalKm") && has(result, "revenueKm") ? `${displayedDeadDistance} ${distanceUnit}` : null],
-    ["Total driven", has(result, "totalKm") ? `${displayedTotalDistance} ${distanceUnit}` : null],
-    ["Driving time", has(result, "liveDurationMinutes") ? `${result.liveDurationMinutes} min` : null],
-    ["Empty running time", has(result, "emptyRunningMinutes") ? `${result.emptyRunningMinutes} min` : null],
-    ["Driver paid time", has(result, "driverPaidMinutes") ? `${result.driverPaidMinutes} min` : null],
+    ["Live legs", has(result, "revenueKm") ? `${fmtNum(displayedLiveDistance)} ${distanceUnit}` : null],
+    ["Dead legs", has(result, "totalKm") && has(result, "revenueKm") ? `${fmtNum(displayedDeadDistance)} ${distanceUnit}` : null],
+    ["Total driven", has(result, "totalKm") ? `${fmtNum(displayedTotalDistance)} ${distanceUnit}` : null],
+    ["Driving time", has(result, "liveDurationMinutes") ? `${fmtNum(result.liveDurationMinutes)} min` : null],
+    ["Empty running time", has(result, "emptyRunningMinutes") ? `${fmtNum(result.emptyRunningMinutes)} min` : null],
+    ["Driver paid time", has(result, "driverPaidMinutes") ? `${fmtNum(result.driverPaidMinutes)} min` : null],
     ["Base price", has(result, "baseFare") ? money(result.baseFare) : null],
-    ...(breakdown.fareCalculationMethod === "commercial" ? [["Minimum hire", money(breakdown.minimumHire)], ["Selling rate", `${money(displayDistanceRate(breakdown.sellingRate, displayUnit))}/${distanceUnit}`], ["Included mileage", `${text(displayDistance(breakdown.includedMileage, storedResult.distanceUnit, displayUnit))} ${distanceUnit}`], ["Commercial mileage charge", money(breakdown.commercialMileageCharge)], ["Commercial fare before profit floor", money(breakdown.commercialFareBeforeProfitFloor)]] : []),
+    ...(breakdown.fareCalculationMethod === "commercial" ? [["Minimum hire", money(breakdown.minimumHire)], ["Selling rate", `${money(displayDistanceRate(breakdown.sellingRate, displayUnit))}/${distanceUnit}`], ["Included mileage", `${fmtNum(displayDistance(breakdown.includedMileage, storedResult.distanceUnit, displayUnit))} ${distanceUnit}`], ["Commercial mileage charge", money(breakdown.commercialMileageCharge)], ["Commercial fare before profit floor", money(breakdown.commercialFareBeforeProfitFloor)]] : []),
     ["Minimum hire floor", has(quote.vehicle, "minimumHire") ? money(quote.vehicle.minimumHire) : null],
     ["Live-leg running cost (derived)", has(breakdown, "liveDistanceCost") ? money(breakdownLiveCost) : null],
     ["Dead-leg running cost (derived)", has(breakdown, "deadDistanceCost") ? money(breakdownDeadCost) : null],
@@ -1075,15 +1098,15 @@ function printBookingPdf(booking, globalVars = {}) {
     ["Driver wages", has(breakdown, "driverCost") ? money(breakdown.driverCost) : null],
     ["Vehicle standing cost", money(printableStandingCost)],
     ["Company overhead", money(printableCompanyOverhead)],
-    ["Target margin", Number(breakdown.marginPct) > 0 ? `${fmt1(breakdown.marginPct)}%` : Number(breakdown.netMarginPct) > 0 ? `${fmt1(breakdown.netMarginPct)}%` : null],
+    ["Target margin", Number(breakdown.marginPct) > 0 ? `${fmtNum(breakdown.marginPct)}%` : Number(breakdown.netMarginPct) > 0 ? `${fmtNum(breakdown.netMarginPct)}%` : null],
     ["Minimum hire / profit floor", has(breakdown, "profitFloor") ? money(breakdown.profitFloor) : null],
     ["Net fare", has(result, "finalPrice") || has(result, "finalFare") ? money(finalFare) : null],
     ["VAT", resultVat != null ? money(resultVat) : null],
     ["Customer pays", customerTotal != null ? money(customerTotal) : (has(result, "finalPrice") || has(result, "finalFare") ? money(finalFare) : null)],
     ["Discount", has(result, "discountAmount") ? money(result.discountAmount) : has(result, "discount") ? money(result.discount) : null],
-    ["Discount %", has(result, "discountPct") ? `${result.discountPct}%` : null]
+    ["Discount %", has(result, "discountPct") ? `${fmtNum(result.discountPct)}%` : null]
   ].filter(([, value]) => value !== null).map(([label, value]) => `<div><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("");
-  const reportHtml = `<header class="report-header"><img src="/carolean%20image.png" alt="Carolean Coaches"><div class="report-heading"><div class="eyebrow">QUOTATION REPORT</div><h1>#${esc(booking.id)}</h1><div class="badges"><span>${esc(String(booking.status || "NEW").toUpperCase())}</span><span>${esc(journey.journeyType === "return" ? "RETURN" : stops.length ? "MULTI-STOP" : "ONE-WAY")}</span></div></div></header><section class="route-head"><div><span class="eyebrow">JOURNEY</span><h2>${esc(journey.origin || "Pickup")} <i>→</i> ${esc(journey.destination || "Destination")}</h2></div><div class="route-dates"><strong>${esc(dateOnly(journey.departureDate))}</strong><span>Departure ${esc(timeOnly(journey.departureDate))}${journey.journeyType === "return" ? ` · Return ${esc(timeOnly(journey.returnDate))}` : ""}</span></div></section><section class="section route-section"><div class="section-title">ROUTE &amp; JOURNEY</div>${timeline}</section><div class="metrics">${metric("Total distance", `${text(displayedTotalDistance)} ${distanceUnit}`)}${metric("Est. duration", `${text(result.totalShiftHrs)} h`)}${metric(displayUnit === "miles" ? "Live miles" : "Live km", `${text(displayedLiveDistance)} ${distanceUnit}`)}${metric(displayUnit === "miles" ? "Revenue miles" : "Revenue km", `${text(displayedLiveDistance)} ${distanceUnit}`)}${has(result, "deadKm") ? metric(displayUnit === "miles" ? "Dead miles" : "Dead km", `${text(displayedDeadDistance)} ${distanceUnit}`) : ""}</div><section class="section"><div class="section-title">CUSTOMER &amp; BOOKING</div><div class="three-col"><div>${field("Customer", booking.customer?.name)}${field("Phone", booking.customer?.phone)}${field("Email", booking.customer?.email)}</div><div>${field("Passengers", journey.passengers)}${field("Suitcases 23KG+", journey.suitcaseCount)}${field("Handbags", journey.handbagCount)}</div><div>${field("Vehicle", vehicleName)}${field("Capacity", vehicleCapacity ? `${vehicleCapacity} seats` : "--")}${field("Vehicles", result.vehicleCount || quote.vehicleCount || "--")}</div></div>${journey.specialRequests ? `<div class="special"><span>Special request</span>${esc(journey.specialRequests)}</div>` : ""}</section><section class="section fare-section"><div class="section-title">FARE SUMMARY</div><div class="fare-grid"><div>${has(result, "baseFare") ? `<div class="fare-line"><span>Base rate${vehicleName ? ` · ${esc(vehicleName)}` : ""}</span><strong>${money(result.baseFare)}</strong></div>` : ""}${has(result, "surchargeTotal") ? `<div class="fare-line"><span>Surcharges</span><strong>${money(result.surchargeTotal)}</strong></div>` : ""}${has(result, "subtotal") ? `<div class="fare-line"><span>Subtotal</span><strong>${money(result.subtotal)}</strong></div>` : ""}${has(result, "upperBoundPrice") || has(result, "upperBoundFare") ? `<div class="fare-line"><span>Upper price bound</span><strong>${money(result.upperBoundPrice ?? result.upperBoundFare)}</strong></div>` : ""}</div><div class="fare-total"><span>NET FARE</span><strong>${money(finalFare)}</strong><div class="vat-line"><span>VAT</span><b>${money(resultVat)}</b></div><div class="customer-total"><span>CUSTOMER TOTAL</span><strong>${money(customerTotal)}</strong></div></div></div></section><section class="section transparent-section"><div class="section-title">TRANSPARENT PRICE BREAKDOWN</div><div class="transparent-grid">${transparentRows || `<div class="empty">No additional stored pricing details for this quotation</div>`}</div></section><div class="bottom-grid"><section class="section"><div class="section-title">COST BREAKDOWN</div><div class="money-table">${costRows || `<div class="empty">No stored cost breakdown for this quotation</div>`}</div></section><section class="section"><div class="section-title">PROFITABILITY</div><div class="money-table">${profitabilityRows || `<div class="empty">No stored profitability values for this quotation</div>`}</div></section></div><section class="section operational"><div class="section-title">OPERATIONAL PRICING DETAILS</div><div class="operational-grid">${operationalRows || `<div class="empty">No additional pricing-engine details for this quotation</div>`}</div></section><footer><span>Carolean Coaches · Internal Quotation Report</span><span>Generated ${esc(dateTime(new Date()))} · Quote #${esc(booking.id)}</span></footer>`;
+  const reportHtml = `<header class="report-header"><img src="/carolean%20image.png" alt="Carolean Coaches"><div class="report-heading"><div class="eyebrow">QUOTATION REPORT</div><h1>#${esc(booking.id)}</h1><div class="badges"><span>${esc(String(booking.status || "NEW").toUpperCase())}</span><span>${esc(journey.journeyType === "return" ? "RETURN" : stops.length ? "MULTI-STOP" : "ONE-WAY")}</span></div></div></header><section class="route-head"><div><span class="eyebrow">JOURNEY</span><h2>${esc(journey.origin || "Pickup")} <i>→</i> ${esc(journey.destination || "Destination")}</h2></div><div class="route-dates"><strong>${esc(dateOnly(journey.departureDate))}</strong><span>Departure ${esc(timeOnly(journey.departureDate))}${journey.journeyType === "return" ? ` · Return ${esc(timeOnly(journey.returnDate))}` : ""}</span></div></section><section class="section route-section"><div class="section-title">ROUTE &amp; JOURNEY</div>${timeline}</section><div class="metrics">${metric("Total distance", `${fmtNum(displayedTotalDistance)} ${distanceUnit}`)}${metric("Est. duration", `${fmtNum(result.totalShiftHrs)} h`)}${metric(displayUnit === "miles" ? "Live miles" : "Live km", `${fmtNum(displayedLiveDistance)} ${distanceUnit}`)}${metric(displayUnit === "miles" ? "Revenue miles" : "Revenue km", `${fmtNum(displayedLiveDistance)} ${distanceUnit}`)}${has(result, "deadKm") ? metric(displayUnit === "miles" ? "Dead miles" : "Dead km", `${fmtNum(displayedDeadDistance)} ${distanceUnit}`) : ""}</div><section class="section"><div class="section-title">CUSTOMER &amp; BOOKING</div><div class="three-col"><div>${field("Customer", booking.customer?.name)}${field("Phone", booking.customer?.phone)}${field("Email", booking.customer?.email)}</div><div>${field("Passengers", journey.passengers)}${field("Suitcases 23KG+", journey.suitcaseCount)}${field("Handbags", journey.handbagCount)}</div><div>${field("Vehicle", vehicleName)}${field("Capacity", vehicleCapacity ? `${vehicleCapacity} seats` : "--")}${field("Vehicles", result.vehicleCount || quote.vehicleCount || "--")}</div></div>${journey.specialRequests ? `<div class="special"><span>Special request</span>${esc(journey.specialRequests)}</div>` : ""}</section><section class="section fare-section"><div class="section-title">FARE SUMMARY</div><div class="fare-grid"><div>${has(result, "baseFare") ? `<div class="fare-line"><span>Base rate${vehicleName ? ` · ${esc(vehicleName)}` : ""}</span><strong>${money(result.baseFare)}</strong></div>` : ""}${has(result, "surchargeTotal") ? `<div class="fare-line"><span>Surcharges</span><strong>${money(result.surchargeTotal)}</strong></div>` : ""}${has(result, "subtotal") ? `<div class="fare-line"><span>Subtotal</span><strong>${money(result.subtotal)}</strong></div>` : ""}${has(result, "upperBoundPrice") || has(result, "upperBoundFare") ? `<div class="fare-line"><span>Upper price bound</span><strong>${money(result.upperBoundPrice ?? result.upperBoundFare)}</strong></div>` : ""}</div><div class="fare-total"><span>NET FARE</span><strong>${money(finalFare)}</strong><div class="vat-line"><span>VAT</span><b>${money(resultVat)}</b></div><div class="customer-total"><span>CUSTOMER TOTAL</span><strong>${money(customerTotal)}</strong></div></div></div></section><section class="section transparent-section"><div class="section-title">TRANSPARENT PRICE BREAKDOWN</div><div class="transparent-grid">${transparentRows || `<div class="empty">No additional stored pricing details for this quotation</div>`}</div></section><div class="bottom-grid"><section class="section"><div class="section-title">COST BREAKDOWN</div><div class="money-table">${costRows || `<div class="empty">No stored cost breakdown for this quotation</div>`}</div></section><section class="section"><div class="section-title">PROFITABILITY</div><div class="money-table">${profitabilityRows || `<div class="empty">No stored profitability values for this quotation</div>`}</div></section></div><section class="section operational"><div class="section-title">OPERATIONAL PRICING DETAILS</div><div class="operational-grid">${operationalRows || `<div class="empty">No additional pricing-engine details for this quotation</div>`}</div></section><footer><span>Carolean Coaches · Internal Quotation Report</span><span>Generated ${esc(dateTime(new Date()))} · Quote #${esc(booking.id)}</span></footer>`;
   const reportCss = `@page{size:A4 portrait;margin:7mm}*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0;padding:0;background:#fff;color:#17233f;font-family:Arial,Helvetica,sans-serif;font-size:9px;line-height:1.28}body{max-width:196mm;margin:0 auto}.report-header{height:15mm;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #d2232a}.report-header img{width:47mm;max-height:11mm;object-fit:contain;object-position:left}.report-heading{text-align:right}.eyebrow,.section-title{font-size:8px;font-weight:800;letter-spacing:1.1px;color:#64748b}.report-heading h1{font-size:16px;line-height:1;margin:2px 0 4px;color:#16205c}.badges{display:flex;justify-content:flex-end;gap:4px}.badges span{padding:2px 6px;border-radius:3px;background:#eef2f7;color:#16205c;font-size:7px;font-weight:800;letter-spacing:.5px}.badges span:first-child{background:#fce8eb;color:#b91c2a}.route-head{display:flex;justify-content:space-between;gap:12px;padding:3mm 0 2mm}.route-head h2{font-size:16px;line-height:1.1;margin:3px 0 0;color:#16205c}.route-head h2 i{font-style:normal;color:#d2232a;padding:0 5px}.route-dates{text-align:right;padding-top:3px}.route-dates strong,.route-dates span{display:block}.route-dates strong{font-size:11px;color:#16205c}.route-dates span{margin-top:2px;color:#64748b}.section{border:1px solid #e2e8f0;border-radius:5px;padding:2.2mm;background:#fff;break-inside:avoid;page-break-inside:avoid}.section-title{border-bottom:1px solid #e2e8f0;padding-bottom:3px;margin-bottom:4px;color:#16205c}.route-section{padding-bottom:1.5mm}.timeline{display:flex;flex-direction:column;gap:5px}.timeline-row{display:grid;grid-template-columns:16px 1fr;gap:6px;align-items:start;position:relative}.timeline-row:not(:last-child):after{content:"";position:absolute;left:7px;top:17px;height:calc(100% + 1px);border-left:1px solid #cbd5e1}.timeline-row b{z-index:1;width:15px;height:15px;display:grid;place-items:center;border-radius:50%;background:#0f766e;color:#fff;font-size:7px}.timeline-row b.end{background:#d2232a}.timeline-row.return b{background:#fff;border:1px dashed #d2232a;color:#d2232a}.timeline-row small{display:block;color:#64748b;font-size:7px;font-weight:800;letter-spacing:.4px}.timeline-row strong{display:block;color:#16205c;font-size:9px}.timeline-row span{display:block;color:#64748b;font-size:8px}.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:1.5mm;margin:1.8mm 0}.metric{background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:1.8mm}.metric span{display:block;color:#64748b;font-size:7px;text-transform:uppercase;letter-spacing:.35px}.metric strong{display:block;margin-top:1px;color:#16205c;font-size:12px}.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:5mm}.field{margin:0 0 3px}.field span,.special span{display:block;color:#64748b;font-size:7px;text-transform:uppercase;letter-spacing:.35px}.field strong{display:block;color:#16205c;font-size:9px;font-weight:700;overflow-wrap:anywhere}.special{margin-top:3px;padding-top:4px;border-top:1px solid #eef2f7;color:#334155}.special span{display:inline;margin-right:6px}.fare-section{background:#f8fafc}.fare-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:8mm;align-items:stretch}.fare-line,.money-row{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #e8edf3;padding:3px 0}.fare-line strong,.money-row strong{font-variant-numeric:tabular-nums;color:#16205c}.money-row.total-row{border-top:2px solid #16205c;border-bottom:0;margin-top:5px;padding-top:6px;font-size:9px}.money-row.total-row span,.money-row.total-row strong{font-weight:900;color:#16205c}.fare-total{border-left:1px solid #dbe2ef;padding-left:6mm}.fare-total>span,.vat-line span,.customer-total span{display:block;color:#64748b;font-size:7px;font-weight:800;letter-spacing:.5px}.fare-total>strong{display:block;color:#16205c;font-size:19px;line-height:1.05;margin:2px 0 5px}.vat-line{display:flex;justify-content:space-between;color:#64748b;border-bottom:1px solid #dbe2ef;padding-bottom:3px}.customer-total{display:flex;justify-content:space-between;align-items:end;padding-top:4px}.customer-total strong{color:#d2232a;font-size:14px}.transparent-section{margin-top:2mm;background:#fbfcfd}.transparent-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px 8mm}.transparent-grid>div{display:flex;justify-content:space-between;border-bottom:1px solid #eef2f7;padding:2px 0;gap:4px}.transparent-grid span{color:#64748b}.transparent-grid strong{color:#16205c;font-variant-numeric:tabular-nums}.bottom-grid{display:grid;grid-template-columns:1.14fr .86fr;gap:3mm;margin-top:2mm}.bottom-grid .section{min-width:0}.money-table{font-size:8px}.empty{color:#94a3b8;font-style:italic;padding:3px 0}.operational{margin-top:2mm;background:#fbfcfd}.operational-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px 8mm}.operational-grid>div{display:flex;justify-content:space-between;border-bottom:1px solid #eef2f7;padding:2px 0;gap:4px}.operational-grid span{color:#64748b}.operational-grid strong{color:#16205c;font-variant-numeric:tabular-nums}.report-header,.route-head,.section,.metrics,footer{break-inside:avoid;page-break-inside:avoid}footer{display:flex;justify-content:space-between;border-top:1px solid #e2e8f0;margin-top:1.8mm;padding-top:1.8mm;color:#64748b;font-size:7px}@media print{body{max-width:none}a{color:inherit;text-decoration:none}}`;
   const popup = window.open("", "_blank");
   if (!popup) return;
@@ -1783,20 +1806,20 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
       const rawFuelPrice = vehicle.fuelPricePerLitre ?? db.globalVars?.fuelPricePerLitre ?? 1.52;
       const rawFuelKpl = vehicle.fuelKpl || 5;
-      const fuelPrice = rawFuelPrice * (isGallons ? 4.54609 : 1);
-      const fuelKpl = rawFuelKpl * (isGallons ? 4.54609 : 1) / (isMiles ? 1.60934 : 1);
+      const fuelPrice = rawFuelPrice * (isGallons ? LITRES_PER_UK_GALLON : 1);
+      const fuelKpl = rawFuelKpl * (isGallons ? LITRES_PER_UK_GALLON : 1) / (isMiles ? MILES_TO_KM : 1);
       const fuelPerKm = fuelPrice / fuelKpl;
       const calculatedTyreCost =
         Number(vehicle.tyreSetCost) > 0 && Number(vehicle.expectedTyreLifeKm) > 0
           ? Number(vehicle.tyreSetCost) / Number(vehicle.expectedTyreLifeKm)
           : 0.05;
       const rawTyreCost = vehicle.tyreCostPerKm || calculatedTyreCost;
-      const tyreCost = isMiles ? rawTyreCost * 1.60934 : rawTyreCost;
+      const tyreCost = isMiles ? rawTyreCost * MILES_TO_KM : rawTyreCost;
       const calculatedMaintCost = Number(vehicle.maintenanceSetCost) > 0 && Number(vehicle.expectedMaintenanceLifeKm) > 0
         ? Number(vehicle.maintenanceSetCost) / Number(vehicle.expectedMaintenanceLifeKm)
         : 0.15;
       const rawMaintCost = vehicle.maintenanceCostPerKm || calculatedMaintCost;
-      const maintCost = isMiles ? rawMaintCost * 1.60934 : rawMaintCost;
+      const maintCost = isMiles ? rawMaintCost * MILES_TO_KM : rawMaintCost;
 
       const totalAnnualFixed = (vehicle.annualCosts||[]).reduce((s,c)=>s+Number(c.cost),0);
       const fleetCount = vehicle.fleetCount || 1;
@@ -2048,12 +2071,12 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
       const distanceKm = Number(displayDistance(result.chargedKm, result.distanceUnit, targetDistUnit, result.chargedKm)) || 0;
       const rawFuelPrice = Number(vehicle.fuelPricePerLitre ?? db.globalVars?.fuelPricePerLitre ?? 0);
       const rawFuelKpl = Number(vehicle.fuelKpl || 0);
-      const fuelPrice = rawFuelPrice * (isGallons ? 4.54609 : 1);
-      const fuelEconomy = rawFuelKpl * (isGallons ? 4.54609 : 1) / (isMiles ? 1.60934 : 1);
+      const fuelPrice = rawFuelPrice * (isGallons ? LITRES_PER_UK_GALLON : 1);
+      const fuelEconomy = rawFuelKpl * (isGallons ? LITRES_PER_UK_GALLON : 1) / (isMiles ? MILES_TO_KM : 1);
       const rawMaint = Number(vehicle.maintenanceCostPerKm) || (Number(vehicle.maintenanceSetCost)||0) / Math.max(1,Number(vehicle.expectedMaintenanceLifeKm)||1);
-      const maintenanceRate = isMiles ? rawMaint * 1.60934 : rawMaint;
+      const maintenanceRate = isMiles ? rawMaint * MILES_TO_KM : rawMaint;
       const rawTyre = Number(vehicle.tyreCostPerKm) || (Number(vehicle.tyreSetCost)||0) / Math.max(1,Number(vehicle.expectedTyreLifeKm)||1);
-      const tyreRate = isMiles ? rawTyre * 1.60934 : rawTyre;
+      const tyreRate = isMiles ? rawTyre * MILES_TO_KM : rawTyre;
       const finalFareValue = Number(result.finalPrice || result.finalFare) || 0;
       const driverValue = Number(bd.driverCost ?? result.driverCost) || 0;
       const standingValue = Number(bd.standingCost) || 0;
@@ -2136,7 +2159,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
       label: cost.name || cost.label || "Unnamed Cost",
       cost: Number(cost.amount ?? cost.cost ?? 0)
     }));
-    return { ...vehicle, annualCosts: sanitized, annualFixedCosts: sanitized };
+    return { ...vehicle, annualCosts: sanitized, annualFixedCosts: sanitized, fareCalculationMethod: vehicle.fareCalculationMethod || 'commercial' };
   }), [vehicles]);
 
   const configurationSnapshot = useMemo(() => ({
@@ -2247,15 +2270,33 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     }, 500);
     return () => clearTimeout(vehicleAutosaveTimerRef.current);
   }, [vehicles, backendOnline]);
-  const updateFareCalculationMethod = async (vehicle) => {
+  const updateFareCalculationMethod = async (vehicle, applyToAll = true) => {
     const fareCalculationMethod = vehicle.fareCalculationMethod === 'cost-plus' ? 'commercial' : 'cost-plus';
-    const nextVehicles = vehicles.map(v => v.id === vehicle.id ? { ...v, fareCalculationMethod } : v);
+    const nextVehicles = vehicles.map(v => (applyToAll || v.id === vehicle.id) ? { ...v, fareCalculationMethod } : v);
     skipVehicleAutosaveRef.current = true;
     setV(nextVehicles);
+    latestConfigurationRef.current = {
+      ...latestConfigurationRef.current,
+      vehicles: nextVehicles.map(v => ({
+        ...v,
+        fareCalculationMethod: v.fareCalculationMethod || 'commercial'
+      }))
+    };
     try {
-      const response = await authenticatedFetch(API_BASE_URL + '/api/admin/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ vehicleFareMethod: { id: vehicle.id, fareCalculationMethod } }) });
+      const response = await authenticatedFetch(API_BASE_URL + '/api/admin/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vehicleFareMethod: { id: applyToAll ? 'all' : vehicle.id, fareCalculationMethod } })
+      });
       if (!response.ok) throw new Error('Unable to save fare calculation method');
-    } catch { skipVehicleAutosaveRef.current = true; setV(vehicles); setToast('Unable to save fare calculation method'); setTimeout(() => setToast(''), 3000); }
+      setToast(`Saved: ${applyToAll ? 'All vehicles' : vehicle.name} switched to ${fareCalculationMethod === 'cost-plus' ? 'Cost-plus' : 'Commercial'} fare`);
+    } catch {
+      skipVehicleAutosaveRef.current = true;
+      setV(vehicles);
+      setToast('Unable to save fare calculation method');
+    } finally {
+      setTimeout(() => setToast(''), 3000);
+    }
   };
   const updatePricing = (field, value) => setV(vs => vs.map(v => v.id === selectedPricingVehicle?.id
     ? { ...v, pricingSettings: { ...(v.pricingSettings || {}), [field]: value } } : v));
@@ -2276,58 +2317,14 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     const oldUnit = gv.distanceUnit || 'miles';
     if (newUnit === oldUnit) return;
 
-    const toKm = newUnit === 'km';
     const nextGlobalVars = { ...gv, distanceUnit: newUnit };
-
-    // Convert fleet vehicle rates and thresholds
-    const nextVehicles = vehicles.map(v => {
-      const ps = { ...(v.pricingSettings || {}) };
-      if (Number.isFinite(Number(ps.emptyLegThresholdKm))) {
-        ps.emptyLegThresholdKm = Math.round((toKm ? Number(ps.emptyLegThresholdKm) * MILES_TO_KM : Number(ps.emptyLegThresholdKm) / MILES_TO_KM) * 10) / 10;
-      }
-      return {
-        ...v,
-        ratePerKm: Number.isFinite(Number(v.ratePerKm)) ? Math.round((toKm ? Number(v.ratePerKm) / MILES_TO_KM : Number(v.ratePerKm) * MILES_TO_KM) * 1000) / 1000 : v.ratePerKm,
-        maintenanceCostPerKm: Number.isFinite(Number(v.maintenanceCostPerKm)) ? Math.round((toKm ? Number(v.maintenanceCostPerKm) / MILES_TO_KM : Number(v.maintenanceCostPerKm) * MILES_TO_KM) * 1000) / 1000 : v.maintenanceCostPerKm,
-        tyreCostPerKm: Number.isFinite(Number(v.tyreCostPerKm)) ? Math.round((toKm ? Number(v.tyreCostPerKm) / MILES_TO_KM : Number(v.tyreCostPerKm) * MILES_TO_KM) * 1000) / 1000 : v.tyreCostPerKm,
-        expectedTyreLifeKm: Number.isFinite(Number(v.expectedTyreLifeKm)) ? Math.round(toKm ? Number(v.expectedTyreLifeKm) * MILES_TO_KM : Number(v.expectedTyreLifeKm) / MILES_TO_KM) : v.expectedTyreLifeKm,
-        expectedMaintenanceLifeKm: Number.isFinite(Number(v.expectedMaintenanceLifeKm)) ? Math.round(toKm ? Number(v.expectedMaintenanceLifeKm) * MILES_TO_KM : Number(v.expectedMaintenanceLifeKm) / MILES_TO_KM) : v.expectedMaintenanceLifeKm,
-        pricingSettings: ps
-      };
-    });
-
-    // Convert route templates radius
-    const nextTemplates = templatesData.map(t => ({
-      ...t,
-      radiusKm: Number.isFinite(Number(t.radiusKm)) ? Math.round((toKm ? Number(t.radiusKm) * MILES_TO_KM : Number(t.radiusKm) / MILES_TO_KM) * 10) / 10 : t.radiusKm
-    }));
-
-    // Convert pricing matrix bands
-    const nextMatrix = matrixData.map(m => {
-      const bands = Array.isArray(m.distanceBands) ? m.distanceBands.map(b => ({
-        min: Number.isFinite(Number(b.min)) ? Math.round((toKm ? Number(b.min) * MILES_TO_KM : Number(b.min) / MILES_TO_KM) * 10) / 10 : b.min,
-        max: b.max !== null && Number.isFinite(Number(b.max)) ? Math.round((toKm ? Number(b.max) * MILES_TO_KM : Number(b.max) / MILES_TO_KM) * 10) / 10 : b.max,
-        rate: Number.isFinite(Number(b.rate)) ? Math.round((toKm ? Number(b.rate) / MILES_TO_KM : Number(b.rate) * MILES_TO_KM) * 100) / 100 : b.rate
-      })) : m.distanceBands;
-      return {
-        ...m,
-        distanceBands: bands,
-        includedLiveMileage: Number.isFinite(Number(m.includedLiveMileage)) ? Math.round((toKm ? Number(m.includedLiveMileage) * MILES_TO_KM : Number(m.includedLiveMileage) / MILES_TO_KM) * 10) / 10 : m.includedLiveMileage,
-        includedDeadMileage: Number.isFinite(Number(m.includedDeadMileage)) ? Math.round((toKm ? Number(m.includedDeadMileage) * MILES_TO_KM : Number(m.includedDeadMileage) / MILES_TO_KM) * 10) / 10 : m.includedDeadMileage,
-        extraMileageRate: Number.isFinite(Number(m.extraMileageRate)) ? Math.round((toKm ? Number(m.extraMileageRate) / MILES_TO_KM : Number(m.extraMileageRate) * MILES_TO_KM) * 100) / 100 : m.extraMileageRate
-      };
-    });
-
     setGv(nextGlobalVars);
-    setTemplatesData(nextTemplates);
-    setMatrixData(nextMatrix);
-    setV(nextVehicles);
 
     try {
       const configResponse = await authenticatedFetch(API_BASE_URL + '/api/admin/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ globalVars: { distanceUnit: newUnit }, vehicles: nextVehicles })
+        body: JSON.stringify({ globalVars: { distanceUnit: newUnit } })
       });
       if (!configResponse.ok) throw new Error('Failed to save distance unit');
       setToast(`Distance unit changed to ${newUnit === 'miles' ? 'miles' : 'kilometers'}`);
@@ -2374,8 +2371,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   const distanceUnitWord = gv?.distanceUnit === 'miles' ? 'mile' : 'km';
   const fuelUnit = gv?.fuelUnit === 'gallons' ? 'gallons' : 'litres';
   const fuelPriceUnit = fuelUnit === 'gallons' ? 'gallon' : 'litre';
-  const fuelPriceFactor = fuelUnit === 'gallons' ? 4.54609 : 1;
-  const fuelEconomyFactor = (fuelUnit === 'gallons' ? 4.54609 : 1) / (gv?.distanceUnit === 'miles' ? 1.60934 : 1);
+  const fuelPriceFactor = fuelUnit === 'gallons' ? LITRES_PER_UK_GALLON : 1;
+  const fuelEconomyFactor = (fuelUnit === 'gallons' ? LITRES_PER_UK_GALLON : 1) / (gv?.distanceUnit === 'miles' ? MILES_TO_KM : 1);
   const displayFuelPrice = value => Number(value || 0) * fuelPriceFactor;
   const displayFuelEconomy = value => Number(value || 0) * fuelEconomyFactor;
   const matrixBands = matrix => Array.isArray(matrix?.distanceBands) && matrix.distanceBands.length === 4
@@ -3562,7 +3559,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         </div>
                         <div>
                           <label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Route Radius ({distanceUnitShort})</label>
-                          <input type="number" min="0" step="1" className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none" value={newTemplate.radiusKm ?? 15} onChange={e=>setNT(x=>({...x,radiusKm:Number(e.target.value)}))} />
+                          <input type="number" min="0" step="1" className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md py-1.5 px-2.5 text-xs font-bold outline-none" value={gv?.distanceUnit === 'miles' ? Math.round(((newTemplate.radiusKm ?? 15) / MILES_TO_KM) * 10) / 10 : (newTemplate.radiusKm ?? 15)} onChange={e=>setNT(x=>({...x,radiusKm: gv?.distanceUnit === 'miles' ? Number(e.target.value) * MILES_TO_KM : Number(e.target.value)}))} />
                         </div>
                         <div>
                           <label className="block text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Waiting Charge (£/hr)</label>
@@ -3999,7 +3996,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                   </div>
                                   <div className="fleet-compact-field">
                                     <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">RATE/{distanceUnitShort}</label>
-                                    <input aria-label="Commercial vehicle rate per kilometre" className="hide-spinners w-full bg-transparent border-none text-slate-900 dark:text-slate-100 text-[13px] font-extrabold outline-none text-right p-0 cursor-default" type="number" readOnly value={Number((((activeV.fuelPricePerLitre ?? gv?.fuelPricePerLitre ?? 1.52) / (activeV.fuelKpl || 1)) + ((activeV.maintenanceSetCost || 0) / (activeV.expectedMaintenanceLifeKm || 1)) + ((activeV.tyreSetCost || 0) / (activeV.expectedTyreLifeKm || 1))).toFixed(4))} title="Calculated automatically from variable costs" />
+                                    <input aria-label="Commercial vehicle rate" className="hide-spinners w-full bg-transparent border-none text-slate-900 dark:text-slate-100 text-[13px] font-extrabold outline-none text-right p-0 cursor-default" type="number" readOnly value={Number(((((activeV.fuelPricePerLitre ?? gv?.fuelPricePerLitre ?? 1.52) / (activeV.fuelKpl || 1)) + ((activeV.maintenanceSetCost || 0) / (activeV.expectedMaintenanceLifeKm || 1)) + ((activeV.tyreSetCost || 0) / (activeV.expectedTyreLifeKm || 1))) * (gv?.distanceUnit === 'miles' ? MILES_TO_KM : 1)).toFixed(4))} title="Calculated automatically from variable costs" />
                                   </div>
                                 </div>
                             </div>
@@ -4059,9 +4056,10 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                   
                                   <div className="flex items-center justify-end gap-1">
                                       <span className="text-xs font-bold text-slate-400 dark:text-slate-500">£</span>
-                                      <input className="hide-spinners w-20 bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 text-[15px] font-extrabold text-right py-1" type="number" value={fc.amount} onChange={e => {
+                                      <input className="hide-spinners w-24 bg-slate-50 dark:bg-slate-900/60 rounded px-2 py-0.5 border border-slate-200 dark:border-slate-700 focus:border-primary text-slate-900 dark:text-slate-100 text-[15px] font-extrabold text-right outline-none" type="number" value={fc.amount} onFocus={e => e.target.select()} onChange={e => {
+                                        const val = e.target.value === '' ? 0 : Number(e.target.value);
                                         const newFc = [...(activeV.annualFixedCosts||[])];
-                                        newFc[idx] = { ...newFc[idx], amount: Number(e.target.value) };
+                                        newFc[idx] = { ...newFc[idx], amount: val };
                                         const sum = newFc.reduce((s, x) => s + (Number(x.amount)||0), 0);
                                         const utilDays = activeV.utilisationDays || 225;
                                         const vs = vehicles.map(vx => vx.id === activeV.id ? { ...vx, annualCosts: newFc, annualFixedCosts: newFc, standingCostPerDay: (sum / (activeV.fleetCount||1)) / utilDays } : vx);
@@ -4094,10 +4092,10 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                               <div className="flex items-center shrink-0">
                               <div className="fleet-variable-value !w-auto flex items-center shrink-0">
                                 <span className="text-[12px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">£</span>
-                                <input aria-label="Fuel price" className="variable-cost-input hide-spinners w-[26px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" step="0.01" value={displayFuelPrice(activeV.fuelPricePerLitre ?? gv?.fuelPricePerLitre ?? 1.52).toFixed(2)} onChange={e=>updateV(activeV.id,"fuelPricePerLitre",Number(e.target.value) / fuelPriceFactor)} />
+                                <input aria-label="Fuel price" className="variable-cost-input hide-spinners min-w-[46px] w-[54px] bg-slate-50 dark:bg-slate-900/60 rounded px-1.5 py-0.5 border border-slate-200 dark:border-slate-700 focus:border-primary text-slate-900 dark:text-slate-100 font-bold font-sans text-right outline-none" type="number" step="0.01" value={Number(displayFuelPrice(activeV.fuelPricePerLitre ?? gv?.fuelPricePerLitre ?? 1.52).toFixed(2))} onFocus={e => e.target.select()} onChange={e => { const val = e.target.value === '' ? 0 : Number(e.target.value); updateV(activeV.id, "fuelPricePerLitre", val / fuelPriceFactor); }} />
                                 <span className="text-[12px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5 mr-0.5">/{fuelPriceUnit === 'gallon' ? 'gal' : 'L'}</span>
                                 <div className="text-slate-300 dark:text-slate-600 font-light mx-0.5">/</div>
-                                <input aria-label="Fuel economy" className="variable-cost-input hide-spinners w-[26px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" step="0.1" value={displayFuelEconomy(activeV.fuelKpl ?? 5).toFixed(2)} onChange={e=>updateV(activeV.id,"fuelKpl",Number(e.target.value) / fuelEconomyFactor)} />
+                                <input aria-label="Fuel economy" className="variable-cost-input hide-spinners min-w-[46px] w-[54px] bg-slate-50 dark:bg-slate-900/60 rounded px-1.5 py-0.5 border border-slate-200 dark:border-slate-700 focus:border-primary text-slate-900 dark:text-slate-100 font-bold font-sans text-right outline-none" type="number" step="0.1" value={Number(displayFuelEconomy(activeV.fuelKpl ?? 5).toFixed(2))} onFocus={e => e.target.select()} onChange={e => { const val = e.target.value === '' ? 0 : Number(e.target.value); updateV(activeV.id, "fuelKpl", val / fuelEconomyFactor); }} />
                                 <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{distanceUnitShort}/{fuelUnit === 'gallons' ? 'gal' : 'L'}</span>
                               </div>
                               <div className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5 h-[36px]">
@@ -4112,19 +4110,13 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                               <div className="flex items-center shrink-0">
                               <div className="fleet-variable-value !w-auto flex items-center shrink-0">
                                 <span className="text-[12px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">£</span>
-                                <input aria-label="Maintenance set cost" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="0" value={activeV.maintenanceSetCost??0} onChange={e=>{
-                                  const val = Number(e.target.value);
-                                  setV(vs=>vs.map(v=>v.id===activeV.id?{...v, maintenanceSetCost: val, maintenanceCostPerKm: 0}:v));
-                                }}/>
+                                <input aria-label="Maintenance set cost" className="variable-cost-input hide-spinners min-w-[50px] w-[58px] bg-slate-50 dark:bg-slate-900/60 rounded px-1.5 py-0.5 border border-slate-200 dark:border-slate-700 focus:border-primary text-slate-900 dark:text-slate-100 font-bold font-sans text-right outline-none" type="number" min="0" value={activeV.maintenanceSetCost ?? 0} onFocus={e => e.target.select()} onChange={e => { const val = e.target.value === '' ? 0 : Number(e.target.value); setV(vs => vs.map(v => v.id === activeV.id ? { ...v, maintenanceSetCost: val, maintenanceCostPerKm: 0 } : v)); }} />
                                 <div className="text-slate-300 dark:text-slate-600 font-light mx-0.5">/</div>
-                                <input aria-label="Expected maintenance life" className="variable-cost-input hide-spinners w-[36px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="1" value={activeV.expectedMaintenanceLifeKm??60000} onChange={e=>{
-                                  const val = Number(e.target.value);
-                                  setV(vs=>vs.map(v=>v.id===activeV.id?{...v, expectedMaintenanceLifeKm: val, maintenanceCostPerKm: 0}:v));
-                                }}/>
+                                <input aria-label="Expected maintenance life" className="variable-cost-input hide-spinners min-w-[58px] w-[68px] bg-slate-50 dark:bg-slate-900/60 rounded px-1.5 py-0.5 border border-slate-200 dark:border-slate-700 focus:border-primary text-slate-900 dark:text-slate-100 font-bold font-sans text-right outline-none" type="number" min="1" value={activeV.expectedMaintenanceLifeKm !== undefined ? Math.round(gv?.distanceUnit === 'miles' ? (activeV.expectedMaintenanceLifeKm || 0) / MILES_TO_KM : (activeV.expectedMaintenanceLifeKm || 0)) : (gv?.distanceUnit === 'miles' ? Math.round(60000 / MILES_TO_KM) : 60000)} onFocus={e => e.target.select()} onChange={e => { const raw = e.target.value === '' ? 0 : Number(e.target.value); const val = gv?.distanceUnit === 'miles' ? raw * MILES_TO_KM : raw; setV(vs => vs.map(v => v.id === activeV.id ? { ...v, expectedMaintenanceLifeKm: val, maintenanceCostPerKm: 0 } : v)); }} />
                                 <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{distanceUnitShort}</span>
                               </div>
                               <div className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5 h-[36px]">
-                                  = £{((activeV.maintenanceSetCost || 0) / (activeV.expectedMaintenanceLifeKm || 1)).toFixed(3)}/{distanceUnitShort}
+                                  = £{((((activeV.maintenanceSetCost || 0) / (activeV.expectedMaintenanceLifeKm || 1))) * (gv?.distanceUnit === 'miles' ? MILES_TO_KM : 1)).toFixed(3)}/{distanceUnitShort}
                               </div>
                               </div>
                           </div>
@@ -4135,19 +4127,13 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                               <div className="flex items-center shrink-0">
                               <div className="fleet-variable-value !w-auto flex items-center shrink-0">
                                 <span className="text-[12px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 mr-0.5">£</span>
-                                <input aria-label="Tyre set cost" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="0" value={activeV.tyreSetCost??0} onChange={e=>{
-                                  const val = Number(e.target.value);
-                                  setV(vs=>vs.map(v=>v.id===activeV.id?{...v, tyreSetCost: val, tyreCostPerKm: 0}:v));
-                                }}/>
+                                <input aria-label="Tyre set cost" className="variable-cost-input hide-spinners min-w-[50px] w-[58px] bg-slate-50 dark:bg-slate-900/60 rounded px-1.5 py-0.5 border border-slate-200 dark:border-slate-700 focus:border-primary text-slate-900 dark:text-slate-100 font-bold font-sans text-right outline-none" type="number" min="0" value={activeV.tyreSetCost ?? 0} onFocus={e => e.target.select()} onChange={e => { const val = e.target.value === '' ? 0 : Number(e.target.value); setV(vs => vs.map(v => v.id === activeV.id ? { ...v, tyreSetCost: val, tyreCostPerKm: 0 } : v)); }} />
                                 <div className="text-slate-300 dark:text-slate-600 font-light mx-0.5">/</div>
-                                <input aria-label="Expected tyre life" className="variable-cost-input hide-spinners w-[36px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" min="1" value={activeV.expectedTyreLifeKm??40000} onChange={e=>{
-                                  const val = Number(e.target.value);
-                                  setV(vs=>vs.map(v=>v.id===activeV.id?{...v, expectedTyreLifeKm: val, tyreCostPerKm: 0}:v));
-                                }}/>
+                                <input aria-label="Expected tyre life" className="variable-cost-input hide-spinners min-w-[58px] w-[68px] bg-slate-50 dark:bg-slate-900/60 rounded px-1.5 py-0.5 border border-slate-200 dark:border-slate-700 focus:border-primary text-slate-900 dark:text-slate-100 font-bold font-sans text-right outline-none" type="number" min="1" value={activeV.expectedTyreLifeKm !== undefined ? Math.round(gv?.distanceUnit === 'miles' ? (activeV.expectedTyreLifeKm || 0) / MILES_TO_KM : (activeV.expectedTyreLifeKm || 0)) : (gv?.distanceUnit === 'miles' ? Math.round(40000 / MILES_TO_KM) : 40000)} onFocus={e => e.target.select()} onChange={e => { const raw = e.target.value === '' ? 0 : Number(e.target.value); const val = gv?.distanceUnit === 'miles' ? raw * MILES_TO_KM : raw; setV(vs => vs.map(v => v.id === activeV.id ? { ...v, expectedTyreLifeKm: val, tyreCostPerKm: 0 } : v)); }} />
                                 <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{distanceUnitShort}</span>
                               </div>
                               <div className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5 h-[36px]">
-                                  = £{((activeV.tyreSetCost || 0) / (activeV.expectedTyreLifeKm || 1)).toFixed(3)}/{distanceUnitShort}
+                                  = £{((((activeV.tyreSetCost || 0) / (activeV.expectedTyreLifeKm || 1))) * (gv?.distanceUnit === 'miles' ? MILES_TO_KM : 1)).toFixed(3)}/{distanceUnitShort}
                               </div>
                               </div>
                           </div>
@@ -4157,7 +4143,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                               <div className="flex-1 border-b-[2px] border-dotted border-slate-300/70 dark:border-slate-600/70 mx-2 relative top-[1px]"></div>
                               <div className="flex items-center shrink-0">
                               <div className="fleet-variable-value !w-auto flex items-center gap-1 shrink-0">
-                                  <input aria-label="Luggage profit multiplier" className="variable-cost-input hide-spinners w-[32px] bg-transparent border-none outline-none text-slate-900 dark:text-slate-100 font-bold font-sans p-0 text-right" type="number" step="0.05" value={activeV.extraLuggageProfitPct ?? 0.2} onChange={e=>updateV(activeV.id,"extraLuggageProfitPct",Number(e.target.value))} />
+                                  <input aria-label="Luggage profit multiplier" className="variable-cost-input hide-spinners min-w-[42px] w-[50px] bg-slate-50 dark:bg-slate-900/60 rounded px-1.5 py-0.5 border border-slate-200 dark:border-slate-700 focus:border-primary text-slate-900 dark:text-slate-100 font-bold font-sans text-right outline-none" type="number" step="0.05" value={activeV.extraLuggageProfitPct ?? 0.2} onFocus={e => e.target.select()} onChange={e => { const val = e.target.value === '' ? 0 : Number(e.target.value); updateV(activeV.id, "extraLuggageProfitPct", val); }} />
                                   <span className="text-[12px] font-bold text-slate-500 dark:text-slate-400 pb-0.5">Mult.</span>
                               </div>
                               <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 ml-1.5 whitespace-nowrap shrink-0 border-l border-slate-200 dark:border-slate-700 pl-1.5">Extra bag</div>
@@ -4317,22 +4303,44 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/15 dark:text-primary-fixed"><CalendarDays size={15}/></div>
                       <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Commercial Fare</h3>
                     </div>
-                    <div className="flex items-center gap-3"><button type="button" role="switch" aria-checked={selectedPricingVehicle?.fareCalculationMethod !== 'cost-plus'} aria-label={`${selectedPricingVehicle?.name || 'Vehicle'} commercial pricing`} onClick={()=>selectedPricingVehicle&&updateFareCalculationMethod(selectedPricingVehicle)} className={`relative h-5 w-9 rounded-full transition-colors ${selectedPricingVehicle?.fareCalculationMethod === 'cost-plus' ? 'bg-red-600' : 'bg-emerald-600'}`}><span className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${selectedPricingVehicle?.fareCalculationMethod === 'cost-plus' ? '' : 'translate-x-4'}`}/></button><span className={`text-[11px] font-extrabold ${selectedPricingVehicle?.fareCalculationMethod === 'cost-plus' ? 'text-red-600' : 'text-emerald-600'}`}>{selectedPricingVehicle?.fareCalculationMethod === 'cost-plus' ? 'Cost-plus' : 'Commercial'}</span><select aria-label="Vehicle quotation tier" value={vehicles.some(vehicle=>vehicle.id===selectedPricingVehicleId)?selectedPricingVehicleId:vehicles[0]?.id||''} onChange={event=>setSelectedPricingVehicleId(event.target.value)} className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-[13px] font-bold text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">{vehicles.map(vehicle=><option key={vehicle.id} value={vehicle.id}>{vehicle.name}</option>)}</select></div>
+                    <div className="flex items-center gap-3"><button type="button" role="switch" aria-checked={selectedPricingVehicle?.fareCalculationMethod !== 'cost-plus'} aria-label={`${selectedPricingVehicle?.name || 'Vehicle'} commercial pricing`} onClick={()=>selectedPricingVehicle&&updateFareCalculationMethod(selectedPricingVehicle, true)} className={`relative h-5 w-9 rounded-full transition-colors ${selectedPricingVehicle?.fareCalculationMethod === 'cost-plus' ? 'bg-red-600' : 'bg-emerald-600'}`}><span className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${selectedPricingVehicle?.fareCalculationMethod === 'cost-plus' ? '' : 'translate-x-4'}`}/></button><span className={`text-[11px] font-extrabold ${selectedPricingVehicle?.fareCalculationMethod === 'cost-plus' ? 'text-red-600' : 'text-emerald-600'}`}>{selectedPricingVehicle?.fareCalculationMethod === 'cost-plus' ? 'Cost-plus' : 'Commercial'}</span><select aria-label="Vehicle quotation tier" value={vehicles.some(vehicle=>vehicle.id===selectedPricingVehicleId)?selectedPricingVehicleId:vehicles[0]?.id||''} onChange={event=>setSelectedPricingVehicleId(event.target.value)} className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-[13px] font-bold text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">{vehicles.map(vehicle=><option key={vehicle.id} value={vehicle.id}>{vehicle.name}</option>)}</select></div>
                   </div>
                   {(()=>{const vehicle=selectedPricingVehicle;if(!vehicle)return null;const autoMinHire=eco.vehicleBreakdown.find(v=>v.id===vehicle.id)?.minHirePerDay;return <div className="vehicle-quotation-grid grid gap-2">
-                    <div className="rounded-lg border border-slate-200 bg-slate-100/80 p-2.5 dark:border-slate-700 dark:bg-slate-900" title="Auto-calculated from standing cost + overhead per day. Update fleet economics to change it.">
-                      <span className="block min-h-[26px] text-[11px] font-extrabold uppercase tracking-wide text-slate-500 dark:text-slate-400">Minimum hire (auto)</span>
+                    <div className={`rounded-lg border border-slate-200 p-2.5 dark:border-slate-700 ${vehicle.fareCalculationMethod === 'cost-plus' ? 'bg-slate-200/60 opacity-50 dark:bg-slate-950/60' : 'bg-slate-100/80 dark:bg-slate-900'}`} title="Auto-calculated from standing cost + overhead per day. Update fleet economics to change it.">
+                      <span className="block min-h-[26px] text-[11px] font-extrabold uppercase tracking-wide text-slate-500 dark:text-slate-400">Minimum hire {vehicle.fareCalculationMethod === 'cost-plus' ? '(Bypassed)' : '(auto)'}</span>
                       <span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600">
-                        <span className="min-w-0 w-full text-right text-sm font-extrabold text-slate-600 dark:text-slate-300">{(autoMinHire ?? vehicle.minimumHire ?? 0).toFixed(2)}</span>
+                        <span className="min-w-0 w-full text-right text-sm font-extrabold text-slate-600 dark:text-slate-300">{vehicle.fareCalculationMethod === 'cost-plus' ? '0.00' : (autoMinHire ?? vehicle.minimumHire ?? 0).toFixed(2)}</span>
                         <span className="ml-1 whitespace-nowrap text-[11px] font-bold text-slate-400">£</span>
                       </span>
                     </div>
                     {[
-                    ['sellingRateOneWay','One-way rate',`£/${distanceUnitShort}`,0.01],
-                    ['sellingRateReturn','Return rate',`£/${distanceUnitShort}`,0.01],
-                    ['includedKmOneWay','Included one-way',distanceUnitShort,1],
-                    ['includedKmReturn','Included return',distanceUnitShort,1]
-                  ].map(([field,label,suffix,step])=><label key={field} className={`rounded-lg border border-slate-200 p-2.5 dark:border-slate-700 ${vehicle.fareCalculationMethod === 'cost-plus' ? 'bg-slate-200/60 opacity-50 dark:bg-slate-950/60' : 'bg-slate-50/70 dark:bg-slate-900/50'}`}><span className="block min-h-[26px] text-[11px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">{label}</span><span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600"><input aria-label={`${vehicle.name} ${label}`} disabled={vehicle.fareCalculationMethod === 'cost-plus'} type="number" min="0" step={step} value={vehicle[field]??0} onChange={event=>updateV(vehicle.id,field,Math.max(0,Number(event.target.value)||0))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none disabled:cursor-not-allowed dark:text-white"/><span className="ml-1 whitespace-nowrap text-[11px] font-bold text-slate-400">{suffix}</span></span></label>)}</div>})()}
+                    ['sellingRateOneWay','One-way rate',`£/${distanceUnitShort}`,0.01, true, false],
+                    ['sellingRateReturn','Return rate',`£/${distanceUnitShort}`,0.01, true, false],
+                    ['includedKmOneWay','Included one-way',distanceUnitShort,1, false, true],
+                    ['includedKmReturn','Included return',distanceUnitShort,1, false, true]
+                  ].map(([field,label,suffix,step,isRate,isDist]) => {
+                    const canonical = Number(vehicle[field] ?? 0);
+                    const isMiles = gv?.distanceUnit === 'miles';
+                    const displayVal = isMiles
+                      ? (isRate ? Math.round(canonical * MILES_TO_KM * 100) / 100 : Math.round(canonical / MILES_TO_KM))
+                      : canonical;
+                    const handleChange = (event) => {
+                      const typed = Math.max(0, Number(event.target.value) || 0);
+                      const toStore = isMiles
+                        ? (isRate ? typed / MILES_TO_KM : typed * MILES_TO_KM)
+                        : typed;
+                      updateV(vehicle.id, field, toStore);
+                    };
+                    return (
+                      <label key={field} className={`rounded-lg border border-slate-200 p-2.5 dark:border-slate-700 ${vehicle.fareCalculationMethod === 'cost-plus' ? 'bg-slate-200/60 opacity-50 dark:bg-slate-950/60' : 'bg-slate-50/70 dark:bg-slate-900/50'}`}>
+                        <span className="block min-h-[26px] text-[11px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">{label}</span>
+                        <span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600">
+                          <input aria-label={`${vehicle.name} ${label}`} disabled={vehicle.fareCalculationMethod === 'cost-plus'} type="number" min="0" step={step} value={displayVal} onFocus={e => e.target.select()} onChange={handleChange} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none disabled:cursor-not-allowed dark:text-white"/>
+                          <span className="ml-1 whitespace-nowrap text-[11px] font-bold text-slate-400">{suffix}</span>
+                        </span>
+                      </label>
+                    );
+                  })}</div>})()}
                 </div>
 
                 <div className="settings-margins col-span-12 lg:col-span-6 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
@@ -4353,7 +4361,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                       <label key={key} className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50">
                         <span className="block min-h-[26px] text-[11px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">{label}</span>
                         <span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600">
-                          <input aria-label={label} type="number" min={min} max={max} step={step} value={pricing[key] ?? gv[key] ?? fallback} onChange={e=>updatePricing(key,Number(e.target.value))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/>
+                          <input aria-label={label} type="number" min={min} max={max} step={step} value={pricing[key] ?? gv[key] ?? fallback} onFocus={e => e.target.select()} onChange={e=>updatePricing(key, e.target.value === '' ? 0 : Number(e.target.value))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/>
                           <span className="ml-1 whitespace-nowrap text-[11px] font-bold text-slate-400">{suffix}</span>
                         </span>
                       </label>
@@ -4361,7 +4369,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     <label className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-900/50">
                       <span className="block min-h-[26px] text-[11px] font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-200">VAT Rate</span>
                       <span className="mt-2 flex items-center border-b border-slate-300 pb-1 dark:border-slate-600">
-                        <input aria-label="VAT Rate" type="number" min="0" max="100" step="0.5" value={gv.vatPct ?? 20} onChange={e=>setGv(current=>({...current,vatPct:Number(e.target.value)}))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/>
+                        <input aria-label="VAT Rate" type="number" min="0" max="100" step="0.5" value={gv.vatPct ?? 20} onFocus={e => e.target.select()} onChange={e=>setGv(current=>({...current,vatPct: e.target.value === '' ? 0 : Number(e.target.value)}))} className="min-w-0 w-full bg-transparent text-right text-sm font-extrabold text-slate-900 outline-none dark:text-white"/>
                         <span className="ml-1 whitespace-nowrap text-[11px] font-bold text-slate-400">%</span>
                       </span>
                     </label>
@@ -4381,7 +4389,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     ].map(([key,label,fallback,Icon]) => (
                       <div key={key} className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2 dark:border-slate-700 dark:bg-slate-900/50">
                         <div className="flex min-w-0 items-center gap-2"><Icon size={14} className="shrink-0 text-slate-400 dark:text-slate-500" /><span className="truncate text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span></div>
-                        <div className="flex shrink-0 items-center gap-1"><span className="text-[13px] font-bold text-slate-400">£</span><input type="number" step="0.5" className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={pricing[key] ?? gv[key] ?? fallback} onChange={e=>updatePricing(key,Number(e.target.value))}/><span className="text-[12px] font-bold text-slate-400">/hr</span></div>
+                        <div className="flex shrink-0 items-center gap-1"><span className="text-[13px] font-bold text-slate-400">£</span><input type="number" step="0.5" className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={pricing[key] ?? gv[key] ?? fallback} onFocus={e => e.target.select()} onChange={e=>updatePricing(key, e.target.value === '' ? 0 : Number(e.target.value))}/><span className="text-[12px] font-bold text-slate-400">/hr</span></div>
                       </div>
                     ))}
                     {[
@@ -4395,7 +4403,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                     ].map(([key,label,fallback,suffix,Icon]) => (
                       <div key={key} className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2 dark:border-slate-700 dark:bg-slate-900/50">
                         <div className="flex min-w-0 items-center gap-2"><Icon size={14} className="shrink-0 text-slate-400 dark:text-slate-500" /><span className="truncate text-xs font-bold text-slate-900 dark:text-slate-100">{label}</span></div>
-                        <div className="flex shrink-0 items-center gap-1"><input type="number" min="0" step={key==='waitingWageFactor'?0.05:1} className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? Math.round(Number(pricing[key] ?? gv[key] ?? fallback) / 1.60934 * 100) / 100 : (pricing[key] ?? gv[key] ?? fallback)} onChange={e=>updatePricing(key,key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? Number(e.target.value) * 1.60934 : Number(e.target.value))}/><span className="text-[12px] font-bold text-slate-400">{key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? 'mi' : suffix}</span></div>
+                        <div className="flex shrink-0 items-center gap-1"><input type="number" min="0" step={key==='waitingWageFactor'?0.05:1} className="w-14 bg-transparent text-right outline-none border-b border-slate-300 dark:border-slate-600 focus:border-primary text-slate-900 dark:text-slate-100 font-bold" value={key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? Math.round(Number(pricing[key] ?? gv[key] ?? fallback) / MILES_TO_KM * 100) / 100 : (pricing[key] ?? gv[key] ?? fallback)} onFocus={e => e.target.select()} onChange={e=>{ const raw = e.target.value === '' ? 0 : Number(e.target.value); updatePricing(key, key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? raw * MILES_TO_KM : raw); }}/><span className="text-[12px] font-bold text-slate-400">{key==='emptyLegThresholdKm' && gv.distanceUnit==='miles' ? 'mi' : suffix}</span></div>
                       </div>
                     ))}
                   </div>
