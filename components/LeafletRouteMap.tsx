@@ -17,7 +17,7 @@ const MILES_TO_KM = 1.60934;
 const displayDistance = (value, sourceUnit, targetUnit) => {
   const n = Number(value);
   if (!Number.isFinite(n)) return value;
-  const km = sourceUnit === "miles" ? n * MILES_TO_KM : n;
+  const km = (sourceUnit || "miles") === "miles" ? n * MILES_TO_KM : n;
   return Math.round((targetUnit === "miles" ? km / MILES_TO_KM : km) * 10) / 10;
 };
 
