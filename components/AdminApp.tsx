@@ -4139,7 +4139,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                 <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 pb-0.5 ml-0.5">{distanceUnitShort}/{fuelUnit === 'gallons' ? 'gal' : 'L'}</span>
                               </div>
                               <div className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center shrink-0 ml-1.5 whitespace-nowrap border-l border-slate-200 dark:border-slate-700 pl-1.5 h-[36px]">
-                                  = £{((activeV.fuelPricePerLitre ?? gv?.fuelPricePerLitre ?? 1.52) / (activeV.fuelKpl || 1)).toFixed(3)}/{distanceUnitShort}
+                                  = £{(displayFuelPrice(activeV.fuelPricePerLitre ?? gv?.fuelPricePerLitre ?? 1.52) / Math.max(0.0001, displayFuelEconomy(activeV.fuelKpl ?? 5))).toFixed(3)}/{distanceUnitShort}
                               </div>
                               </div>
                           </div>
