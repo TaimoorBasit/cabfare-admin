@@ -4412,8 +4412,8 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                   </div>
                 </div>
 
-                {/* ── CARD 4: Geospatial (Col-span 4) ── */}
-                <div className="settings-geo col-span-12 lg:col-span-4 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm flex flex-col">
+                {/* ── CARD 4: Geospatial (Col-span 6) ── */}
+                <div className="settings-geo col-span-12 lg:col-span-6 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm flex flex-col">
                   <div className="flex items-center gap-3 mb-3">
                     <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Depot / Yard Location</h3>
                   </div>
@@ -4508,24 +4508,24 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
                 {/* ── CARD 6: Overheads (Col-span 12) ── */}
                 <div id="settings-overheads" className="settings-overheads col-span-12 bg-white dark:bg-slate-800 rounded-xl border-[1.5px] border-slate-200 dark:border-slate-700 p-5 shadow-sm">
-                  <div className="flex justify-between items-start mb-4">
+                  <div className="flex flex-wrap justify-between items-start gap-3 mb-4">
                     <div className="flex items-center gap-3">
                       <div>
                         <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Company Annual Overheads</h3>
                         <p className="text-[12px] text-on-surface-variant dark:text-[#9CA3AF] mt-0.5">Aggregated and divided across fleet units.</p>
                       </div>
                     </div>
-                    <div className="text-right bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3 border border-slate-200 dark:border-slate-700">
+                    <div className="text-right bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3 border border-slate-200 dark:border-slate-700 shrink-0">
                       <span className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-0.5">Total Fleet Overheads</span>
                       <span className="text-lg font-black text-primary dark:text-primary-fixed leading-none">£{totalOverheads.toLocaleString()}</span>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 mb-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
                     {overheads.map((oh, index) => (
-                      <div key={oh.id} className="flex gap-2 items-center bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg p-2 group">
+                      <div key={oh.id} className="flex gap-2 items-center bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg p-2 min-w-0 group">
                         <div className="w-6 h-6 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center text-[12px] font-extrabold shrink-0">{index + 1}</div>
-                        <input type="text" className="flex-1 bg-transparent text-xs outline-none border-b border-transparent focus:border-primary text-slate-900 dark:text-slate-100 font-bold" placeholder="Cost Name" value={oh.label} onChange={e => setOH(os => os.map(x => x.id === oh.id ? {...x, label: e.target.value} : x))} />
+                        <input type="text" className="min-w-0 flex-1 bg-transparent text-xs outline-none border-b border-transparent focus:border-primary text-slate-900 dark:text-slate-100 font-bold truncate focus:overflow-visible" placeholder="Cost Name" value={oh.label} onChange={e => setOH(os => os.map(x => x.id === oh.id ? {...x, label: e.target.value} : x))} />
                         <div className="flex items-center bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 px-2 py-1 shrink-0">
                           <span className="text-slate-500 dark:text-slate-400 text-[12px] font-bold mr-1">£</span>
                           <input type="number" className="w-16 bg-transparent text-xs font-bold outline-none text-right text-slate-900 dark:text-slate-100" value={oh.cost} onChange={e => setOH(os => os.map(x => x.id === oh.id ? {...x, cost: Number(e.target.value)} : x))} />
