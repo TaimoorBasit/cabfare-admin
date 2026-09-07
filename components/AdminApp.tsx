@@ -1253,44 +1253,14 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   const canAccessTab = item => hasPermission(item === 'bookings' ? 'bookings' : item === 'settings' ? (hasPermission('settings') ? 'settings' : 'staff') : item);
   const injectDefaults = (v) => {
     const newV = { ...v };
-    // An empty list is an intentional "no fixed overhead" setting. Only
-    // recover defaults when the field is genuinely absent.
+    // Map saved aliases only; never inject example costs on load.
     if (!Array.isArray(newV.annualFixedCosts)) {
-      newV.annualFixedCosts = Array.isArray(newV.annualCosts) && newV.annualCosts.length > 0
-        ? newV.annualCosts.map((cost, index) => ({
-            id: cost.id ?? index + 1,
-            name: cost.name ?? cost.label ?? "",
-            amount: Number(cost.amount ?? cost.cost ?? 0)
-          }))
-        : [
-            { id: '1', name: 'Vehicle Excise Duty (VED)', amount: 600 },
-            { id: '2', name: 'Annual Insurance', amount: 3200 },
-            { id: '3', name: 'Annual Depreciation', amount: 7975 }
-          ];
+      newV.annualFixedCosts = (Array.isArray(newV.annualCosts) ? newV.annualCosts : []).map((cost, index) => ({
+        id: cost.id ?? index + 1,
+        name: cost.name ?? cost.label ?? "",
+        amount: Number(cost.amount ?? cost.cost ?? 0)
+      }));
     }
-    
-    // Always sync standingCostPerDay and ratePerKm with the parameters
-    const fcSum = (newV.annualFixedCosts || []).reduce((s, x) => s + (Number(x.amount)||0), 0);
-    const utilDays = newV.utilisationDays || 225;
-    if (fcSum > 0) {
-      if (!newV.standingCostPerDay && fcSum > 0) newV.standingCostPerDay = (fcSum / (Number(newV.fleetCount) || 1)) / utilDays;
-    }
-
-    const fuelPrice = newV.fuelPricePerLitre ?? db?.globalVars?.fuelPricePerLitre ?? 1.52;
-    const fuelKpl = newV.fuelKpl || 5;
-    const fuelPerKm = fuelPrice / fuelKpl;
-    const directTyreCost = Number(newV.tyreCostPerKm);
-    const tyreSetCost = Number(newV.tyreSetCost);
-    const tyreLife = Number(newV.expectedTyreLifeKm);
-    const tyrePerKm = directTyreCost > 0 ? directTyreCost : (tyreSetCost > 0 && tyreLife > 0 ? tyreSetCost / tyreLife : 0.05);
-    const maintSetCost = Number(newV.maintenanceSetCost);
-    const maintLife = Number(newV.expectedMaintenanceLifeKm);
-    const maintCost = Number(newV.maintenanceCostPerKm) > 0 ? Number(newV.maintenanceCostPerKm) : (maintSetCost > 0 && maintLife > 0 ? maintSetCost / maintLife : 0.15);
-    const vcSum = fuelPerKm + tyrePerKm + maintCost;
-    if (vcSum > 0) {
-      if (!newV.ratePerKm && vcSum > 0) newV.ratePerKm = vcSum;
-    }
-
     return newV;
   };
 
@@ -2176,6 +2146,10 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
   const autosaveSavedRevisionRef = useRef(0);
   const autosaveInFlightRef = useRef(false);
   const latestConfigurationRef = useRef(configurationSnapshot);
+  const savedConfigurationRef = useRef(configurationSnapshot);
+  const expectedConfigurationRef = useRef(db.persistedConfiguration || db);
+  const configurationHydrationRef = useRef(null);
+  const configurationHydrationPendingRef = useRef(false);
   const initialConfigurationRef = useRef(JSON.stringify(configurationSnapshot));
 
   const flushAutosave = useCallback(async () => {
@@ -2184,14 +2158,22 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     try {
       while (autosaveSavedRevisionRef.current < autosaveRevisionRef.current) {
         const revision = autosaveRevisionRef.current;
-        const payload = latestConfigurationRef.current;
+        const snapshot = latestConfigurationRef.current;
+        const payload = Object.fromEntries(Object.entries(snapshot).filter(([key, value]) =>
+          JSON.stringify(value) !== JSON.stringify(savedConfigurationRef.current[key])));
+        if (!Object.keys(payload).length) {
+          autosaveSavedRevisionRef.current = revision;
+          continue;
+        }
         const response = await authenticatedFetch(API_BASE_URL + '/api/admin/config', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({ ...payload, expectedConfig: expectedConfigurationRef.current })
         });
         const responsePayload = await response.json().catch(() => ({})); if (!response.ok) console.error('AutoSave failed:', responsePayload);
         if (!response.ok) throw new Error(responsePayload.error || 'Failed to auto-save configuration');
+        savedConfigurationRef.current = snapshot;
+        if (responsePayload.config) expectedConfigurationRef.current = responsePayload.config;
         autosaveSavedRevisionRef.current = revision;
       }
     } catch (error) {
@@ -2204,13 +2186,38 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
   useEffect(() => {
     latestConfigurationRef.current = configurationSnapshot;
+    if (configurationHydrationRef.current !== db) {
+      configurationHydrationRef.current = db;
+      configurationHydrationPendingRef.current = true;
+      return;
+    }
+    if (configurationHydrationPendingRef.current) {
+      configurationHydrationPendingRef.current = false;
+      savedConfigurationRef.current = configurationSnapshot;
+      expectedConfigurationRef.current = db.persistedConfiguration || db;
+      initialConfigurationRef.current = JSON.stringify(configurationSnapshot);
+      autosaveSavedRevisionRef.current = autosaveRevisionRef.current;
+      return;
+    }
     if (!backendOnline || !liveConfigurationHydratedRef.current || (autosaveRevisionRef.current === 0 && JSON.stringify(configurationSnapshot) === initialConfigurationRef.current)) return;
     autosaveRevisionRef.current += 1;
     if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current);
     autosaveTimerRef.current = setTimeout(flushAutosave, 300);
-  }, [configurationSnapshot, backendOnline, flushAutosave]);
+  }, [configurationSnapshot, backendOnline, flushAutosave, db]);
 
-  useEffect(() => { const handleBeforeUnload = () => { if (autosaveTimerRef.current) { clearTimeout(autosaveTimerRef.current); flushAutosave(); } }; window.addEventListener('beforeunload', handleBeforeUnload); return () => { window.removeEventListener('beforeunload', handleBeforeUnload); if (autosaveTimerRef.current) { clearTimeout(autosaveTimerRef.current); flushAutosave(); } }; }, [flushAutosave]);
+  useEffect(() => {
+    const handleBeforeUnload = event => {
+      if (autosaveSavedRevisionRef.current >= autosaveRevisionRef.current) return;
+      event.preventDefault();
+      event.returnValue = '';
+      flushAutosave();
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current);
+    };
+  }, [flushAutosave]);
 
   const updateDepotLocation = async (address, coords) => {
     const hasCoordinates = Number.isFinite(coords?.lat) && Number.isFinite(coords?.lng);
@@ -2231,72 +2238,14 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
 
     setGv(current => ({ ...current, ...depotUpdate }));
 
-    try {
-      const response = await authenticatedFetch(API_BASE_URL + '/api/admin/config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ globalVars: depotUpdate })
-      });
-      if (!response.ok) throw new Error('Failed to save depot location');
-      setToast('Depot location saved');
-    } catch {
-      setToast('Unable to save depot location');
-    } finally {
-      setTimeout(() => setToast(''), 2500);
-    }
   };
 
   const updateV = (id,field,val) =>
     setV(vs=>vs.map(v=>v.id===id?{...v,[field]:isNaN(Number(val))?val:Number(val)}:v));
-  const vehicleAutosaveReadyRef = useRef(false);
-  const vehicleAutosaveTimerRef = useRef(null);
-  const skipVehicleAutosaveRef = useRef(false);
-  useEffect(() => {
-    if (!backendOnline || !liveConfigurationHydratedRef.current) return;
-    if (!vehicleAutosaveReadyRef.current) {
-      if (vehicles.length) vehicleAutosaveReadyRef.current = true;
-      return;
-    }
-    if (skipVehicleAutosaveRef.current) {
-      skipVehicleAutosaveRef.current = false;
-      return;
-    }
-    clearTimeout(vehicleAutosaveTimerRef.current);
-    vehicleAutosaveTimerRef.current = setTimeout(() => {
-      authenticatedFetch(API_BASE_URL + '/api/admin/config', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vehicles })
-      }).catch(() => setToast('Unable to save fleet pricing changes'));
-    }, 500);
-    return () => clearTimeout(vehicleAutosaveTimerRef.current);
-  }, [vehicles, backendOnline]);
   const updateFareCalculationMethod = async (vehicle, applyToAll = false) => {
     const fareCalculationMethod = vehicle.fareCalculationMethod === 'cost-plus' ? 'commercial' : 'cost-plus';
     const nextVehicles = vehicles.map(v => (applyToAll || v.id === vehicle.id) ? { ...v, fareCalculationMethod } : v);
-    skipVehicleAutosaveRef.current = true;
     setV(nextVehicles);
-    latestConfigurationRef.current = {
-      ...latestConfigurationRef.current,
-      vehicles: nextVehicles.map(v => ({
-        ...v,
-        fareCalculationMethod: v.fareCalculationMethod || 'commercial'
-      }))
-    };
-    try {
-      const response = await authenticatedFetch(API_BASE_URL + '/api/admin/config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vehicleFareMethod: { id: applyToAll ? 'all' : vehicle.id, fareCalculationMethod } })
-      });
-      if (!response.ok) throw new Error('Unable to save fare calculation method');
-      setToast(`Saved: ${applyToAll ? 'All vehicles' : vehicle.name} switched to ${fareCalculationMethod === 'cost-plus' ? 'Cost-plus' : 'Commercial'} fare`);
-    } catch {
-      skipVehicleAutosaveRef.current = true;
-      setV(vehicles);
-      setToast('Unable to save fare calculation method');
-    } finally {
-      setTimeout(() => setToast(''), 3000);
-    }
   };
   const updatePricing = (field, value) => {
     setGv(g => ({ ...g, [field]: value }));
@@ -2323,19 +2272,6 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     const nextGlobalVars = { ...gv, distanceUnit: newUnit };
     setGv(nextGlobalVars);
 
-    try {
-      const configResponse = await authenticatedFetch(API_BASE_URL + '/api/admin/config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ globalVars: { distanceUnit: newUnit } })
-      });
-      if (!configResponse.ok) throw new Error('Failed to save distance unit');
-      setToast(`Distance unit changed to ${newUnit === 'miles' ? 'miles' : 'kilometers'}`);
-    } catch {
-      setToast('Unable to update distance unit');
-    } finally {
-      setTimeout(() => setToast(''), 2500);
-    }
   };
 
   const UK_GALLON_TO_LITRES = 4.54609;
@@ -2343,15 +2279,6 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
     const fuelUnit = e.target.value;
     const nextGlobalVars = { ...gv, fuelUnit };
     setGv(nextGlobalVars);
-    try {
-      const response = await authenticatedFetch(API_BASE_URL + '/api/admin/config', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ globalVars: { fuelUnit } })
-      });
-      if (!response.ok) throw new Error('Failed to save fuel unit');
-      setToast(`Fuel unit changed to ${fuelUnit === 'gallons' ? 'UK Gallons' : 'Litres'}`);
-    } catch { setToast('Unable to update fuel unit'); }
-    finally { setTimeout(() => setToast(''), 2500); }
   };
 
   const previewDb  = { ...db, globalVars:gv, annualOverheads:overheads, vehicles };
@@ -4752,6 +4679,7 @@ export default function AdminApp() {
         if (!cancelled) {
           const freshDb = {
             ...data,
+            persistedConfiguration: data,
             vehicles: data.vehicles.map(vehicle => ({ ...vehicle, name: displayVehicleName(vehicle.name) })),
             globalVars: data.globalVars || {},
             annualOverheads: Array.isArray(data.annualOverheads) ? data.annualOverheads : [],
