@@ -1058,7 +1058,7 @@ function printBookingPdf(booking, globalVars = {}) {
   const costRows = [
     has(result, "revenueKm") ? `<div class="money-row"><span>Live-leg ${displayUnit === "miles" ? "miles" : "km"}</span><strong>${esc(fmtNum(displayedLiveDistance))} ${esc(distanceUnit)}</strong></div>` : "",
     has(result, "deadKm") ? `<div class="money-row"><span>Dead-leg ${displayUnit === "miles" ? "miles" : "km"}</span><strong>${esc(fmtNum(displayedDeadDistance))} ${esc(distanceUnit)}</strong></div>` : "",
-    moneyRow("Fuel cost", "fuelCost"), moneyRow("Maintenance cost", "maintenanceCost"), moneyRow("Tyre cost", "tyreCost"), moneyRow("Driver cost", "driverCost"), printableMoneyRow("Vehicle standing cost", printableStandingCost), printableMoneyRow("Company overhead", printableCompanyOverhead), printableMoneyRow("Overnight / subsistence", printableBreakdown.overnightCost), printableMoneyRow("Waiting cost", printableBreakdown.waitingCost), printableMoneyRow("Surcharges", printableBreakdown.surchargeTotal), `<div class="money-row total-row"><span>Total operating cost</span><strong>${money(printableOperatingCost)}</strong></div>`, breakdown.fareCalculationMethod === "commercial" ? `<div class="money-row"><span>Commercial fare calculation</span><strong>Minimum hire + mileage rate</strong></div><div class="money-row"><span>Commercial mileage charge</span><strong>${money(breakdown.commercialMileageCharge)}</strong></div><div class="money-row total-row"><span>Commercial fare before profit floor</span><strong>${money(breakdown.commercialFareBeforeProfitFloor)}</strong></div>` : `<div class="money-row"><span>Fare calculation</span><strong>Operating cost + profit</strong></div>`
+    moneyRow("Fuel cost", "fuelCost"), moneyRow("Maintenance cost", "maintenanceCost"), moneyRow("Tyre cost", "tyreCost"), moneyRow("Driver cost", "driverCost"), printableMoneyRow("Vehicle standing cost", printableStandingCost), printableMoneyRow("Company overhead", printableCompanyOverhead), printableMoneyRow("Overnight / subsistence", printableBreakdown.overnightCost), moneyRow("Waiting charge", "waitingCharge"), printableMoneyRow("Surcharges", printableBreakdown.surchargeTotal), `<div class="money-row total-row"><span>Total operating cost</span><strong>${money(printableOperatingCost)}</strong></div>`, breakdown.fareCalculationMethod === "commercial" ? `<div class="money-row"><span>Commercial fare calculation</span><strong>Minimum hire + mileage rate</strong></div><div class="money-row"><span>Commercial mileage charge</span><strong>${money(breakdown.commercialMileageCharge)}</strong></div><div class="money-row total-row"><span>Commercial fare before profit floor</span><strong>${money(breakdown.commercialFareBeforeProfitFloor)}</strong></div>` : `<div class="money-row"><span>Fare calculation</span><strong>Operating cost + profit</strong></div>`
   ].join("");
   const profitabilityRows = [
     moneyRow("Gross profit", "grossProfit"),
@@ -3217,6 +3217,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         let distCost = bd.distanceCost || 0;
                         let drvCost = bd.driverCost || 0;
                         const overnightCost = bd.overnightCost || 0;
+                        const waitingCharge = Number(bd.waitingCharge) || 0;
                         const totalDistance = Number(previewBooking.quote?.result?.totalKm) || 0;
                         const liveDistance = Number(previewBooking.quote?.result?.revenueKm) || 0;
                         const deadDistance = Math.max(0, Number(previewBooking.quote?.result?.deadKm ?? (totalDistance - liveDistance)) || 0);
@@ -3248,7 +3249,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                         const allocatedOverhead = Number.isFinite(Number(bd.allocatedOverhead)) ? Number(bd.allocatedOverhead) : (overheadPerUnit / utilDays) * operatingDays;
                         const allocatedStanding = Number.isFinite(Number(bd.allocatedStanding)) ? Number(bd.allocatedStanding) : (annualFixed / fleetCount / utilDays) * operatingDays;
 
-                        const grossProfit = rev - surcharges - distCost - drvCost - overnightCost;
+                        const grossProfit = rev - surcharges - distCost - drvCost - overnightCost - waitingCharge;
                         const netProfit = grossProfit - allocatedStanding - allocatedOverhead;
                         
                         const baseForMargin = rev;
@@ -3318,6 +3319,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                     ['Tyre cost', bd.tyreCost],
                                     ['Driver cost', drvCost],
                                     ['Overnight / subsistence', overnightCost],
+                                    ['Waiting charge', waitingCharge],
                                     ['Surcharges (tolls, ULEZ, CAZ)', surcharges],
                                     ...(bd.fareCalculationMethod === 'commercial' ? [['Commercial fare calculation', 'Minimum hire + mileage rate'], ['Commercial mileage charge', bd.commercialMileageCharge], ['Commercial fare before profit floor', bd.commercialFareBeforeProfitFloor]] : [['Fare calculation', 'Operating cost + profit']]),
                                   ];
@@ -3329,7 +3331,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                 ))}
                                 <tr style={{ borderBottom: `2px solid ${darkMode ? "#374151" : "#e2e8f0"}` }}>
                                   <td style={{ padding: "8px 0", fontWeight: 800, color: darkMode ? "#d1d5db" : PX.gray700 }}>Total direct cost</td>
-                                  <td style={{ padding: "8px 0", textAlign: "right", fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(surcharges + distCost + drvCost + overnightCost)}</td>
+                                  <td style={{ padding: "8px 0", textAlign: "right", fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(surcharges + distCost + drvCost + overnightCost + waitingCharge)}</td>
                                 </tr>
                                 {[
                                   ['Allocated vehicle overheads', allocatedStanding],
@@ -3342,7 +3344,7 @@ function AdminDashboard({ db, mapsLoaded, backendOnline, onLogout, adminUser }) 
                                 ))}
                                 <tr style={{ borderTop: `2px solid ${darkMode ? "#374151" : "#e2e8f0"}` }}>
                                   <td style={{ padding: "10px 0 4px", fontWeight: 800, color: darkMode ? "#f3f4f6" : PX.navy800 }}>Total operating cost</td>
-                                  <td style={{ padding: "10px 0 4px", textAlign: "right", fontWeight: 900, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(surcharges + distCost + drvCost + overnightCost + allocatedStanding + allocatedOverhead)}</td>
+                                  <td style={{ padding: "10px 0 4px", textAlign: "right", fontWeight: 900, color: darkMode ? "#f3f4f6" : PX.navy800 }}>£{fmt(surcharges + distCost + drvCost + overnightCost + waitingCharge + allocatedStanding + allocatedOverhead)}</td>
                                 </tr>
                               </tbody>
                             </table>
