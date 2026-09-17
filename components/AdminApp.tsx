@@ -1072,7 +1072,7 @@ function printBookingPdf(booking, globalVars = {}) {
     ["Commercial weight", has(breakdown, "commercialWeight") ? fmtNum(breakdown.commercialWeight) : null],
     ["Driver rate", has(breakdown, "driverRate") ? `${money(breakdown.driverRate)}/h` : null],
     ["Driver count", has(breakdown, "driverCount") ? "1" : null],
-    ["Daily driving limit", has(breakdown, "dailyDrivingLimit") ? `${fmtNum(breakdown.dailyDrivingLimit)} h` : null],
+    ["Daily driving limit", null],
     ["Mandatory break", has(breakdown, "mandatoryBreakHours") ? `${fmtNum(breakdown.mandatoryBreakHours)} h` : null],
     ["Waiting hours", has(breakdown, "waitingHours") ? `${fmtNum(breakdown.waitingHours)} h` : null],
     ["Customer range", has(breakdown, "customerRangePct") ? `${fmtNum(breakdown.customerRangePct)}%` : null],
